@@ -1,0 +1,39 @@
+/*
+.loader {
+  width: fit-content;
+  font-size: 40px;
+  background: radial-gradient(circle closest-side,#7b5f48 97%,#110b08) right/calc(195% - 1em) 100%;
+  animation: l24 3s infinite alternate linear;
+  color: #110b08;
+}
+.loader::before {
+  line-height: 1em;
+  color: transparent;
+  background: inherit;
+  background-image: radial-gradient(circle closest-side,transparent 94%,transparent);
+  -webkit-background-clip:text;
+          background-clip:text;
+}
+
+@keyframes l24{
+  100%{background-position: left}
+}
+
+*/
+
+.loader {
+  width: 50px;
+  padding: 5px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #7b5f48;
+  --_m: 
+    conic-gradient(#0000 10%,#000),
+    linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+          mask: var(--_m);
+  -webkit-mask-composite: source-out;
+          mask-composite: subtract;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {to{transform: rotate(1turn)}}

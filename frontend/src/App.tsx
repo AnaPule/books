@@ -15,6 +15,7 @@ function App() {
       <AuthProvider>
         <PageTemplate>
           <Routes>
+            <Route path="*" element={<HomePage />} /> {/* page not found -> take to home */}
             <Route path='/home' element={<HomePage/>} />
           </Routes>
         </PageTemplate>

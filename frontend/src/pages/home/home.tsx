@@ -1,50 +1,52 @@
-import TopImage from '../../assets/TopImage.jpeg';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ReactTyped } from "react-typed";
-import { Download, ChevronDown } from 'lucide-react';
 
-export default function HomePage() {
+{/* =============== IMAGES ============ */ }
+import Book from '../../assets/book.jpeg';
+import Book1 from '../../assets/book1.jpeg';
+import Cabin from '../../assets/cabin.jpeg';
+//import Flower from '../../assets/flower.jpeg'; 
+import Lillies from '../../assets/Lilies.jpeg';
+import TopImage from '../../assets/TopImage.jpeg';
+
+const Topnav: React.FC = () => {
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                top: 'clamp(10px, 3vw, 20px)',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '100%',
+                maxWidth: '1200px',
+                display: 'flex',
+                flexWrap: 'wrap',                      // ← allows wrapping on very small screens
+                justifyContent: 'center',
+                gap: 'clamp(20px, 5vw, 50px)',
+                fontSize: 'clamp(11px, 2.5vw, 14px)',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                opacity: 0.7,
+                color: 'white',
+                transition: 'all 0.4s ease',           // smooth resize
+                zIndex: 100,
+            }}
+        >
+            <a href="#home" style={{ whiteSpace: 'nowrap' }}>Home</a>
+            <a href="#about" style={{ whiteSpace: 'nowrap' }}>About</a>
+            <a href="#features" style={{ whiteSpace: 'nowrap' }}>Features</a>
+            <a href="#contact" style={{ whiteSpace: 'nowrap' }}>Account</a>
+        </div>
+    );
+};
+
+const Hero: React.FC = () => {
     const [hoverButton, setHoverButton] = useState(false);
-    const projects = [
-        {
-            title: 'Capstone Project',
-            description: 'A client solution that for Cirrus Bridge that centralises all their operations - from Paymo, Toggl and JIRA - into a single application to assist in organisation analytics, employee administration and analytics, client administration and analytics as well as perspective business oppotunities',
-            status: 'Completed',
-            technologies: ['React', 'Node.js', 'EJS', 'Docker', 'SQL', 'TypeScript'],
-            links: {
-                live: 'https://zealous-meadow-07ff63b03.2.azurestaticapps.net/',
-                github: 'https://github.com/INF-370-2025/inf-370-team01'
-            }
-        },
-        {
-            title: 'Daily Digest',
-            description: 'A news aggregation platform that curates live crypto data and analytics as well as recent Sounth African news articles and headlines',
-            status: 'Completed',
-            technologies: ['React', 'TypeScript', 'Tailwind', 'Python', 'MongoDB'],
-            links: {
-                live: 'https://daily-digest-8oa1-pl0wjja2f-anapules-projects.vercel.app/',
-                github: 'https://github.com/AnaPule/daily-digest'
-            }
-        }
-        ,
-        {
-            title: 'Bookmark API',
-            description: 'On going...',
-            status: 'In Progress',
-            technologies: ['Java', 'SpringBoot', 'Postgres'],
-            links: {
-                live: '',
-                github: ''
-            }
-        }
-    ];
     return (
         <>
             {/* Hero Section - Full Screen */}
             <div style={{
-                width: '100vw',
-                height: '100vh',
+                width: '100%',
+                maxHeight: '100vh',
                 marginTop: '60px',
                 overflow: 'hidden',
                 position: 'relative',
@@ -60,31 +62,25 @@ export default function HomePage() {
                     alt="Mountains"
                     style={{
                         position: 'absolute',
-                        width: 'auto',
-                        height: 'auto',
-                        minWidth: '150%',
-                        minHeight: '150%',
-                        top: '50%',
-                        left: '50%',
+                        minWidth: '100%',
+                        minHeight: '90%',
+                        top: '0%',
+                        left: '-100%',
                         transform: 'rotate(90deg) translate(-50%, -50%)',
-                        objectFit: 'cover',
-                        maxWidth: 'none',
-                        maxHeight: 'none',
-                        filter: 'blur(2px) brightness(0.85)',
+                        filter: 'blur(3px) brightness(0.45)',
                     }}
                 />
 
                 {/* Brown vignette overlay */}
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    background: 'radial-gradient(circle at center, transparent 20%, rgba(70, 40, 15, 0.6) 90%)',
-                    pointerEvents: 'none',
-                    zIndex: 1,
-                }} />
+                <div
+                    style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'radial-gradient(ellipse at 50% 30%, rgba(10, 8, 12, 0.92) 0%, transparent 45%, rgba(8, 6, 10, 0.75) 70%, rgba(5, 4, 8, 0.98) 100%)',
+                        pointerEvents: 'none',
+                        zIndex: 1,
+                    }}
+                />
 
                 {/* Hero Content */}
                 <div style={{
@@ -94,24 +90,6 @@ export default function HomePage() {
                     maxWidth: '900px',
                     padding: '20px',
                 }}>
-                    {/* Top Navigation */}
-                    <div style={{
-                        position: 'absolute',
-                        top: '-250px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        display: 'flex',
-                        gap: '40px',
-                        fontSize: '12px',
-                        letterSpacing: '2px',
-                        textTransform: 'uppercase',
-                        opacity: 0.7,
-                    }}>
-                        <a href='#about'>About</a>
-                        <a href='#skills'>Skills</a>
-                        <a href='#projects'>Project</a>
-                        <a href='#contact'>Contact</a>
-                    </div>
 
                     {/* Main Title */}
                     <h1 style={{
@@ -124,30 +102,8 @@ export default function HomePage() {
                         paddingBottom: '15px',
                         lineHeight: '1.2',
                     }}>
-                        Morwetsana Pule
+                        Pages & Parchment
                     </h1>
-
-                    {/* Subtitle */}
-                    <motion.p
-                        className="text-xl sm:text-2xl font-medium tracking-[0.4em] uppercase"
-                        style={{
-                            fontSize: 'clamp(14px, 2vw, 18px)',
-                            letterSpacing: '4px',
-                            marginBottom: '40px',
-                            textTransform: 'uppercase',
-                            opacity: 0.8,
-                            fontWeight: '300',
-                        }}>
-                        I Am An Aspiring{" "}
-                        <ReactTyped
-                            strings={["UI/UX Designer", 'Software Engineer', 'Software Developer', 'Business analyst', 'Network Engineer', 'Cloud Practitioner', 'Cyber analyst']}
-                            typeSpeed={100}
-                            loop
-                            backSpeed={20}
-                            cursorChar="|"
-                            showCursor={true}
-                        />
-                    </motion.p>
 
                     <button
                         style={{
@@ -165,7 +121,7 @@ export default function HomePage() {
                         onMouseEnter={() => setHoverButton(true)}
                         onMouseLeave={() => setHoverButton(false)}
                     >
-                        Download CV
+                        Login
                     </button>
 
                     {/* Bottom Bar with Location */}
@@ -185,349 +141,637 @@ export default function HomePage() {
                             opacity: 0.7,
                             letterSpacing: '1px',
                         }}>
-                            Willing to Relocate
+                            Find Your Community
                         </span>
-
-
                     </div>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1, duration: 0.8 }}
-                        className="absolute bottom-12 left-1/2 transform -translate-x-1/2 hidden md:block"
-                    >
-                        <ChevronDown size={32} className="text-white animate-bounce" />
-                    </motion.div>
-                </div>
-            </div>
-
-            {/* About Section */}
-            <div id='about'
-                style={{
-                    width: '100vw',
-                    padding: '80px 40px',
-                    backgroundColor: 'white',
-                    fontFamily: "'Cormorant Garamond', serif",
-                }}>
-                <div style={{
-                    maxWidth: '1000px',
-                    margin: '0 auto',
-                    textAlign: 'center',
-                }}>
-                    <h2 style={{
-                        fontSize: '42px',
-                        fontWeight: '300',
-                        letterSpacing: '4px',
-                        marginBottom: '30px',
-                        color: '#2c221b',
-                    }}>
-                        ABOUT
-                    </h2>
-                    <p style={{
-                        fontSize: '18px',
-                        lineHeight: '1.8',
-                        color: '#4a3f35',
-                        maxWidth: '700px',
-                        margin: '0 auto 40px',
-                        fontStyle: 'italic',
-                    }}>
-                        I’m an Informatics graduate and Full Stack Developer, passionate about building systems that are both functional and thoughtfully designed.
-                        My experience spans from frontend development with React, Angular, and Ionic,
-                        to backend systems using .NET (C#), Python, Java and Node.js,
-                        and a solid database work in MySQL, MongoDB and PostgreSQL.
-                        <br /><br />
-                        I enjoy puzzles, writing, readin, and overall indulging greatly in the creative arts.
-                        <br /> <br />
-                        My goal is to keep growing as a network engineer
-                        and cyber analyst, who can bridge technical skill
-                        with clear communication, and eventually design solutions that make real-world work easier and smarter and safer.
-                    </p>
-                    <button style={{
-                        background: 'transparent',
-                        border: '1px solid #8b7a67',
-                        color: '#8b7a67',
-                        padding: '12px 40px',
-                        fontSize: '14px',
-                        letterSpacing: '2px',
-                        cursor: 'pointer',
-                        textTransform: 'uppercase',
-                        transition: 'all 0.3s ease',
-                    }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#8b7a67';
-                            e.currentTarget.style.color = 'white';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = '#8b7a67';
-                        }}>
-                        УЗНАТЬ БОЛЬШЕ
-                    </button>
-                </div>
-            </div>
-
-            {/* Projects Section */}
-            <div id='projects' style={{
-                width: '100vw',
-                padding: '100px 40px',
-                backgroundColor: '#faf7f2',
-                fontFamily: "'Cormorant Garamond', serif",
-            }}>
-                <div style={{
-                    maxWidth: '1200px',
-                    margin: '0 auto',
-                }}>
-                    {/* Section Header - Pinterest style */}
-                    <div style={{
-                        marginBottom: '60px',
-                        borderBottom: '1px solid rgba(139, 122, 103, 0.2)',
-                        paddingBottom: '30px',
-                    }}>
-                        <h2 style={{
-                            fontSize: '42px',
-                            fontWeight: '300',
-                            letterSpacing: '8px',
-                            color: '#2c221b',
-                            marginBottom: '10px',
-                            textTransform: 'uppercase',
-                            textAlign: 'center'
-                        }}>
-                            PROJECTS
-                        </h2>
-                        <p style={{
-                            color: '#8b7a67',
-                            fontSize: '16px',
-                            letterSpacing: '2px',
-                            fontStyle: 'italic',
-                            textAlign: 'center'
-                        }}>
-                            A showcase of my work
-                        </p>
-                    </div>
-
-                    {/* Project Grid */}
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                        gap: '40px',
-                    }}>
-                        {projects.map((item) => (
-                            <div style={{
-                                backgroundColor: 'white',
-                                padding: '35px',
-                                boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
-                                border: '1px solid rgba(196, 181, 160, 0.3)',
-                                transition: 'all 0.3s ease',
-                            }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(101, 67, 33, 0.1)';
-                                    e.currentTarget.style.borderColor = 'rgba(139, 122, 103, 0.5)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.02)';
-                                    e.currentTarget.style.borderColor = 'rgba(196, 181, 160, 0.3)';
-                                }}>
-
-                                {/* Title */}
-                                <h3 style={{
-                                    fontSize: '28px',
-                                    fontWeight: '400',
-                                    color: '#2c221b',
-                                    marginBottom: '10px',
-                                    letterSpacing: '1px',
-                                }}>
-                                    {item.title}
-                                </h3>
-
-                                {/* Status Tag - Pinterest style */}
-                                <span style={{
-                                    display: 'inline-block',
-                                    padding: '4px 12px',
-                                    backgroundColor: item.status === 'Completed' ? '#e8e0d5' : '#f0e9e0',
-                                    color: '#6b5843',
-                                    fontSize: '11px',
-                                    letterSpacing: '1px',
-                                    textTransform: 'uppercase',
-                                    border: '1px solid rgba(139, 122, 103, 0.3)',
-                                    marginBottom: '20px',
-                                }}>
-                                    {item.status}
-                                </span>
-
-                                {/* Description */}
-                                <p style={{
-                                    color: '#5a4a38',
-                                    lineHeight: '1.8',
-                                    marginBottom: '25px',
-                                    fontSize: '15px',
-                                    fontFamily: 'system-ui, sans-serif',
-                                    opacity: 0.9,
-                                }}>
-                                    {item.description}
-                                </p>
-
-                                {/* Technologies - as a simple list */}
-                                <div style={{
-                                    marginBottom: '30px',
-                                    borderTop: '1px solid rgba(196, 181, 160, 0.2)',
-                                    paddingTop: '20px',
-                                }}>
-                                    <div style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        gap: '8px 15px',
-                                    }}>
-                                        {item.technologies.map((tech) => (
-                                            <span key={tech} style={{
-                                                color: '#8b7a67',
-                                                fontSize: '13px',
-                                                letterSpacing: '0.5px',
-                                            }}>
-                                                {tech}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Buttons - side by side */}
-                                <div style={{
-                                    display: 'flex',
-                                    gap: '15px',
-                                    borderTop: '1px solid rgba(196, 181, 160, 0.2)',
-                                    paddingTop: '20px',
-                                }}>
-                                    {item.links.live ?
-                                        (<button style={{
-                                            background: 'transparent',
-                                            border: '1px solid #8b7a67',
-                                            color: '#8b7a67',
-                                            padding: '10px 25px',
-                                            fontSize: '12px',
-                                            letterSpacing: '1.5px',
-                                            cursor: 'pointer',
-                                            textTransform: 'uppercase',
-                                            transition: 'all 0.3s ease',
-                                            flex: 1,
-                                        }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = '#8b7a67';
-                                                e.currentTarget.style.color = 'white';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'transparent';
-                                                e.currentTarget.style.color = '#8b7a67';
-                                            }}>
-                                            LIVE DEMO
-                                        </button>) : null}
-                                    {item.links.github ?
-                                        (<button
-                                            style={{
-                                                background: 'transparent',
-                                                border: '1px solid #c4b5a0',
-                                                color: '#6b5843',
-                                                padding: '10px 25px',
-                                                fontSize: '12px',
-                                                letterSpacing: '1.5px',
-                                                cursor: 'pointer',
-                                                textTransform: 'uppercase',
-                                                transition: 'all 0.3s ease',
-                                                flex: 1,
-                                            }}
-
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = '#c4b5a0';
-                                                e.currentTarget.style.color = 'white';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'transparent';
-                                                e.currentTarget.style.color = '#6b5843';
-                                            }}
-                                            onClick={() => window.open(item.links.github)}
-                                        >
-                                            CODE
-                                        </button>) : null
-                                    }
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Contact/Footer Section */}
-            <div style={{
-                width: '100vw',
-                padding: '60px 40px 40px',
-                backgroundColor: '#2c221b',
-                color: 'white',
-                fontFamily: "'Cormorant Garamond', serif",
-            }}>
-                <div style={{
-                    maxWidth: '1200px',
-                    margin: '0 auto',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                    gap: '40px',
-                }}>
-                    <div>
-                        <h3 style={{
-                            fontSize: '24px',
-                            fontWeight: '400',
-                            letterSpacing: '2px',
-                            marginBottom: '20px',
-                            color: '#c4b5a0',
-                        }}>
-                            Morwetsana Pule
-                        </h3>
-                        <p style={{
-                            lineHeight: '1.8',
-                            opacity: 0.7,
-                        }}>
-                            University of Pretoria Student
-                        </p>
-                    </div>
-                    <div>
-                        <h4 style={{
-                            fontSize: '18px',
-                            fontWeight: '400',
-                            letterSpacing: '1px',
-                            marginBottom: '20px',
-                            color: '#c4b5a0',
-                        }}>
-                            Contact Me
-                        </h4>
-                        <p style={{ marginBottom: '10px', opacity: 0.7 }}>morwetsana.pule@gmail.com</p>
-                        <p style={{ marginBottom: '10px', opacity: 0.7 }}>+27 63 519 9397</p>
-                        <p style={{ opacity: 0.7 }}>Pretoria, Cullinan, 1000</p>
-                    </div>
-                    <div>
-                        <h4 style={{
-                            fontSize: '18px',
-                            fontWeight: '400',
-                            letterSpacing: '1px',
-                            marginBottom: '20px',
-                            color: '#c4b5a0',
-                        }}>
-                            Social Media
-                        </h4>
-                        <p style={{ marginBottom: '10px', opacity: 0.7 }}>LinkedIn</p>
-                        <p style={{ marginBottom: '10px', opacity: 0.7 }}>Github</p>
-                        <p style={{ opacity: 0.7 }}>Glassdoor</p>
-                    </div>
-                </div>
-                <div style={{
-                    maxWidth: '1200px',
-                    margin: '60px auto 0',
-                    paddingTop: '30px',
-                    borderTop: '1px solid rgba(255,255,255,0.1)',
-                    textAlign: 'center',
-                    opacity: 0.5,
-                    fontSize: '14px',
-                }}>
-                    © 2026 Morwetsana Pule. All rights reserved.
-                    Built with React, TypeScript, and Tailwind CSS
                 </div>
             </div>
         </>
+    );
+}
+
+const IntersectingCircles: React.FC = () => {
+    return (
+        <div
+            style={{
+                position: "relative",
+                width: "100%",
+                aspectRatio: "clamp(3.5/5, 2/4, 5/4)",   // taller on mobile → prevents stretch
+                minHeight: "clamp(55vh, 70vh, 90vh)",     // smaller base height on phone
+                maxHeight: "100vh",
+                overflow: "hidden",
+                isolation: "isolate",
+                padding: "clamp(20px, 8vw, 50px) 0",
+            }}
+        >
+            {/* Top-right heading*/}
+            <h1 style={{
+                position: 'absolute',
+                left: '5%',
+                fontSize: 'clamp(2.2rem, 7vw, 4.5rem)',   // smaller on mobile
+                fontWeight: '300',
+                letterSpacing: 'clamp(4px, 2vw, 12px)',
+                textTransform: 'uppercase',
+                lineHeight: '1.2',
+                zIndex: 5,
+            }}>
+                about
+            </h1>
+
+            {/* Bottom-right paragraph */}
+            <div
+                style={{
+                    position: "absolute",
+                    bottom: "clamp(6%, 8%, 12%)",
+                    right: "clamp(4%, 6%, 8%)",
+                    maxWidth: "clamp(38%, 45%, 52%)",
+                    color: "#d0c8b8",
+                    fontSize: "clamp(0.95rem, 2.3vw, 1.35rem)",
+                    lineHeight: 1.7,
+                    fontStyle: "italic",
+                    textAlign: "right",
+                    zIndex: 5,
+                    fontFamily: "'Cormorant Garamond', serif",
+                }}
+            >
+                Мы предлагаем уникальные места, где вы
+                <br />
+                сможете отдохнуть от повседневной суеты
+                <br />
+                и насладиться красотой окружающего мира.
+            </div>
+
+            {/* circle 1 – bottom left */}
+            <div
+                style={{
+                    position: "absolute",
+                    width: "clamp(42%, 48%, 55%)", // bigger overlap on mobile
+                    aspectRatio: "1",
+                    bottom: "clamp(-6%, -2%, 4%)",            // pulled up on small screens
+                    left: "clamp(-6%, -2%, 4%)",              // pulled right
+                    borderRadius: "50%",
+                    opacity: 0.76,
+                    mixBlendMode: "screen",
+                    filter: "brightness(0.78) contrast(1.18)",
+                    border: "1px solid rgba(220, 230, 255, 0.28)",
+                    zIndex: 0,
+                }}
+            >
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: "50%",
+                    }}
+                />
+            </div>
+
+            {/* circle 2 – center */}
+            <div
+                style={{
+                    position: "absolute",
+                    width: '48%',          // dominant on mobile
+                    aspectRatio: "1",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    borderRadius: "50%",
+                    backgroundImage: `url(${Cabin})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center 30%",
+                    opacity: 0.74,
+                    mixBlendMode: "screen",
+                    filter: "brightness(0.76) contrast(1.20)",
+                    border: "1px solid rgba(220, 230, 255, 0.28)",
+                    zIndex: 5
+                }}
+            >
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 5,
+                        borderRadius: "50%",
+                    }}
+                />
+            </div>
+
+            {/* circle 3 – top right */}
+            <div
+                style={{
+                    position: "absolute",
+                    width: "38%",
+                    aspectRatio: "1",
+                    top: "11%",
+                    right: "clamp(-6%, -2%, 4%)",             // pulled left on mobile
+                    borderRadius: "50%",
+                    opacity: 0.36,
+                    mixBlendMode: "screen",
+                    filter: "brightness(0.78) contrast(1.18)",
+                    border: "1px solid rgba(220, 230, 255, 0.28)",
+                }}
+            >
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: "50%",
+                    }}
+                />
+            </div>
+
+            {/* Text labels – following the diagonal positions */}
+            <div
+                style={{
+                    position: "absolute",
+                    inset: 0,
+                    color: "#f8f8f8",
+                    pointerEvents: "none",
+                    zIndex: 5,
+                    textTransform: "uppercase",
+                    fontFamily: "system-ui, -apple-system, sans-serif",
+                    textShadow: "0 2px 14px rgba(0,0,0,0.9)",
+                }}
+            >
+                {/*bottom left */}
+                <div
+                    style={{
+                        position: "absolute",
+                        bottom: "clamp(12%, 16%, 20%)",
+                        left: "clamp(17%, 22%, 26%)",
+                        transform: "translate(-40%, 80%)",
+                        fontSize: "clamp(2.0rem, 5vw, 4.2rem)",
+                        fontWeight: 550,
+                        letterSpacing: "0.26em",
+                    }}
+                >
+                    Comfort
+                </div>
+
+                {/* center */}
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        fontSize: "clamp(2.6rem, 8vw, 6.8rem)",
+                        fontWeight: 700,
+                        letterSpacing: "0.38em",
+                        lineHeight: 0.92,
+                    }}
+                >
+                    harmony
+                </div>
+
+                {/* ЭСТЕТИКА – top right */}
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "18%",
+                        right: "15%",
+                        transform: "translateX(20%)",
+                        fontSize: "clamp(1.5rem, 4.5vw, 3.6rem)",
+                        fontWeight: 550,
+                        letterSpacing: "0.20em",
+                    }}
+                >
+                    classics
+                </div>
+            </div>
+
+            {/* Vignette */}
+            <div
+                style={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                        "radial-gradient(ellipse at 50% 28%, rgba(8, 10, 14, 0.94) 0%, transparent 45%, rgba(6, 8, 12, 0.78) 70%, rgba(4, 6, 10, 0.98) 100%)",
+                    pointerEvents: "none",
+                    zIndex: 2,
+                }}
+            />
+        </div>
+    );
+};
+
+const About: React.FC = () => {
+    return (
+        <div
+            id="about"
+            style={{
+                width: "100%",       // white outside the dark area
+            }}
+        >
+            <IntersectingCircles />
+        </div>
+    )
+};
+
+const Features: React.FC = () => {
+    return (
+        <div
+            id='features'
+            style={{
+                width: '100%'
+            }}>
+            <div
+                style={{
+                    position: "relative",
+                    background: "#1a1612",
+                    color: "#e8e0d5",
+                    overflow: "hidden",
+                    padding: "clamp(60px, 8vw, 120px) 0 0 clamp(20px, 5vw, 80px)"
+                }}
+            >
+                {/* Strong vignette – focus in center/left */}
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                            "radial-gradient(ellipse at 35% 45%, transparent 18%, rgba(0,0,0,0.92) 65%, rgba(0,0,0,0.98) 100%)",
+                        pointerEvents: "none",
+                        zIndex: 1,
+                    }}
+                />
+
+                {/* Main content wrapper */}
+                <div
+                    style={{
+                        position: "relative",
+                        zIndex: 2,
+                        maxWidth: "1400px",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))",
+                        gap: "clamp(40px, 6vw, 100px)",
+                        alignItems: "center",
+                    }}
+                >
+                    {/* Left side – image composition */}
+                    <div
+                        style={{
+                            position: "relative",
+                            height: "clamp(400px, 60vw, 680px)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }}
+                    >
+                        {/* Background vignette glow */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                borderRadius: "50%",
+                                background:
+                                    "radial-gradient(circle at 50% 50%, rgba(180,140,100,0.12) 0%, transparent 70%)",
+                                filter: "blur(80px)",
+                                zIndex: 1,
+                            }}
+                        />
+
+                        <div
+                            style={{
+                                position: "relative",
+                                width: "clamp(280px, 45vw, 520px)",
+                                zIndex: 2,
+                            }}
+                        >
+                            <img
+                                src={Lillies}
+                                alt="Laptop with presentation"
+                                style={{
+                                    width: "100%",
+                                    height: "auto",
+                                    borderRadius: "12px",
+                                    boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+                                    transform: "perspective(1000px) rotateY(-8deg)",
+                                }}
+                            />
+
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    bottom: "-15%",
+                                    left: "-20%",
+                                    width: "clamp(120px, 20vw, 180px)",
+                                    zIndex: 3,
+                                }}
+                            >
+                                <img
+                                    src={Book}
+                                    alt="book"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        position: 'relative',
+                                        left: '30%',
+                                        borderRadius: "8px",
+                                        boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
+                                        filter: 'brightness(0.45)',
+
+                                    }}
+                                />
+                            </div>
+
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    top: "-30%",
+                                    left: "15%",
+                                    width: "clamp(140px, 22vw, 220px)",
+                                    opacity: 0.9,
+                                    zIndex: 2,
+                                }}
+                            >
+                                <img
+                                    src={Book1}
+                                    style={{
+                                        width: "100%",
+                                        height: "auto",
+                                        filter: "brightness(0.9) contrast(1.1)",
+                                        borderRadius: '12px',
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right side – text content */}
+                    <div style={{ zIndex: 2 }}>
+                        {/* Main title */}
+                        <h2
+                            style={{
+                                fontSize: "clamp(2.4rem, 6vw, 4.8rem)",
+                                fontWeight: 400,
+                                letterSpacing: "0.25em",
+                                textTransform: "uppercase",
+                                marginBottom: "clamp(20px, 4vw, 40px)",
+                                color: "#e8e0d5",
+                                lineHeight: 1.15,
+                            }}
+                        >
+                            featues
+                            <br />
+                            PńP
+                        </h2>
+
+                        {/* Subtitle / intro */}
+                        <p
+                            style={{
+                                fontSize: "clamp(1.1rem, 2.5vw, 1.45rem)",
+                                lineHeight: 1.75,
+                                color: "#d0c8b8",
+                                marginBottom: "clamp(30px, 5vw, 60px)",
+                                fontStyle: "italic",
+                                maxWidth: "520px",
+                            }}
+                        >
+                            Find out what you an access through our platform:
+                        </p>
+
+                        {/* Numbered list */}
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "clamp(18px, 3vw, 32px)",
+                            }}
+                        >
+                            {[
+                                "Read and explore new books",
+                                "Connect and Communicate with communities that have similar tastes. Geek about yoyur experience of a booka as you read.",
+                                "Write and publish books of your own to your followeres and communities.",
+                                "Participate in reading challenges and live interactions with your fellow readers.",
+                            ].map((text, index) => (
+                                <div
+                                    key={index}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "clamp(12px, 2vw, 24px)",
+                                    }}
+                                >
+                                    <span
+                                        style={{
+                                            fontSize: "clamp(1.6rem, 4vw, 2.8rem)",
+                                            fontWeight: 700,
+                                            color: "#a68a64",
+                                            minWidth: "clamp(36px, 6vw, 60px)",
+                                            textAlign: "right",
+                                        }}
+                                    >
+                                        {String(index + 1).padStart(2, "0")}
+                                    </span>
+                                    <p
+                                        style={{
+                                            fontSize: "clamp(1.05rem, 2.4vw, 1.35rem)",
+                                            lineHeight: 1.65,
+                                            margin: 0,
+                                        }}
+                                    >
+                                        {text}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Curved line overlay – connecting title to list */}
+                <svg
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        pointerEvents: "none",
+                        zIndex: 1,
+                    }}
+                    viewBox="0 0 1200 800"
+                    preserveAspectRatio="none"
+                >
+                    <path
+                        d="M 200 180 Q 600 400, 1000 320"
+                        fill="none"
+                        stroke="rgba(168,138,100,0.18)"
+                        strokeWidth="2"
+                        strokeDasharray="8 4"
+                    />
+                </svg>
+            </div>
+        </div>
+
+    );
+};
+
+const Contact: React.FC = () => {
+    return (
+        <div
+            id='contact'
+            style={{
+                width: '100%'
+            }}
+        >
+            <div
+                style={{
+                    position: "relative",
+                    background: "#1a1612",
+                    color: "#e8e0d5",
+                    overflow: "hidden",
+                    padding: "clamp(60px, 8vw, 120px) 0 0 clamp(20px, 5vw, 80px)",
+                }}
+            >
+                {/* Strong vignette – focus in center/left (same as Features) */}
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                            "radial-gradient(ellipse at 35% 45%, transparent 18%, rgba(0,0,0,0.92) 65%, rgba(0,0,0,0.98) 100%)",
+                        pointerEvents: "none",
+                        zIndex: 1,
+                    }}
+                />
+
+                {/* Main title */}
+                <h2
+                    style={{
+                        fontSize: "clamp(2.4rem, 6vw, 4.8rem)",
+                        fontWeight: 400,
+                        letterSpacing: "0.25em",
+                        textTransform: "uppercase",
+                        marginBottom: "clamp(20px, 4vw, 40px)",
+                        color: "#e8e0d5",
+                        lineHeight: 1.15,
+                        zIndex: 5,
+                        position: "relative",
+                    }}
+                >
+                    Contact Us
+                    <br />
+                    PńP
+                </h2>
+
+                {/* Main responsive grid – same as Features */}
+                <div
+                    style={{
+                        position: "relative",
+                        zIndex: 2,
+                        maxWidth: "1400px",
+                        margin: "0 auto",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", // ← this makes it stack on mobile
+                        gap: "clamp(40px, 6vw, 100px)",
+                        alignItems: "start",
+                    }}
+                >
+                    {/* Company info */}
+                    <div>
+                        <h3
+                            style={{
+                                fontSize: "clamp(1.6rem, 4vw, 2.4rem)",
+                                fontWeight: "400",
+                                letterSpacing: "2px",
+                                marginBottom: "20px",
+                                color: "#c4b5a0",
+                            }}
+                        >
+                            Morwetsana Pule
+                        </h3>
+                        <p
+                            style={{
+                                lineHeight: "1.8",
+                                opacity: 0.7,
+                                fontSize: "clamp(1rem, 2.4vw, 1.2rem)",
+                            }}
+                        >
+                            University of Pretoria Student
+                        </p>
+                    </div>
+
+                    {/* Contact info */}
+                    <div>
+                        <h4
+                            style={{
+                                fontSize: "clamp(1.3rem, 3vw, 1.8rem)",
+                                fontWeight: "400",
+                                letterSpacing: "1px",
+                                marginBottom: "20px",
+                                color: "#c4b5a0",
+                            }}
+                        >
+                            Contact Me
+                        </h4>
+                        <p style={{ marginBottom: "10px", opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                            morwetsana.pule@gmail.com
+                        </p>
+                        <p style={{ marginBottom: "10px", opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                            +27 63 519 9397
+                        </p>
+                        <p style={{ opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                            Pretoria, Cullinan, 1000
+                        </p>
+                    </div>
+
+                    {/* Social Media */}
+                    <div>
+                        <h4
+                            style={{
+                                fontSize: "clamp(1.3rem, 3vw, 1.8rem)",
+                                fontWeight: "400",
+                                letterSpacing: "1px",
+                                marginBottom: "20px",
+                                color: "#c4b5a0",
+                            }}
+                        >
+                            Social Media
+                        </h4>
+                        <p style={{ marginBottom: "10px", opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                            LinkedIn
+                        </p>
+                        <p style={{ marginBottom: "10px", opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                            Github
+                        </p>
+                        <p style={{ opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                            Glassdoor
+                        </p>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div
+                    style={{
+                        maxWidth: "1200px",
+                        margin: "clamp(40px, 8vw, 60px) auto 0",
+                        paddingTop: "30px",
+                        borderTop: "1px solid rgba(255,255,255,0.1)",
+                        textAlign: "center",
+                        opacity: 0.5,
+                        fontSize: "clamp(12px, 2vw, 14px)",
+                        zIndex: 2,
+                        position: "relative",
+                    }}
+                >
+                    © 2026 Morwetsana Pule. All rights reserved.
+                    <br />
+                    Built with React, TypeScript, and Tailwind CSS
+                </div>
+            </div>
+        </div>
+
+    );
+};
+
+export default function HomePage() {
+    return (
+        <>
+            <Topnav />
+            <Hero />
+            <About />
+            <Features />
+            <Contact />
+        </>
+
     );
 }

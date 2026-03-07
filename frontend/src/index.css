@@ -68,3 +68,7 @@ input {
 input::placeholder {
   color: #e0cabe;
 }
+
+.label{
+  color: #e0cabe;
+}

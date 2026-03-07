@@ -379,7 +379,7 @@ const Footer: React.FC = () => (
 
 export default function ProfilePage() {
     return (
-        <PageTemplate>
+        <>
             <div
                 style={{
                     position: 'absolute',
@@ -389,7 +389,7 @@ export default function ProfilePage() {
                 }}
             />
 
-            <div className="min-h-screen bg-[#0b0702] text-[#d2b48c] font-serif">
+            <div className="min-h-screen text-[#d2b48c] mt-20">
                 <ProfileHeader />
 
                 {/* Word of the Day - Full width like in your screenshot */}
@@ -415,6 +415,6 @@ export default function ProfilePage() {
 
                 <Footer />
             </div>
-        </PageTemplate>
+        </>
     );
 }

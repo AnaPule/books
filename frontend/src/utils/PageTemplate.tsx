@@ -13,9 +13,9 @@ export const PageTemplate: React.FC<TemplateProps> = ({ children }: TemplateProp
     const { isLoggedIn } = useAuth();
     return (
         <div className="flex h-screen w-full overflow-hidden">
+            <Topnav />
             {
                 isLoggedIn &&
-                <Topnav /> &&
                 <Sidebar />
             }
             <div className="col-start-1 col-end-1">

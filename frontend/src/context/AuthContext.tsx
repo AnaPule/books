@@ -54,7 +54,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({children}: AuthProviderProps) => {
     const navigate = useNavigate(); //For redirecting users
     const [user, setUser] = useState<User | null>(null); //Tracks if someone is logged in
-    const [isLoggedIn, setLoggedIn] = useState<Boolean>(false);
+    const [isLoggedIn, setLoggedIn] = useState<Boolean>(true);
     //const [wishlist, setWishlist] = useState<Book[] | []>([]);
     //const [library, setLibrary] = useState<Book[] | []>([]);
     //const [recommends, setRecommends] = useState<Book[] | []>([]);
@@ -68,7 +68,7 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
     },[navigate])
 
     return (
-        <AuthContext.Provider value={{isLoggedIn }}>
+        <AuthContext.Provider value={{user, setUser, isLoggedIn }}>
             {loading ? (
                 <div>
                     <p style={{ display: "flex", alignItems: "center",justifyContent: "center", gap:'5px', width: "fit-content",}}>

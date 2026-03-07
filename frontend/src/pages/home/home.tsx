@@ -13,14 +13,13 @@ export const Topnav: React.FC = () => {
 
     return (
         <div
+            className='font-sans absolute z-10 flex'
             style={{
-                position: 'absolute',
                 top: 'clamp(10px, 3vw, 20px)',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 width: '100%',
                 maxWidth: '1200px',
-                display: 'flex',
                 flexWrap: 'wrap',                      // ← allows wrapping on very small screens
                 justifyContent: 'center',
                 gap: 'clamp(20px, 5vw, 50px)',
@@ -30,7 +29,6 @@ export const Topnav: React.FC = () => {
                 opacity: 0.7,
                 color: 'white',
                 transition: 'all 0.4s ease',           // smooth resize
-                zIndex: 100,
             }}
         >
             <a href="/home#home" style={{ whiteSpace: 'nowrap' }}>Home</a>

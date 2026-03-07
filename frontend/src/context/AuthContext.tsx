@@ -10,6 +10,7 @@ import {
 
 //models
 import type { User } from "@models/User";
+import type { Book } from "@models/Book";
 
 //components
 import Spinner from "@components/skeleton/spinner";
@@ -26,8 +27,8 @@ interface AuthContextType {
     //library: Book[] | [],
     //setLibrary: (book: Book[] | []) => void;
 
-    //recommends: Book[] | [],
-    //setRecommends: (book: Book[] | []) => void;
+    recommends: Book[] | [],
+    setRecommends: (book: Book[] | []) => void;
 
     isLoggedIn: Boolean;
 }
@@ -38,13 +39,13 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     //wishlist: [],
     //library: [],
-    //recommends: [],
+    recommends: [],
     isLoggedIn: false,
 
     setUser: () => { },
     //setLibrary: () => [],
     //setWishlist: () => [],
-    //setRecommends: () => []
+    setRecommends: () => []
 });
 
 interface AuthProviderProps {
@@ -57,7 +58,7 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
     const [isLoggedIn, setLoggedIn] = useState<Boolean>(true);
     //const [wishlist, setWishlist] = useState<Book[] | []>([]);
     //const [library, setLibrary] = useState<Book[] | []>([]);
-    //const [recommends, setRecommends] = useState<Book[] | []>([]);
+    const [recommends, setRecommends] = useState<Book[] | []>([]);
     const [loading, setLoading] = useState<boolean>(true); //Shows spinner while checking authentication
 
     /// cut out some code for now
@@ -68,7 +69,7 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
     },[navigate])
 
     return (
-        <AuthContext.Provider value={{user, setUser, isLoggedIn }}>
+        <AuthContext.Provider value={{user, setUser, setRecommends, recommends, isLoggedIn }}>
             {loading ? (
                 <div>
                     <p style={{ display: "flex", alignItems: "center",justifyContent: "center", gap:'5px', width: "fit-content",}}>

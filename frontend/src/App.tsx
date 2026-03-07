@@ -3,14 +3,15 @@ import { AuthProvider } from '@context/AuthContext';
 import { BrowserRouter as Router } from "react-router-dom";
 
 {/* =============== PAGES ============ */ }
-import HomePage from "@pages/home/home"
-import AuthPage from "@pages/auth/auth";
-import ProfilePage from "@pages/profile/profile";
-
 import E401 from '@pages/errors/E401';
 import E403 from '@pages/errors/E403';
 import E404 from '@pages/errors/E404';
 import E429 from '@pages/errors/E429';
+
+import HomePage from "@pages/home/home"
+import AuthPage from "@pages/auth/auth";
+import BooksPage from "@pages/books/books";
+import ProfilePage from "@pages/profile/profile";
 
 {/* =============== COMPONENTS ============ */ }
 import { PageTemplate } from '@utils/PageTemplate';
@@ -31,6 +32,8 @@ function App() {
               <Route path='/not-found' element={<E404 />} />
               <Route path="/unauthorised" element={<E401 />} />
               <Route path="/too-many-requests" element={<E429 />} />
+
+              <Route path='/books' element={<BooksPage />} />
           </Routes>
         </PageTemplate>
       </AuthProvider>

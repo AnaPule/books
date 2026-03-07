@@ -334,7 +334,6 @@ const DraftsSection: React.FC = () => {
     );
 };
 
-// Notifications Section - Matching the Dark Academia style
 const NotificationsSection: React.FC = () => {
     const notifications = [
         { content: "New message from @litlover", time: "1h", type: "message" },

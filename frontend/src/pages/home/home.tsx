@@ -15,21 +15,27 @@ export const Topnav: React.FC = () => {
         <div
             className='
             font-sans absolute z-10 
-            bg-[#1b120e]/50 h-[70px] w-full
+            bg-[#1b120e]/50 h-[60px] w-full
             flex items-center justify-end
             px-10 text-sm flex-wrap gap-10
             uppercase text-white
             tracking-[2px]
             '
         >
-            <a href="/home#home" style={{ whiteSpace: 'nowrap' }}>Home</a>
-            <a href="/home#about" style={{ whiteSpace: 'nowrap' }}>About</a>
-            <a href="/home#features" style={{ whiteSpace: 'nowrap' }}>Features</a>
-            <a 
-            href="#" 
-            style={{ whiteSpace: 'nowrap' }}
-            onClick={() => navigate(`/auth`)}
-            >Account</a>
+            {/* Strong vignette – focus in center/left */}
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-black/30 z-22" />
+            
+                <a className='relative z-5' href="/home#home" style={{ whiteSpace: 'nowrap' }}>Home</a>
+                <a className='relative z-5'  href="/home#about" style={{ whiteSpace: 'nowrap' }}>About</a>
+                <a className='relative z-5'  href="/home#features" style={{ whiteSpace: 'nowrap' }}>Features</a>
+                <a
+                    className='relative z-5' 
+                    href="#"
+                    style={{ whiteSpace: 'nowrap' }}
+                    onClick={() => navigate(`/auth`)}
+                >Account</a>
+
         </div>
     );
 };
@@ -763,7 +769,6 @@ const Contact: React.FC = () => {
 export default function HomePage() {
     return (
         <>
-            <Topnav />
             <Hero />
             <About />
             <Features />

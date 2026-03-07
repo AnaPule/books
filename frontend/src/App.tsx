@@ -5,6 +5,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 {/* =============== PAGES ============ */ }
 import HomePage from "@pages/home/home"
 import AuthPage from "@pages/auth/auth";
+import ProfilePage from "@pages/profile/profile";
 
 {/* =============== COMPONENTS ============ */ }
 import { PageTemplate } from '@utils/PageTemplate';
@@ -19,6 +20,7 @@ function App() {
             <Route path="*" element={<HomePage />} /> {/* page not found -> take to home */}
             <Route path='/home' element={<HomePage/>} />
             <Route path='/auth' element={<AuthPage />} />
+            <Route path='/profile' element={<ProfilePage />} />
           </Routes>
         </PageTemplate>
       </AuthProvider>

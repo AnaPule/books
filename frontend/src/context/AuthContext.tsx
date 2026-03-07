@@ -17,8 +17,8 @@ import Spinner from "@components/skeleton/spinner";
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface AuthContextType {
-    //user: User | null; // Current user object or null if not logged in
-    //setUser: (user: User | null) => void; // Function to update user state
+    user: User | null; // Current user object or null if not logged in
+    setUser: (user: User | null) => void; // Function to update user state
 
     //wishlist: Book[] | [];
     //setWishlist: (books: Book[] | []) => void; // Function to update book state
@@ -35,13 +35,13 @@ interface AuthContextType {
 // **Note: Context provides a way to pass data through the component tree without having to pass props down manually at every level.
 // ** Note: Context is designed to share data that can be considered “global” for a tree of React components
 const AuthContext = createContext<AuthContextType>({
-    //user: null,
+    user: null,
     //wishlist: [],
     //library: [],
     //recommends: [],
     isLoggedIn: false,
 
-    //setUser: () => { },
+    setUser: () => { },
     //setLibrary: () => [],
     //setWishlist: () => [],
     //setRecommends: () => []

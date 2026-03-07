@@ -1,14 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 {/* =============== IMAGES ============ */ }
-import Book from '../../assets/book.jpeg';
-import Book1 from '../../assets/book1.jpeg';
-import Cabin from '../../assets/cabin.jpeg';
-//import Flower from '../../assets/flower.jpeg'; 
-import Lillies from '../../assets/Lilies.jpeg';
-import TopImage from '../../assets/TopImage.jpeg';
+import Book from '@assets/book.jpeg';
+import Book1 from '@assets/book1.jpeg';
+import Cabin from '@assets/cabin.jpeg';
+import Lillies from '@assets/Lilies.jpeg';
+import TopImage from '@/assets/TopImage.jpeg';
 
-const Topnav: React.FC = () => {
+export const Topnav: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
         <div
             style={{
@@ -31,16 +33,21 @@ const Topnav: React.FC = () => {
                 zIndex: 100,
             }}
         >
-            <a href="#home" style={{ whiteSpace: 'nowrap' }}>Home</a>
-            <a href="#about" style={{ whiteSpace: 'nowrap' }}>About</a>
-            <a href="#features" style={{ whiteSpace: 'nowrap' }}>Features</a>
-            <a href="#contact" style={{ whiteSpace: 'nowrap' }}>Account</a>
+            <a href="/home#home" style={{ whiteSpace: 'nowrap' }}>Home</a>
+            <a href="/home#about" style={{ whiteSpace: 'nowrap' }}>About</a>
+            <a href="/home#features" style={{ whiteSpace: 'nowrap' }}>Features</a>
+            <a 
+            href="#" 
+            style={{ whiteSpace: 'nowrap' }}
+            onClick={() => navigate(`/auth`)}
+            >Account</a>
         </div>
     );
 };
 
 const Hero: React.FC = () => {
     const [hoverButton, setHoverButton] = useState(false);
+    const navigate = useNavigate();
     return (
         <>
             {/* Hero Section - Full Screen */}
@@ -120,6 +127,7 @@ const Hero: React.FC = () => {
                         }}
                         onMouseEnter={() => setHoverButton(true)}
                         onMouseLeave={() => setHoverButton(false)}
+                        onClick={() => navigate(`/auth`)}
                     >
                         Login
                     </button>
@@ -622,7 +630,7 @@ const Contact: React.FC = () => {
                     padding: "clamp(60px, 8vw, 120px) 0 0 clamp(20px, 5vw, 80px)",
                 }}
             >
-                {/* Strong vignette – focus in center/left (same as Features) */}
+                {/* Strong vignette*/}
                 <div
                     style={{
                         position: "absolute",

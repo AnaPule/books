@@ -18,7 +18,7 @@ export const PageTemplate: React.FC<TemplateProps> = ({children}: TemplateProps)
                
             </div>
             {/* main content */}
-            <div className="flex-1 overflow-y-auto bg-gray-950">
+            <div className="flex-1 overflow-y-auto">
                 {children}
             </div>
         </div>

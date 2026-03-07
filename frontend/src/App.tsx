@@ -7,6 +7,11 @@ import HomePage from "@pages/home/home"
 import AuthPage from "@pages/auth/auth";
 import ProfilePage from "@pages/profile/profile";
 
+import E401 from '@pages/errors/E401';
+import E403 from '@pages/errors/E403';
+import E404 from '@pages/errors/E404';
+import E429 from '@pages/errors/E429';
+
 {/* =============== COMPONENTS ============ */ }
 import { PageTemplate } from '@utils/PageTemplate';
 
@@ -17,10 +22,15 @@ function App() {
       <AuthProvider>
         <PageTemplate>
           <Routes>
-            <Route path="*" element={<HomePage />} /> {/* page not found -> take to home */}
             <Route path='/home' element={<HomePage/>} />
             <Route path='/auth' element={<AuthPage />} />
             <Route path='/profile' element={<ProfilePage />} />
+
+            <Route path="*" element={<E404 />} /> {/* page not found*/}
+              <Route path='/unauthorised' element={<E403 />} />
+              <Route path='/not-found' element={<E404 />} />
+              <Route path="/unauthorised" element={<E401 />} />
+              <Route path="/too-many-requests" element={<E429 />} />
           </Routes>
         </PageTemplate>
       </AuthProvider>

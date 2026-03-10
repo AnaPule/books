@@ -9,8 +9,10 @@ import com.ana.bookapi.repository.userRepo;
 
 /* =================== PACKAGES =================== */
 import jakarta.annotation.PostConstruct;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired; // SPRING DEPENDENCY INJECTION
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service; // telling spring boot to treat this class as a service
 import org.springframework.security.crypto.password.PasswordEncoder; // encodes the password before saving into DB
 
@@ -132,4 +134,8 @@ public class userService implements UserDetailsService {
         return user;
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return null;
+    }
 }

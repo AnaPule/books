@@ -15,3 +15,5 @@ public class Main {
         }
     }
 }
+
+// to run main script: ./mvnw spring-boot:run

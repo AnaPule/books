@@ -28,7 +28,9 @@ class ApiService {
         this.authToken = token;
     }
 
-    private handleUnauthorised() {
+    //forbidden -> you are authenticated, but dont have permission
+    // unauthorised -> you are not authorised (invalid credentials)
+    private handleForbidden() {
         //clear token and redirect to login
         this.setAuthToken(null);
         localStorage.removeItem('token');
@@ -48,9 +50,9 @@ class ApiService {
             const response = await fetch(url, config);
 
             // redirect to login - unauthorised
-            if (response.status === 401) {
-                this.handleUnauthorised();
-                throw new Error('UnAuthorised: Authentication required');
+            if (response.status === 403) {
+                this.handleForbidden();
+                throw new Error('Forbidden: Contact your local administrator to get permissions to access this content.');
                 //throw new Error(`HTTP error status: ${response.status}`);
             }
 

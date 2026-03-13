@@ -1,5 +1,18 @@
-// LoginForm.tsx (only email + password)
+{/* =============== packages ============ */ }
+import { toast } from 'sonner';
 import { useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import type { FormEvent } from "react";
+import { useNavigate } from 'react-router-dom';
+
+{/* =============== models ============ */ }
+import { type tokenResponse, type loginResponse, type User } from '@models/User';
+
+{/* =============== services ============ */ }
+import { request } from '@utils/ApiRequest';
+
+{/* =============== components ============ */ }
+import Spinner from '@components/skeleton/spinner';
 
 interface LoginFormProps {
     OnChangePage: () => void;
@@ -11,7 +24,8 @@ interface LoginFormData {
 }
 
 export default function LoginForm({ OnChangePage }: LoginFormProps) {
-    const [loading] = useState(false);
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState<LoginFormData>({
         email: "",
@@ -22,6 +36,46 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
+    const handleSubmitLogin = async (e: FormEvent) => {
+        try {
+            e.preventDefault();
+            e.stopPropagation();
+            setLoading(true);
+        
+            request.post<loginResponse>(`/auth/login`, formData)
+                .then((res: loginResponse) => {
+                    const promise = () => new Promise((resolve) => setTimeout(() => resolve({ 'login': name }), 2000));
+
+                    if (!res.token) {
+                        //toast.error("Login failed", { description: `${res}` });
+                        toast.error('Sorry, An error occured', { description: `System error. Please try again later.` })
+                        return;
+                    }
+
+                    sessionStorage.setItem('token', `r${res.token}`);
+                    const decoded = jwtDecode<tokenResponse>(res.token);
+
+                    toast.success(`Pages & Parchment`);
+                    toast.promise(promise, {
+                        loading: 'Please wait...',
+                        success: () => `Welcome back ${decoded.username || decoded.sub}. Happy reading!`,
+                        error: `Error`
+                    })
+                    navigate('/profile', { replace: true });
+
+                    setFormData({
+                        email:'',
+                        password: ''
+                    })
+                })
+        } catch (error: any) {
+            console.error("login error", error)
+            toast.error('Sorry, An error occured', { description: `${error}` })
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <form
             style={{
@@ -29,7 +83,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                 flexDirection: "column",
                 gap: "clamp(18px, 3.5vw, 26px)",
             }}
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleSubmitLogin}
         >
             <div className="space-y-4">
                 <button
@@ -143,6 +197,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
             <button
                 type="submit"
                 disabled={loading}
+                onClick={handleSubmitLogin}
                 style={{
                     marginTop: "12px",
                     padding: "clamp(14px, 3.5vw, 17px)",
@@ -158,7 +213,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                     transition: "all 0.28s ease",
                 }}
             >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? <Spinner loadingLabel='loading' /> : "Sign In"}
             </button>
 
             <div style={{ textAlign: "center", marginTop: "-8px" }}>

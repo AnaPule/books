@@ -1,29 +1,69 @@
+{/* =============== packages ============ */ }
+import { toast } from 'sonner';
 import { useState } from "react";
+
+{/* =============== models ============ */ }
+import type { FormEvent } from "react";
+import type { User } from '@models/User';
+import type { SignUpForm } from '@models/User';
+
+{/* =============== services ============ */ }
+import { request } from '@utils/ApiRequest';
+
+{/* =============== components ============ */ }
+import Spinner from '@components/skeleton/spinner';
 
 interface SignUpFormProps {
     OnChangePage: () => void;
 }
 
-interface SignUpFormData {
-    username: string;
-    email: string;
-    password: string;
-    accept: boolean;
-}
-
 export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
-    const [loading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState<SignUpFormData>({
+    const [formData, setFormData] = useState<SignUpForm>({
         username: "",
         email: "",
         password: "",
-        accept: false,
+        accept: false, // for terms and conditions applied
     });
 
-    const handleChange = (field: keyof SignUpFormData, value: string | boolean) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
+    const handleChange = (field: keyof SignUpForm, value: string | boolean) => { setFormData((prev) => ({ ...prev, [field]: value })); };
+    const handleSubmitSignUp = (e: FormEvent) => {
+        setLoading(true);
+        e.preventDefault();
+        try {
+            if (formData.accept) {
+                request.post<User>('/auth/register', formData)
+                    .then(
+                        ((res: User) => {
+                            if (res.username != null) {
+                                toast.info(`Thank you for signing up with PńP ${res.username}. Please login.`)
+                                setFormData({
+                                    email: '',
+                                    password: '',
+                                    username: '',
+                                    accept: false,
+                                });
+                                OnChangePage();
+                            } else{
+                                toast.error('Sorry, An error occured',{description: `${res}`})
+                            }
+                        })
+                    )
+            } else {
+                toast('Terrms And Conditions', {
+                    description: `Please read and accept the application T's n C's before joining.`
+                })
+            }
+        } catch (error) {
+            console.error(`Error signing up:`, error)
+            toast('Error Siging up', {
+                description: `There was an error while registering your account. Please try again later.`,
+            })
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <form
@@ -32,7 +72,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                 flexDirection: "column",
                 gap: "clamp(18px, 3.5vw, 26px)",
             }}
-            onSubmit={(e) => e.preventDefault()} // ← add real submit later
+            onSubmit={handleSubmitSignUp}
         >
             {/* Username */}
             <div className='input-container'>
@@ -132,6 +172,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
             <button
                 type="submit"
                 disabled={loading}
+                onClick={handleSubmitSignUp}
                 style={{
                     marginTop: "12px",
                     padding: "clamp(14px, 3.5vw, 17px)",
@@ -148,7 +189,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                     transition: "all 0.28s ease",
                 }}
             >
-                {loading ? "Creating..." : "Create Account"}
+                {loading ? <Spinner loadingLabel='loading' /> : "Create Account"}
             </button>
             <div style={{ textAlign: "center", marginTop: "-8px" }}>
                 <a

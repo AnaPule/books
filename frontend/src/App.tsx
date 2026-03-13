@@ -10,10 +10,11 @@ import E429 from '@pages/errors/E429';
 
 import HomePage from "@pages/home/home"
 import AuthPage from "@pages/auth/auth";
-import BooksPage from "@pages/books/books";
+import BooksPage from "@pages/books/Books";
 import ProfilePage from "@pages/profile/profile";
 
-{/* =============== COMPONENTS ============ */ }
+{/* =============== utils ============ */ }
+import PublicRoute from "@utils/PublicRoute";
 import { PageTemplate } from '@utils/PageTemplate';
 
 
@@ -23,17 +24,21 @@ function App() {
       <AuthProvider>
         <PageTemplate>
           <Routes>
-            <Route path='/home' element={<HomePage/>} />
-            <Route path='/auth' element={<AuthPage />} />
+            <Route path='/home' element={<HomePage />} />
+            <Route path='/auth' element={
+              <PublicRoute>
+                <AuthPage />
+              </PublicRoute>
+            } />
             <Route path='/profile' element={<ProfilePage />} />
 
             <Route path="*" element={<E404 />} /> {/* page not found*/}
-              <Route path='/unauthorised' element={<E403 />} />
-              <Route path='/not-found' element={<E404 />} />
-              <Route path="/unauthorised" element={<E401 />} />
-              <Route path="/too-many-requests" element={<E429 />} />
+            <Route path='/unauthorised' element={<E403 />} />
+            <Route path='/not-found' element={<E404 />} />
+            <Route path="/unauthorised" element={<E401 />} />
+            <Route path="/too-many-requests" element={<E429 />} />
 
-              <Route path='/books' element={<BooksPage />} />
+            <Route path='/books' element={<BooksPage />} />
           </Routes>
         </PageTemplate>
       </AuthProvider>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // =============== images ============
 import Background from '@assets/background.jpeg';
@@ -110,7 +111,7 @@ export default function AuthPage() {
                   }
       `}
               >
-                <LoginForm OnChangePage={() => {setPage((prev) => !prev)}} />
+                <LoginForm OnChangePage={() => { setPage((prev) => !prev) }} />
               </div>
 
               {/* Signup */}
@@ -123,7 +124,7 @@ export default function AuthPage() {
                   }
       `}
               >
-                <SignUpForm OnChangePage={() => {setPage((prev) => !prev)}} />
+                <SignUpForm OnChangePage={() => { setPage((prev) => !prev) }} />
               </div>
             </div>
           </div>

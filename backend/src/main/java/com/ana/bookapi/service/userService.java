@@ -1,5 +1,8 @@
 package com.ana.bookapi.service;
 
+/* =================== config =================== */
+import com.ana.bookapi.config.EncodeConfig;
+
 /* =================== MODELS =================== */
 import com.ana.bookapi.models.User;
 import com.ana.bookapi.DTO.LoginDTO;
@@ -11,21 +14,44 @@ import com.ana.bookapi.repository.userRepo;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired; // SPRING DEPENDENCY INJECTION
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service; // telling spring boot to treat this class as a service
-import org.springframework.security.crypto.password.PasswordEncoder; // encodes the password before saving into DB
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class userService implements UserDetailsService {
-    @Autowired private userRepo ur;
-    @Autowired private PasswordEncoder passwordEncoder;
+    //@Autowired private userRepo ur; // field injection
+    //@Autowired private PasswordEncoder passwordEncoder; // field inection
+
+    //constructor injection
+    private final userRepo ur;
+    private final EncodeConfig ec;
+
+    // constructor injection vs. field injection
+    /*
+    With field injection, Spring tries to create both beans simultaneously and they keep waiting for each other.
+
+    With constructor injection:
+        1.Spring sees userService needs PasswordEncoder
+        2.Spring creates PasswordEncoder bean first (from SecurityConfig)
+        3.Spring creates userService using that PasswordEncoder
+        4.Spring creates SecurityConfig using the fully-built userService
+
+        Best Practice: Always use constructor injection unless you have a specific reason not to
+    */
+    public userService(
+            userRepo ur,
+            EncodeConfig ec) {
+        this.ec = ec;
+        this.ur = ur;
+    }
 
     @PostConstruct // runs when spring boot starts - creates the table in the DB
-    public void initDB() {}
+    public void initDB() {
+        System.out.println("=== USER TABLE CREATION ===");
+    }
 
     //register user
     public User createUser(User user) {
@@ -37,7 +63,7 @@ public class userService implements UserDetailsService {
             throw new RuntimeException("This email has already been used for an account. Please login.");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(ec.encoder(user.getPassword()));
         return ur.save(user); //SQL: INSERT INTO users ...
     }
 
@@ -94,7 +120,7 @@ public class userService implements UserDetailsService {
     //forgot password
     public String ForgotPassword(String email, String rawemail) {
         User existinguser = ur.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        existinguser.setPassword(passwordEncoder.encode(rawemail));
+        existinguser.setPassword(ec.encoder(rawemail));
         ur.save(existinguser);
         return "Your password has been updated. Please login";
     }
@@ -109,7 +135,7 @@ public class userService implements UserDetailsService {
     public Boolean authenticate(LoginDTO dto){
         Boolean isAuthenticated = false;
         User user = getUserByEmail(dto.getEmail());
-        if (user.getEmail().equals(dto.getEmail()) && passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+        if (user.getEmail().equals(dto.getEmail()) && ec.matcher(dto.getPassword(), user.getPassword())) {
             isAuthenticated = true;
         }
         return isAuthenticated;
@@ -136,6 +162,7 @@ public class userService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+        User user = ur.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+        return user;
     }
 }

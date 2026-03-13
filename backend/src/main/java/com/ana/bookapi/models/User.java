@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+
 import jakarta.persistence.*; // JPA ANNOTATIONS FOR DB MAPPING
 import org.hibernate.annotations.GenericGenerator;
 
@@ -12,12 +13,13 @@ import org.springframework.security.core.GrantedAuthority; // required by Userde
 import org.springframework.security.core.userdetails.UserDetails; // allows integration of the User details model provided by java
 
 @Entity
-@Table(name="user")// table name
+@Table(name = "\"user\"")// table name
 
-public class User implements UserDetails{
+public class User implements UserDetails {
     @Id
     @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name="UUID", strategy = "org.hibernate.id.UUIDGenerator") //auto generate uuid id -> makes my method obsolete
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    //auto generate uuid id -> makes my method obsolete
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
@@ -45,38 +47,72 @@ public class User implements UserDetails{
     private boolean active = true;
 
     //get and set methods
-    public String getId() {return id;}
+    public String getId() {
+        return id;
+    }
 
-    public String getUsername() {return username;}
-    public void setUsername(String username) {this.username = username;}
+    public String getUsername() {
+        return username;
+    }
 
-    public String getEmail() {return email;}
-    public void setEmail(String email) {this.email = email;}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    public String getPassword() {return password;}
-    public void setPassword(String password) {this.password = password;}
+    public String getEmail() {
+        return email;
+    }
 
-    public String getBio() {return bio;}
-    public void setBio(String bio) {this.bio = bio;}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public String getProfilePhoto() {return profilePhoto;}
-    public void setProfilePhoto(String profilePhoto) {this.profilePhoto = profilePhoto;}
+    public String getPassword() {
+        return password;
+    }
 
-    public Boolean getActive() {return active;}
-    public void setActive(Boolean active) {this.active = active;}
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
     //METHODS
 
     //default constructor
-    public User(){}
+    public User() {
+    }
+
     //custom constructor
-    public User(String username, String email){
-        this();
+    public User(String username, String email) {
         this.email = email;
         this.active = false;
         this.username = username;
         this.createdAt = LocalDateTime.now();
         this.profilePhoto = generateDefaultProfilePhoto();
     }
+
     public String generateId() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
@@ -89,6 +125,26 @@ public class User implements UserDetails{
     // defaults by the user details claa being implemented...but we can ignore for now.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(); // Return empty list for now
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Account never expires
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Account never locked
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Credentials never expire
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.active; // Return the active status
     }
 }

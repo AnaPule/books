@@ -28,9 +28,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 @RequestMapping("/auth")
 
 public class AuthController {
-    @Autowired private userService us;
-    @Autowired private errResponse er;
-    @Autowired private JwtService js;
+    //@Autowired private userService us;
+    //@Autowired private errResponse er;
+    //@Autowired private JwtService js;
+
+    private errResponse er = new errResponse();
+    private final userService us;
+    private final JwtService js;
+    private AuthController(userService us, JwtService js) {
+        this.us = us;
+        this.js = js;
+    }
 
     @Value("${app.mode}")
     private String mode;

@@ -5,6 +5,13 @@ class ApiService {
 
     private baseUrl: string;
     private authToken: string | null = null;
+    private logoutCallback: ((message?: string) => void) | null = null;
+
+    // Register logout callback from Auth Context
+    onLogout(callback: (message?: string) => void) {
+        this.logoutCallback = callback;
+    }
+
 
     constructor() {
         this.baseUrl = API_BASE_URL;
@@ -13,7 +20,7 @@ class ApiService {
     private getHeaders(): HeadersInit {
         const headers: HeadersInit = {
             'Content-type': 'application/json',
-            'Accept': 'application/json' 
+            'Accept': 'application/json'
         };
 
         if (this.authToken) {
@@ -34,7 +41,12 @@ class ApiService {
         //clear token and redirect to login
         this.setAuthToken(null);
         localStorage.removeItem('token');
-        window.location.href = '/auth';
+        if (this.logoutCallback) {
+            this.logoutCallback('You do not have the permission to access this content.');
+        } else {
+            // Fallback redirect
+            window.location.href = '/auth';
+        }
     }
 
     // GENERIC request
@@ -75,37 +87,37 @@ class ApiService {
     }
 
     //GET METHOD
-    async get<T>(endpoint: string): Promise<T>{
+    async get<T>(endpoint: string): Promise<T> {
         return this.request<T>(endpoint, {
             method: 'GET'
         });
     }
 
     //POST
-    async post<T>(endpoint: string, data?: any):Promise<T>{
-        return this.request<T>(endpoint,{
+    async post<T>(endpoint: string, data?: any): Promise<T> {
+        return this.request<T>(endpoint, {
             method: 'POST',
-            body: data ? JSON.stringify(data): 'undefined',
+            body: data ? JSON.stringify(data) : 'undefined',
         });
     }
 
     //PUT
-    async put<T>(endpoint: string, data?: any): Promise<T>{
-        return this.request<T>(endpoint,{
+    async put<T>(endpoint: string, data?: any): Promise<T> {
+        return this.request<T>(endpoint, {
             method: 'PUT',
             body: data ? JSON.stringify(data) : 'undefined',
         })
     }
 
     //DELETE
-    async delete<T>(endpoint: string): Promise<T>{
-        return this.request<T>(endpoint,{
+    async delete<T>(endpoint: string): Promise<T> {
+        return this.request<T>(endpoint, {
             method: 'DELETE',
         })
     }
 
     //File upload
-    async upload<T>(endpoint: string, formData: FormData): Promise<T>{
+    async upload<T>(endpoint: string, formData: FormData): Promise<T> {
         const url = `{this.baseUrl}${endpoint}`;
 
         const config: RequestInit = {
@@ -117,7 +129,7 @@ class ApiService {
         };
 
         const response = await fetch(url, config);
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(`Upload failed status: ${response.status}`);
         }
 

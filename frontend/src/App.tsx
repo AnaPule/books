@@ -1,3 +1,5 @@
+
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from '@context/AuthContext';
 import { BrowserRouter as Router } from "react-router-dom";
@@ -14,11 +16,28 @@ import BooksPage from "@pages/books/Books";
 import ProfilePage from "@pages/profile/profile";
 
 {/* =============== utils ============ */ }
+import { request } from '@utils/ApiRequest';
 import PublicRoute from "@utils/PublicRoute";
 import { PageTemplate } from '@utils/PageTemplate';
+import ProtectedRoute from "@utils/ProtectedRoute";
 
+{/* =============== context ============ */ }
+import { useAuth } from "@context/AuthContext";
 
 function App() {
+
+  const { logout } = useAuth();
+
+  useEffect(() => {
+    // Connect API service to Auth Context
+    request.onLogout(logout);
+
+    // Set initial token if exists
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      request.setAuthToken(token);
+    }
+  }, [logout]);
   return (
     <Router>
       <AuthProvider>
@@ -30,7 +49,18 @@ function App() {
                 <AuthPage />
               </PublicRoute>
             } />
-            <Route path='/profile' element={<ProfilePage />} />
+            
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/books" element={
+              <ProtectedRoute>
+                <BooksPage />
+              </ProtectedRoute>
+            } />
 
             <Route path="*" element={<E404 />} /> {/* page not found*/}
             <Route path='/unauthorised' element={<E403 />} />
@@ -38,7 +68,6 @@ function App() {
             <Route path="/unauthorised" element={<E401 />} />
             <Route path="/too-many-requests" element={<E429 />} />
 
-            <Route path='/books' element={<BooksPage />} />
           </Routes>
         </PageTemplate>
       </AuthProvider>

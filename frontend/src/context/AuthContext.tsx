@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -17,6 +18,10 @@ import Spinner from "@components/skeleton/spinner";
 // env variables
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
+//utils
+import { isTokenvalid } from "@utils/auth";
+import { request } from "@utils/ApiRequest";
+
 interface AuthContextType {
     user: User | null; // Current user object or null if not logged in
     setUser: (user: User | null) => void; // Function to update user state
@@ -31,6 +36,7 @@ interface AuthContextType {
     setRecommends: (book: Book[] | []) => void;
 
     isLoggedIn: Boolean;
+    logout: () => void;
 }
 
 // **Note: Context provides a way to pass data through the component tree without having to pass props down manually at every level.
@@ -41,6 +47,7 @@ const AuthContext = createContext<AuthContextType>({
     //library: [],
     recommends: [],
     isLoggedIn: false,
+    logout: () => {},
 
     setUser: () => { },
     //setLibrary: () => [],
@@ -61,15 +68,35 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
     const [recommends, setRecommends] = useState<Book[] | []>([]);
     const [loading, setLoading] = useState<boolean>(true); //Shows spinner while checking authentication
 
+    const logout = (message?: string) => {
+        sessionStorage.removeItem('token')
+        setUser(null);
+        request.setAuthToken(null);
+
+        if (message){
+            toast.error('Session ended', {description: message});
+        }
+
+        navigate(`/auth`, {replace: true})
+    }
+
     /// cut out some code for now
     useEffect(() => {
         if (!user){
             setLoading(false);
         }
+
+        // Check token on mount and when token changes
+        const token = sessionStorage.getItem('token');
+        if (token && isTokenvalid(token)) {
+            request.setAuthToken(token)
+        }else {
+            logout('Your session has expired. log in to continue')
+        }
     },[navigate])
 
     return (
-        <AuthContext.Provider value={{user, setUser, setRecommends, recommends, isLoggedIn }}>
+        <AuthContext.Provider value={{user, setUser, setRecommends, recommends, isLoggedIn, logout }}>
             {loading ? (
                 <div>
                     <p style={{ display: "flex", alignItems: "center",justifyContent: "center", gap:'5px', width: "fit-content",}}>

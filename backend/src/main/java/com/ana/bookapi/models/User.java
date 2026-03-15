@@ -44,7 +44,7 @@ public class User implements UserDetails {
     /* ============== VERIFICATION STUFFIES ================ */
 
     @Column(name = "active")
-    private boolean active = true;
+    private boolean active = false;
 
     //get and set methods
     public String getId() {

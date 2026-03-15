@@ -28,38 +28,46 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
     });
 
     const handleChange = (field: keyof SignUpForm, value: string | boolean) => { setFormData((prev) => ({ ...prev, [field]: value })); };
-    const handleSubmitSignUp = (e: FormEvent) => {
+    const handleSubmitSignUp = async (e: FormEvent) => {
         setLoading(true);
         e.preventDefault();
         try {
-            if (formData.accept) {
-                request.post<User>('/auth/register', formData)
-                    .then(
-                        ((res: User) => {
-                            if (res.username != null) {
-                                toast.info(`Thank you for signing up with PńP ${res.username}. Please login.`)
-                                setFormData({
-                                    email: '',
-                                    password: '',
-                                    username: '',
-                                    accept: false,
-                                });
-                                OnChangePage();
-                            } else{
-                                toast.error('Sorry, An error occured',{description: `${res}`})
-                            }
-                        })
-                    )
-            } else {
-                toast('Terrms And Conditions', {
+            if (!formData.accept) {
+                toast.warning('Terrms And Conditions', {
                     description: `Please read and accept the application T's n C's before joining.`
-                })
+                });
+                return;
             }
-        } catch (error) {
+
+            await request.post<User>('/auth/register', formData)
+                .then(
+                    ((res: User) => {
+                        if (res.username != null) {
+                            toast.info(`Thank you for signing up with PńP ${res.username}. Please login.`)
+                            setFormData({
+                                email: '',
+                                password: '',
+                                username: '',
+                                accept: false,
+                            });
+                            OnChangePage();
+                        } else {
+                            toast.error('Sorry, An error occured', { description: `${res}` })
+                        }
+                    })
+                )
+        } catch (error: any) {
             console.error(`Error signing up:`, error)
-            toast('Error Siging up', {
+            const msg = error?.response?.data?.message || "Registration failed";
+            toast.error(
+                'Sign up failed',
+                {description: msg}
+            );
+            /*
+            toast.error('Sign up failed', {
                 description: `There was an error while registering your account. Please try again later.`,
-            })
+            });
+            */
         } finally {
             setLoading(false);
         }
@@ -172,7 +180,6 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
             <button
                 type="submit"
                 disabled={loading}
-                onClick={handleSubmitSignUp}
                 style={{
                     marginTop: "12px",
                     padding: "clamp(14px, 3.5vw, 17px)",

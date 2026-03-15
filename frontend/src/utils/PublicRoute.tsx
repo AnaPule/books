@@ -1,6 +1,9 @@
 
-import { isTokenvalid } from "./auth";
+{/* =============== packages ============ */ }
 import { Navigate } from "react-router-dom";
+
+{/* =============== services ============ */ }
+import { isTokenvalid } from "./auth";
 
 interface PublicRouteProps {
   children: React.ReactNode;
@@ -14,5 +17,5 @@ export default function PublicRoute({children}: PublicRouteProps) {
         return <Navigate to='/profile' replace />
     }
 
-    return <>children</>
+    return <>{children}</>
 }

@@ -9,7 +9,7 @@ export default function Spinner({
     loadingLabel
 }:SpinnerProps) {
     return (
-        <section className="bg-transparent flex items-center gap-4 justify-center">
+        <section className="bg-transparent flex items-center gap-4 justify-center font-sans">
             {/*
             <div className="container flex items-center gap-4 justify-center">
                 <div className="flex flex-wrap items-center gap-4">

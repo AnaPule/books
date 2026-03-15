@@ -23,6 +23,7 @@ export interface tokenResponse{
     exp: number;
     email: string;
     username:string;
+    iat?: number;
 }
 export interface SignUpForm{
     email: string;

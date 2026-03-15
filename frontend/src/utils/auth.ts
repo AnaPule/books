@@ -1,9 +1,25 @@
 
+{/* =============== packages ============ */ }
 import { toast } from 'sonner';
 import { jwtDecode } from "jwt-decode";
 
+{/* =============== services ============ */ }
+
 // =============== model ============
-import {type  tokenResponse } from "@models/User";
+import {type tokenResponse } from "@models/User";
+
+export function decodeToken(token: string | null): tokenResponse | null {
+    if (!token) return null;
+    try{
+        return jwtDecode<tokenResponse>(token);
+    }catch (err){
+        console.warn('Invalid JWT format', err);
+        toast.warning('JWT Token', {
+            description: `${err}`
+        });
+        return null;
+    }
+}
 
 export function isTokenvalid(token:string | null): boolean {
     if (!token) return false;
@@ -11,16 +27,25 @@ export function isTokenvalid(token:string | null): boolean {
     try{
         const decoded = jwtDecode<tokenResponse>(token);
         
-        if (!decoded.exp) return false; // No expiration = assume invalid
-
-        //checking if expiration
-        const currTime = Math.floor(Date.now()/ 1000);
-        return decoded.exp > currTime;
+        if (!decoded.exp || !decoded) return false; // No expiration = assume invalid // exp is in seconds
+        return decoded.exp*1000 > Date.now();
     }catch(error){
-        toast.error(`FATAL SYSTEM ERROR: Token unavailable`);
+        toast.error(`FATAL SYSTEM ERROR: Token unavailable`, {description: `${error}`});
         console.error('Invalid error: ',error)
         return false;
     }
+}
+
+export function getTokenExpiryTime(token: string | null): number | null {
+    if (!token) return null;
+    const decoded = jwtDecode<tokenResponse>(token);
+    return decoded?.exp ? decoded.exp * 1000 : null; //return as timestamp
+}
+
+export function getTimeLeft(token: string | null): number {
+    const expiry = getTokenExpiryTime(token);
+    if (!expiry) return 0;
+    return expiry - Date.now();
 }
 
 export function getTokenPayload(): tokenResponse | null {

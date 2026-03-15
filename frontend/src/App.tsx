@@ -49,7 +49,7 @@ function App() {
                 <AuthPage />
               </PublicRoute>
             } />
-            
+
             <Route path="/profile" element={
               <ProtectedRoute>
                 <ProfilePage />

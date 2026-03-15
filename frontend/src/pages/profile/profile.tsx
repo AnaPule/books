@@ -20,7 +20,7 @@ import Flower_8 from '@assets/Flower_8.jpeg';
 
 const ProfileHeader: React.FC = () => {
     const { user } = useAuth();
-
+    console.log(user)
     return (
         <div className="max-w-6xl mx-auto px-5 md:px-8 pt-10 pb-6 relative z-5 font-sans">
             <div className="flex items-start flex-col md:flex-row gap-6 md:gap-8">

@@ -37,44 +37,38 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
     };
 
     const handleSubmitLogin = async (e: FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
         try {
-            e.preventDefault();
-            e.stopPropagation();
-            setLoading(true);
-        
-            request.post<loginResponse>(`/auth/login`, formData)
-                .then((res: loginResponse) => {
-                    const promise = () => new Promise((resolve) => setTimeout(() => resolve({ 'login': name }), 2000));
+            const res = await request.post<loginResponse>("/auth/login", formData);
 
-                    if (!res.token) {
-                        //toast.error("Login failed", { description: `${res}` });
-                        toast.error('Sorry, An error occured', { description: `System error. Please try again later.` })
-                        return;
-                    }
+            if (!res?.token?.trim()) {
+                toast.error("Login failed", { description: "No valid token received" });
+                return;
+            }
 
-                    sessionStorage.setItem('token', `r${res.token}`);
-                    const decoded = jwtDecode<tokenResponse>(res.token);
+            const cleanToken = res.token.trim();
+            sessionStorage.setItem('token', cleanToken);
+            request.setAuthToken(cleanToken);
 
-                    toast.success(`Pages & Parchment`);
-                    toast.promise(promise, {
-                        loading: 'Please wait...',
-                        success: () => `Welcome back ${decoded.username || decoded.sub}. Happy reading!`,
-                        error: `Error`
-                    })
-                    navigate('/profile', { replace: true });
+            const decoded = jwtDecode<tokenResponse>(cleanToken);
 
-                    setFormData({
-                        email:'',
-                        password: ''
-                    })
-                })
-        } catch (error: any) {
-            console.error("login error", error)
-            toast.error('Sorry, An error occured', { description: `${error}` })
+            toast.success(`Welcome back ${decoded.username || decoded.sub || "reader"}!`);
+
+            navigate("/profile", { replace: true });
+
+            setFormData({ email: "", password: "" });
+        } catch (err: any) {
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                "Invalid credentials or server error";
+            toast.error("Login failed", { description: msg });
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <form
@@ -197,7 +191,6 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
             <button
                 type="submit"
                 disabled={loading}
-                onClick={handleSubmitLogin}
                 style={{
                     marginTop: "12px",
                     padding: "clamp(14px, 3.5vw, 17px)",

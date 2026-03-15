@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             toast.error('Session Terminated');
         }
 
-        navigate(`/auth`, { replace: true })
+        navigate(`/auth`, { replace: true });
     }, [navigate])
 
     /// cut out some code for now
@@ -100,7 +100,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         let intervalId: ReturnType<typeof setInterval> | null = null;
 
         const initAuth = async () => {
+            // Skip if we already have user data
+            if (user) {
+                return;
+            }
             setLoading(true);
+
             const token = sessionStorage.getItem('token');
 
             if (!token || !isTokenvalid(token)) {
@@ -112,10 +117,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 request.setAuthToken(token);
                 const res = await request.get<User>('/auth/user');
-                console.log(res);
-                setUser(res);
+                //console.log("User fetched successfully:", res?.username || res?.email || 'no name');
+                setUser(res);  // ← This line is critical!
 
-                // Schedule warning + expiry only once after successful user load
+                // Schedule timers only after user is set
                 const timeLeftMs = getTimeLeft(token);
 
                 if (timeLeftMs > 0) {
@@ -127,99 +132,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                             });
                         }, timeLeftMs - 5 * 60 * 1000);
                     }
+
+                    expiryTimeout = setTimeout(() => {
+                        logout('Your session has expired.');
+                    }, timeLeftMs);
                 }
-
-                expiryTimeout = setTimeout(() => {
-                    logout('Your session has expired.');
-                }, timeLeftMs);
-
             } catch (err) {
                 console.error('Failed to load user:', err);
                 logout('Session invalid. Please log in again.');
             } finally {
                 setLoading(false);
             }
-        }
+        };
 
         initAuth();
 
-        // Safety periodic check (every 3 min)
+        // Safety periodic check (every 3 minutes)
         intervalId = setInterval(() => {
             const token = sessionStorage.getItem('token');
             if (token && !isTokenvalid(token)) {
                 logout('Session expired (periodic check).');
             }
-        }, 600_000);
+        }, 180_000);
 
-        // Cleanup everything on unmount / logout
         return () => {
+            console.log("AuthProvider cleanup: clearing timers");
             if (warningTimeout) clearTimeout(warningTimeout);
             if (expiryTimeout) clearTimeout(expiryTimeout);
             if (intervalId) clearInterval(intervalId);
         };
-        /*
-        const initAuth = async () => {
-            setLoading(true);
-            const token = sessionStorage.getItem('token');
- 
-            if (!token || !isTokenvalid(token)) {
-                logout('Your session has expired. Please log in again.');
-                setLoading(false);
-                return;
-            }
- 
-            try {
-                request.setAuthToken(token);
-                const res = await request.get<User>(`/auth/user`);
-                setUser(res);
-            } catch (err) {
-                console.error('failed to load user', err);
-                logout(`Session invalid. Please login again`);
-            } finally {
-                setLoading(false);
-            }
-        }
-        initAuth();
- 
-        //periodic check for valid session every 5 minutes
-        const interval = setInterval(() => {
-            const token = sessionStorage.getItem('token');
-            if (token && !isTokenvalid) { logout('Your session has expired.'); }
-        }, 300_000);
- 
-        let warningTimeout: ReturnType<typeof setTimeout> | null = null;
-        let expiryTimeout: ReturnType<typeof setTimeout> | null = null;
- 
-        const token = sessionStorage.getItem('token');
-        if (token && isTokenvalid(token)) {
-            const timeLeft = getTimeLeft(token);
- 
-            if (timeLeft > 0) {
-                // Show warning at 5 minutes left
-                if (timeLeft > 5 * 60 * 1000) {
-                    warningTimeout = setTimeout(() => {
-                        toast.warning('Session expiring soon', {
-                            description: 'Less than 5 minutes remaining. Save your work!',
-                            duration: 15000,
-                        });
-                    }, timeLeft - 5 * 60 * 1000);
-                }
- 
-                // Force logout exactly at expiry
-                expiryTimeout = setTimeout(() => {
-                    logout('Your session has expired.');
-                }, timeLeft);
-            }
-        }
-        return () => {
-            clearInterval(interval);
-            if (warningTimeout) clearTimeout(warningTimeout);
-            if (expiryTimeout) clearTimeout(expiryTimeout);
-        };
-        */
     }, [logout]);
-
-
+    
+   
     return (
         <AuthContext.Provider value={{ user, setUser, setRecommends, recommends, isLoggedIn, logout, loading }}>
             {loading ? (
@@ -227,7 +171,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     <Spinner loadingLabel="Please Wait" />
                 </div>
             ) : (
-                children
+                <>{children}</>
             )}
         </AuthContext.Provider>
     );

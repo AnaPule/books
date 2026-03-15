@@ -9,20 +9,26 @@ import Spinner from '@components/skeleton/spinner';
 
 {/* =============== services ============ */ }
 import { isTokenvalid } from '@utils/auth';
+import { useAuth } from '@context/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const [isValid] = useState<boolean | null>(null);
+  const {loading,isLoggedIn} = useAuth();
 
-  if (isValid === null) {
-    return <div className="flex justify-center items-center h-screen"><Spinner loadingLabel='Loading' /></div>; // Or a spinner
+  if (isLoggedIn && isTokenvalid === null) {
+    return <Navigate to="/auth" replace />;
+    //return <div className="flex justify-center items-center h-screen"><Spinner loadingLabel='Loading' /></div>; 
   }
 
-  if (!isValid) {
+  if (!isTokenvalid || !isLoggedIn) {
     return <Navigate to="/auth" replace />;
+  }
+
+  if (loading){
+    return <div className="flex justify-center items-center h-screen"><Spinner loadingLabel='Loading' /></div>; 
   }
 
   return <>{children}</>;

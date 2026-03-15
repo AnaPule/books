@@ -1,5 +1,5 @@
 
-
+import { toast } from 'sonner';
 import { useState } from "react";
 
 {/* =============== components ============ */ }
@@ -12,6 +12,9 @@ import { useAuth } from "@context/AuthContext";
 {/* =============== images ============ */ }
 import Avatar from '@assets/avatar.jpeg';
 
+{/* =============== utils ============ */ }
+import { request } from "@utils/ApiRequest";
+
 interface NavItem {
     icon: React.ComponentType<{ size?: number; className?: string }>;
     label: string;
@@ -20,7 +23,7 @@ interface NavItem {
 
 const Sidebar = () => {
 
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
     const navigate = useNavigate();
     const [activeItem, setActiveItem] = useState(0);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -35,6 +38,16 @@ const Sidebar = () => {
         { icon: Heart, label: 'Favorites', element: '/wishlist' },
         { icon: Bell, label: 'Notifications', element: '/notifications' },
     ];
+
+    const logout = (message?: string) => {
+        sessionStorage.removeItem('token');
+        setUser(null);
+        request.setAuthToken(null);
+        navigate(`/home`, { replace: true });
+        toast.info('Pages ń Parchment',{description:
+            'Come back soon!!'
+        })
+    }
 
     return (
         <>
@@ -91,8 +104,8 @@ const Sidebar = () => {
                                     navigate(`${item.element}`)
                                 }}
                                 className={`font-sans w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${isActive
-                                        ? 'bg-[#7b5f48] text-[#1b120e]'
-                                        : 'text-[#e0cabe] hover:bg-[#7b5f48]/20 hover:text-[#998982]'
+                                    ? 'bg-[#7b5f48] text-[#1b120e]'
+                                    : 'text-[#e0cabe] hover:bg-[#7b5f48]/20 hover:text-[#998982]'
                                     } ${!isExpanded && 'justify-center'}`}
                             >
                                 <Icon size={20} className="flex-shrink-0" />
@@ -153,7 +166,7 @@ const Sidebar = () => {
                         )}
 
                         {isExpanded && (
-                            <LogOut onClick={() => navigate('/logout')} size={16} className="text-[#e0cabe] group-hover:text-[#998982] transition-colors" />
+                            <LogOut onClick={() => logout()} size={16} className="text-[#e0cabe] group-hover:text-[#998982] transition-colors" />
                         )}
                     </div>
                 </div>

@@ -1,13 +1,15 @@
-
 import { useState, useEffect } from "react";
-
-{/* =============== services ============ */ }
 import { useAuth } from "@context/AuthContext";
+import {
+    Bell, Clock, BookOpen,
+    Star, Target, Users, BookMarked,
+    ChevronRight, Sparkles, Quote,
+    Music, Play, Grid, List, BookText,
+    Download, CheckCircle, Plus,
+    Library, Heart, Feather, Menu
+} from 'lucide-react';
 
-{/* =============== components ============ */ }
-import { PageTemplate } from "@utils/PageTemplate";
-
-{/* =============== components ============ */ }
+// Assets
 import Flower_0 from '@assets/Flower_0.jpeg';
 import Flower_1 from '@assets/Flower_1.jpeg';
 import Flower_2 from '@assets/Flower_2.jpeg';
@@ -18,315 +20,455 @@ import Flower_6 from '@assets/Flower_6.jpeg';
 import Flower_7 from '@assets/Flower_7.jpeg';
 import Flower_8 from '@assets/Flower_8.jpeg';
 
+// ==================== PROFILE HEADER ====================
 const ProfileHeader: React.FC = () => {
     const { user } = useAuth();
-    //console.log(user)
+
     return (
-        <div className="max-w-6xl mx-auto px-5 md:px-8 pt-10 pb-6 relative z-5 font-sans">
-            <div className="flex items-start flex-col md:flex-row gap-6 md:gap-8">
-                {/*Profile Card*/}
-                <div className="
-                    rounded
-                    border border-[white]/40 md:rounded-2xl 
-                    shadow-xl w-full md:w-2/3 p-6 md:p-8 relative
-                ">
-                    <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiM4YjczNTUiLz48cGF0aCBkPSJNMjAgMjBoMTB2MTBIMjB6TTUwIDUwaDEwdjEwSDUweiIgZmlsbD0iI2Q0Yjg4YSIgb3BhY2l0eT0iMC4xIi8+PC9zdmc+')] mix-blend-overlay" />
-
-                    <div className="relative flex flex-col md:flex-row gap-6 items-center md:items-center">
-                        {/* Profile image with vintage frame */}
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-[#8b7355]/40 rounded-full opacity-20"></div>
-                            <img
-                                src={user?.profilePhoto || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=300"}
-                                alt="Your portrait"
-                                className="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-2 border-[#b8860b] relative z-10"
-                            />
-                        </div>
-
-                        <div className="flex-1 text-center md:text-left">
-                            <h1 className="text-3xl md:text-4xl text-[#f0e0c0] mb-1 tracking-wide uppercase">
-                                {user?.username}
-                            </h1>
-                            <p className="text-[#c4a07c] italic text-sm mb-3 border-b border-[#8b7355]/30 pb-2 inline-block">
-                                {user?.email || "scholar@oldlibrary.edu"}
-                            </p>
-
-                            <p className="text-[#d2b48c] text-sm leading-relaxed max-w-lg font-light">
-                                {user?.bio || "Keeper of quiet pages • Seeker in candlelit corners."}
-                            </p>
-
-                            <div className="flex gap-6 mt-4 text-[#d4b88a] text-sm">
-                                <div>
-                                    <span className="font-bold text-xl">200</span>
-                                    <span className="ml-1 text-xs uppercase opacity-80">Followers</span>
-                                </div>
-                                <div>
-                                    <span className="font-bold text-xl">200</span>
-                                    <span className="ml-1 text-xs uppercase opacity-80">Following</span>
-                                </div>
-                            </div>
-
-                            <div className="flex lg:justify-start md:justify-start justify-center gap-3 mt-5">
-                                <button className="px-6 py-2 bg-[#8b7355] text-[#f0e0c0] border border-[#d4b88a] text-sm hover:bg-[#6b5436] transition uppercase tracking-wider">
-                                    EDIT
-                                </button>
-                                <button className="px-6 py-2 bg-transparent text-[#d4b88a] border border-[#d4b88a] text-sm hover:bg-[#d4b88a]/10 transition uppercase tracking-wider">
-                                    WISHLIST
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <div className="flex items-center justify-between mb-3">
+                <div>
+                    <h1 className="text-xl md:text-2xl font-serif text-[#5a4d41]">MM Pule</h1>
+                    <p className="text-[10px] md:text-xs text-[#7e6957] italic flex items-center gap-1">
+                        <Quote size={10} className="text-[#d9b6a8]" />
+                        "No enjoyment like reading"
+                    </p>
                 </div>
+                <button className="p-1.5 md:p-2 hover:bg-[#f5d6d4]/30 rounded-full transition relative">
+                    <Bell size={16} className="text-[#c9a394]" />
+                    <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-[#d9b6a8] rounded-full"></span>
+                </button>
+            </div>
 
-                {/* Stats Card */}
-                <div className="border border-[white]/40 rounded-2xl 
-                    md:w-1/3 p-6 flex flex-col justify-center
-                    shadow-xl w-full h-[100%] md:p-8 relative
-                    font-sans
-                ">
-                    <h3 className="text-xl text-[#d4b88a] mb-4 uppercase tracking-widest text-center border-b border-[#8b7355]/30 pb-2">
-                        CLASSICS
-                    </h3>
-                    <div className="space-y-4">
-                        <div className="text-center">
-                            <p className="text-3xl text-[#f0e0c0] font-bold">14h 37m</p>
-                            <p className="text-[#c4a07c] text-sm uppercase tracking-wide">Reading This Month</p>
-                        </div>
-                        <div className="text-center pt-2 border-t border-[#8b7355]/30">
-                            <p className="text-[#d2b48c]/30 text-xs italic">
-                                ope is the thing with feathers that perches in the soul
-                                <br />
-                                ~ Dickinson
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <div className="flex gap-2">
+                <button className="flex-1 py-2 md:py-2.5 bg-gradient-to-r from-[#c9a394] to-[#d9b6a8] text-white text-xs md:text-sm rounded-lg hover:from-[#b58b7c] hover:to-[#c9a394] transition flex items-center justify-center gap-1 shadow-sm">
+                    <BookOpen size={14} />
+                    <span className="hidden sm:inline">Library</span>
+                    <span className="sm:hidden">Lib</span>
+                </button>
+                <button className="flex-1 py-2 md:py-2.5 border border-[#e8bfb0] text-[#5a4d41] text-xs md:text-sm rounded-lg hover:bg-[#fceae8] transition">
+                    Edit
+                </button>
             </div>
         </div>
     );
 };
 
-const WordOfTheDay: React.FC = () => {
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
-    const [previousImageIndex, setPreviousImageIndex] = useState(0);
-    const [isTransitioning, setIsTransitioning] = useState(false);
+// ==================== DATE & TIME CARD ====================
+const DateTimeCard: React.FC = () => {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
 
-    const flowerImages = [
-        Flower_0, Flower_1, Flower_2, Flower_3,
-        Flower_4, Flower_5, Flower_6, Flower_7, Flower_8
+    return (
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <p className="text-[10px] md:text-xs text-[#d9b6a8] mb-2 md:mb-3 flex items-center gap-1">
+                <Heart size={10} className="text-[#c9a394]" /> 02 41 PM · SAT
+            </p>
+            <div className="flex items-baseline justify-center gap-1">
+                <span className="text-3xl md:text-4xl font-serif text-[#5a4d41]">{hours}</span>
+                <span className="text-xl md:text-2xl text-[#d9b6a8] font-light">:</span>
+                <span className="text-3xl md:text-4xl font-serif text-[#5a4d41]">{minutes}</span>
+            </div>
+            <p className="text-[10px] md:text-xs text-[#7e6957] text-center mt-1 md:mt-2">TUESDAY</p>
+        </div>
+    );
+};
+
+// ==================== CALENDAR ====================
+const Calendar: React.FC = () => {
+    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const march2024 = [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
     ];
 
-    const totalImages = flowerImages.length;
+    return (
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <h2 className="text-sm md:text-base font-serif text-[#5a4d41] mb-2 md:mb-3 flex items-center gap-2">
+                <Feather size={14} className="text-[#c9a394]" /> March 2024
+            </h2>
+
+            <div className="grid grid-cols-7 gap-0.5 md:gap-1 mb-1 md:mb-2">
+                {days.map(day => (
+                    <div key={day} className="text-center text-[10px] md:text-xs font-medium text-[#d9b6a8]">{day}</div>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-7 gap-0.5 md:gap-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={`empty-${i}`} className="text-center p-0.5 md:p-1"></div>
+                ))}
+                {march2024.map(date => (
+                    <div
+                        key={date}
+                        className={`
+                            text-center p-0.5 md:p-1.5 text-[10px] md:text-sm rounded-md cursor-pointer
+                            ${date === 15 ? 'bg-gradient-to-r from-[#c9a394] to-[#d9b6a8] text-white' : 'text-[#5a4d41] hover:bg-[#f5d6d4]/30'}
+                        `}
+                    >
+                        {date}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// ==================== WORD OF THE DAY ====================
+const WordOfTheDay: React.FC = () => {
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [previousImageIndex, setPreviousImageIndex] = useState(0);
+    const flowerImages = [Flower_0, Flower_1, Flower_2, Flower_3, Flower_4, Flower_5, Flower_6, Flower_7, Flower_8];
 
     useEffect(() => {
-        // 5 minutes = 300,000 milliseconds
-        const imageDuration = 300000;
-
         const interval = setInterval(() => {
             setIsTransitioning(true);
             setPreviousImageIndex(activeImageIndex);
-            const nextIndex = (activeImageIndex + 1) % totalImages;
-            setActiveImageIndex(nextIndex);
-            setTimeout(() => {
-                setIsTransitioning(false);
-            }, 1000);
-
-        }, imageDuration);
-
+            setActiveImageIndex((prev) => (prev + 1) % flowerImages.length);
+            setTimeout(() => setIsTransitioning(false), 1000);
+        }, 5000);
         return () => clearInterval(interval);
-    }, [activeImageIndex, totalImages]);
+    }, [activeImageIndex]);
 
     return (
-        <div className="border border-white/40 rounded p-6 text-center relative z-5 min-h-[350px] flex flex-col items-center justify-center overflow-hidden">
-            {/* Previous Image (fading out) */}
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)] relative overflow-hidden min-h-[180px] md:min-h-[220px]">
+            {/* Previous Image */}
             <img
                 src={flowerImages[previousImageIndex]}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
                 style={{
-                    filter: 'blur(2px) brightness(0.45)',
-                    opacity: isTransitioning ? 0 : 1,
-                    zIndex: isTransitioning ? 2 : 1,
+                    opacity: isTransitioning ? 0 : 0.2,
+                    filter: 'blur(3px) brightness(1.1)'
                 }}
             />
-
-            {/* Current Image (fading in) */}
+            {/* Current Image */}
             <img
                 src={flowerImages[activeImageIndex]}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
                 style={{
-                    filter: 'blur(3px) brightness(0.45)',
-                    opacity: isTransitioning ? 1 : 1,
-                    zIndex: isTransitioning ? 3 : 2,
+                    opacity: isTransitioning ? 0.2 : 0.2,
+                    filter: 'blur(3px) brightness(1.1)'
                 }}
             />
 
-            {/* vignette */}
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'radial-gradient(ellipse at 50% 30%, rgba(10, 8, 12, 0.92) 0%, transparent 45%, rgba(8, 6, 10, 0.75) 70%, rgba(5, 4, 8, 0.98) 100%)',
-                    pointerEvents: 'none',
-                    zIndex: 1,
-                }}
-            />
-
-            {/* Additional vignette layer */}
-            <div
-                className="absolute inset-0 pointer-events-none z-21"
-                style={{
-                    background: 'radial-gradient(circle, transparent 40%, rgba(0,0,0,0.4) 100%)',
-                    mixBlendMode: 'multiply'
-                }}
-            />
-
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-black/30 z-22" />
-
-            {/* Strong vignette – focus in center/left */}
-            <div
-                style={{
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                        "radial-gradient(ellipse at 35% 45%, transparent 18%, rgba(0,0,0,0.92) 65%, rgba(0,0,0,0.98) 100%)",
-                    pointerEvents: "none",
-                    zIndex: 1,
-                }}
-            />
-            {/* Content */}
-            <div className="relative z-30">
-                <h3 className="text-lg text-[#d4b88a] mb-3 uppercase tracking-widest">
-                    WORD OF THE DAY
-                </h3>
-                <p className="text-4xl text-[#f0e0c0] font-bold font-sans uppercase mb-2">Orenda</p> {/* word */}
-                <p className="text-sm italic test-[#f0e0c0]">noun</p> {/* parts of speech */}
-                <p className="text-sm italic text-[#f0e0c0] mb-2">o • ren • da / (n)</p> {/* latin/ pronunciation */}
-                <p className="text-[#c4a07c] italic text-sm">a mystical force present in all people that empowers them to affect the world, or to effect change in their own lives.</p> {/* meaning */}
-                <div className="mt-4 pt-4 border-t border-[#8b7355]/30">
-                    <p className="text-[#d2b48c] text-xs italic">
-                        "The beautiful thing about learning is that nobody can take it away from you."
-                    </p> {/* qoute of the day */}
-                    <p className="text-[#8b7355] text-xs mt-1">— B.B. King</p>
-                </div>
-
-                {/* Image indicator */}
-                <div className="flex justify-center gap-1 mt-4">
-                    {flowerImages.map((_, index) => (
-                        <div
-                            key={index}
-                            className={`h-0.5 rounded-full transition-all duration-300 ${index === activeImageIndex
-                                ? 'bg-[#d4b88a] w-6'
-                                : 'bg-[#8b7355]/50 w-4 hover:bg-[#8b7355]'
-                                }`}
-                        />
-                    ))}
-                </div>
+            <div className="relative z-10">
+                <p className="text-[10px] md:text-xs text-[#c9a394] tracking-wider mb-1 md:mb-2 flex items-center gap-1">
+                    <Sparkles size={10} className="text-[#d9b6a8]" /> WORD
+                </p>
+                <h3 className="text-xl md:text-2xl text-[#5a4d41] font-serif mb-0.5 md:mb-1">Sonder</h3>
+                <p className="text-[10px] md:text-xs text-[#7e6957] italic mb-2 md:mb-3">/sɒn.dər/ — noun</p>
+                <p className="text-xs md:text-sm text-[#5a4d41] leading-relaxed">the realization that every passerby has a life as vivid and complex as your own.</p>
             </div>
         </div>
     );
 };
 
-const CommunitiesSection: React.FC = () => {
-    const communities = [
-        { name: "MIDNIGHT CODEX", readers: 162, threads: 38, description: "Secret society of night readers" },
-        { name: "ASH & VELLUM", readers: 89, threads: 24, description: "For lovers of rare books" },
-        { name: "CANDLELIT NOTES", readers: 215, threads: 52, description: "Poetry and prose circle" },
-        { name: "FORGOTTEN SCRIPT", readers: 134, threads: 41, description: "Ancient texts discussion" },
+
+// ==================== DARK ACADEMIA JOURNAL MENU ====================
+const JournalMenu: React.FC = () => {
+    const menuItems = [
+        "my library",
+        "genres",
+        "authors",
+        "series",
+        "reviews & quotes",
+        "reading goals",
+        "recommendations",
+        "book vocabulary"
     ];
 
     return (
-        <div className=" border border-[#8b7355]/40 rounded-2xl p-6 relative z-5">
-            <h2 className="text-2xl text-[#f0e0c0] mb-6 uppercase tracking-wider border-b border-[#8b7355]/30 pb-2 flex items-center justify-between">
-                <span>COMMUNITIES</span>
-                <span className="text-xs text-[#c4a07c]">FIND YOUR CIRCLE</span>
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <h2 className="text-base md:text-lg font-serif text-[#5a4d41] mb-3 md:mb-4 flex items-center gap-2">
+                <BookMarked size={16} className="text-[#c9a394]" /> journal
             </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {communities.map((comm) => (
-                    <div key={comm.name} className="
-                        border border-[white]/30 p-4 hover:border-[#d4b88a] transition-all
-                        font-sans
-                    ">
-                        <h3 className=" text-lg text-[#d4b88a] mb-2">{comm.name}</h3>
-                        <p className="text-[#c4a07c] text-xs mb-3 italic">{comm.description}</p>
-                        <div className="flex justify-between items-center">
-                            <span className="text-[#8b7355] text-xs">{comm.readers} READERS • {comm.threads} THREADS</span>
-                            <button className="px-4 py-1 border border-[#d4b88a] text-[#d4b88a] text-xs hover:bg-[#d4b88a] hover:text-[#1a0f05] transition uppercase">
-                                JOIN
-                            </button>
-                        </div>
-                    </div>
+            <div className="space-y-1 md:space-y-2">
+                {menuItems.map((item, idx) => (
+                    <button key={idx} className="w-full text-left py-1 text-xs md:text-sm text-[#5a4d41] hover:text-[#c9a394] transition border-b border-[#e8bfb0]/20 last:border-0">
+                        {item}
+                    </button>
                 ))}
             </div>
         </div>
     );
 };
 
-const FavoritesSection: React.FC = () => {
-    const favorites = [
-        { title: "THE SECRET HISTORY", author: "DONNA TARTT", year: "1992" },
-        { title: "IF WE WERE VILLAINS", author: "M.L. RIO", year: "2017" },
-        { title: "NINTH HOUSE", author: "LEIGH BARDUGO", year: "2019" },
-        { title: "DORIAN GRAY", author: "OSCAR WILDE", year: "1890" },
+// ==================== CURRENT READS ====================
+const CurrentReads: React.FC = () => {
+    const books = [
+        {
+            title: "The Picture of Dorian Gray",
+            author: "Oscar Wilde",
+            genre: "Fiction",
+            progress: 37,
+            cover: "📖"
+        },
+        {
+            title: "Harry Potter",
+            author: "J.K. Rowling",
+            genre: "Fantasy",
+            progress: 100,
+            cover: "📚"
+        },
     ];
 
     return (
-        <div className="rounded-2xl border border-[#8b7355]/40 p-6 relative z-5">
-            <h2 className="text-2xl text-[#f0e0c0] mb-6 uppercase tracking-wider border-b border-[#8b7355]/30 pb-2">
-                FAVORITES
-            </h2>
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <div className="flex justify-between items-center mb-3 md:mb-4">
+                <h2 className="text-base md:text-lg text-[#5a4d41] flex items-center gap-2">
+                    <BookOpen size={16} className="text-[#c9a394]" /> Reading
+                </h2>
+            </div>
 
-            <div className="space-y-3">
-                {favorites.map((book, idx) => (
-                    <div key={book.title} className="
-            flex items-center gap-4 p-3 border border-[#8b7355]/30
-            hover:border-[#d4b88a] transition-all group font-sans
-          ">
-                        <span className="text-[#8b7355] text-xl w-6">{idx + 1}</span>
-                        <div className="flex-1">
-                            <h4 className="text-base text-[#f0e0c0] group-hover:text-[#d4b88a]">
-                                {book.title}
-                            </h4>
-                            <p className="text-[#c4a07c] text-xs">{book.author} • {book.year}</p>
-                        </div>
-                        <div className="w-10 h-14 bg-[#8b7355]/30 flex items-center justify-center text-[0.65rem] text-[#d2b48c]">
-                            COVER
+            <div className="space-y-3 md:space-y-4">
+                {books.map((book, idx) => (
+                    <div key={idx} className="border border-[#e8bfb0]/30 rounded-lg p-3 md:p-4 hover:border-[#c9a394] transition bg-white/30">
+                        <div className="flex gap-3 md:gap-4">
+                            <div className="w-12 h-16 md:w-16 md:h-20 bg-gradient-to-br from-[#f5d6d4] to-[#e8bfb0]/40 rounded flex items-center justify-center text-2xl md:text-3xl shrink-0">
+                                {book.cover}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-sm md:text-base font-medium text-[#5a4d41] truncate">{book.title}</h3>
+                                <p className="text-[10px] md:text-xs text-[#7e6957] mb-1 md:mb-2 truncate">{book.author} · {book.genre}</p>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="flex-1 h-1 md:h-1.5 bg-[#f5d6d4]/30 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-[#c9a394] to-[#d9b6a8] rounded-full"
+                                            style={{ width: `${book.progress}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="text-[10px] md:text-xs text-[#c9a394]">{book.progress}%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                ))}
+
+                <button className="w-full py-2 md:py-3 border-2 border-dashed border-[#e8bfb0]/50 rounded-lg text-[#c9a394] hover:bg-[#f5d6d4]/20 transition flex items-center justify-center gap-2 text-xs md:text-sm">
+                    <Plus size={14} /> New
+                </button>
+            </div>
+        </div>
+    );
+};
+
+
+// ==================== SHELVES COMPONENT ====================
+const Shelves: React.FC = () => {
+    const readingBooks = [
+        { title: "The Midnight\nLibrary", w: 65, h: 90, bg: "#F0D9D4", textColor: "#5A3A3A", progress: 35 },
+        { title: "The Art of\nThinking", w: 68, h: 90, bg: "#D4C0B8", textColor: "#3A2A2A", progress: 60 },
+        { title: "Strategic\nWriting", w: 64, h: 90, bg: "#F5E0D8", textColor: "#2A2A2A", progress: 20 },
+    ];
+
+    const nextUpBooks = [
+        { title: "Lietuvos\nPaukščiai", w: 62, h: 88, bg: "#E8D0C8", textColor: "#2A4A5A" },
+        { title: "The Lord of\nthe Rings", w: 64, h: 88, bg: "#C0A8A0", textColor: "#F0E0C0" },
+        { title: "Around the\nWorld", w: 62, h: 88, bg: "#F0D0A8", textColor: "#5A3A10" },
+    ];
+
+    const finishedBooks = [
+        { title: "Steve Jobs", w: 62, h: 86, bg: "#E8E0D8", textColor: "#1A1A1A" },
+        { title: "Profesionalas", w: 64, h: 86, bg: "#F0E0D0", textColor: "#3A2A1A" },
+        { title: "One Year\nin a Ring", w: 62, h: 86, bg: "#C0D0D8", textColor: "#1A2A3A" },
+    ];
+
+    type Book = {
+        title: string;
+        w: number;
+        h: number;
+        bg: string;
+        textColor: string;
+        progress?: number;
+    };
+
+    function BookCover({ book }: { book: Book }) {
+        const { w, h, bg, textColor, title, progress } = book;
+        const lines = title.split("\n");
+        const mid = h / 2;
+
+        return (
+            <div className="flex flex-col items-center" style={{ width: w }}>
+                <div
+                    className="rounded-sm overflow-hidden"
+                    style={{ width: w, height: h, boxShadow: "2px 3px 12px rgba(181,139,124,0.25)", flexShrink: 0 }}
+                >
+                    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+                        <rect width={w} height={h} fill={bg} rx={2} />
+                        <text x={w / 2} y={mid} textAnchor="middle" fontSize={8} fill={textColor} fontFamily="Georgia,serif">
+                            {lines.map((line, i) => (
+                                <tspan key={i} x={w / 2} dy={i === 0 ? 0 : 10}>{line}</tspan>
+                            ))}
+                        </text>
+                        <rect x={0} y={0} width={3} height={h} fill="rgba(0,0,0,0.08)" />
+                    </svg>
+                </div>
+                {progress !== undefined && (
+                    <div className="mt-1 rounded-sm overflow-hidden" style={{ width: w - 10, height: 3, background: "#F0D9D4" }}>
+                        <div style={{ width: `${progress}%`, height: "100%", background: "#D9B6A8" }} />
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-[#FAF0E8] rounded-2xl border border-[#E8BFB0] p-4 md:p-6 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)] overflow-x-auto">
+            <div className="min-w-[600px] md:min-w-0">
+                <div className="mb-6">
+                    <div className="flex justify-between items-baseline mb-3">
+                        <span className="text-xs md:text-sm text-[#5C4F40] font-serif">Currently reading</span>
+                    </div>
+                    <div className="flex gap-4 items-end pb-3">
+                        {readingBooks.map((book, i) => <BookCover key={i} book={book} />)}
+                    </div>
+                    <div className="h-1 bg-gradient-to-b from-[#F0D9D4] to-[#E8C0B8] rounded" />
+                </div>
+
+                <div className="mb-6">
+                    <div className="flex justify-between items-baseline mb-3">
+                        <span className="text-xs md:text-sm text-[#5C4F40] font-serif">Next up</span>
+                        <span className="text-[10px] md:text-xs text-[#D9B6A8]">Full shelf →</span>
+                    </div>
+                    <div className="flex gap-4 items-end pb-3">
+                        {nextUpBooks.map((book, i) => <BookCover key={i} book={book} />)}
+                    </div>
+                    <div className="h-1 bg-gradient-to-b from-[#F0D9D4] to-[#E8C0B8] rounded" />
+                </div>
+
+                <div>
+                    <div className="flex justify-between items-baseline mb-3">
+                        <span className="text-xs md:text-sm text-[#5C4F40] font-serif">Finished</span>
+                        <span className="text-[10px] md:text-xs text-[#D9B6A8]">Full shelf →</span>
+                    </div>
+                    <div className="flex gap-4 items-end pb-3">
+                        {finishedBooks.map((book, i) => <BookCover key={i} book={book} />)}
+                    </div>
+                    <div className="h-1 bg-gradient-to-b from-[#F0D9D4] to-[#E8C0B8] rounded" />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ==================== READING GOALS ====================
+const ReadingGoals: React.FC = () => {
+    return (
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <h2 className="text-base md:text-lg font-serif text-[#5a4d41] mb-2 md:mb-3 flex items-center gap-2">
+                <Target size={14} className="text-[#c9a394]" /> GOALS
+            </h2>
+
+            <div className="mb-2 md:mb-3">
+                <div className="flex justify-between text-xs md:text-sm mb-1">
+                    <span className="text-[#5a4d41]">2024: 20 books</span>
+                    <span className="text-[#c9a394]">12/20</span>
+                </div>
+                <div className="w-full h-1.5 md:h-2 bg-[#f5d6d4]/30 rounded-full overflow-hidden">
+                    <div className="w-[60%] h-full bg-gradient-to-r from-[#c9a394] to-[#d9b6a8] rounded-full" />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mb-2">
+                <div className="border border-[#e8bfb0]/30 rounded-lg p-2 text-center bg-white/30">
+                    <p className="text-[10px] md:text-xs text-[#7e6957]">TBR</p>
+                    <p className="text-base md:text-xl text-[#5a4d41] font-serif">24</p>
+                </div>
+                <div className="border border-[#e8bfb0]/30 rounded-lg p-2 text-center bg-white/30">
+                    <p className="text-[10px] md:text-xs text-[#7e6957]">Reading</p>
+                    <p className="text-base md:text-xl text-[#5a4d41] font-serif">5</p>
+                </div>
+            </div>
+
+            <p className="text-[10px] md:text-xs text-[#c9a394] italic text-center">it's always a good day to read.</p>
+        </div>
+    );
+};
+
+// ==================== QUICK BUTTONS ====================
+const QuickButtons: React.FC = () => {
+    const buttons = [
+        "New Book",
+        "Recommendation",
+        "New Author",
+        "New Review",
+        "New Word"
+    ];
+
+    return (
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <h2 className="text-base md:text-lg font-serif text-[#5a4d41] mb-2 md:mb-3 flex items-center gap-2">
+                <Plus size={14} className="text-[#c9a394]" /> QUICK
+            </h2>
+            <div className="space-y-0.5">
+                {buttons.map((btn, idx) => (
+                    <button key={idx} className="w-full text-left py-1 px-1 text-xs md:text-sm text-[#5a4d41] hover:bg-[#f5d6d4]/20 rounded-lg transition">
+                        + {btn}
+                    </button>
                 ))}
             </div>
         </div>
     );
 };
 
-const DraftsSection: React.FC = () => {
-    const drafts = [
-        { title: "UNTITLED MYSTERY", lastEdited: "2 DAYS AGO", words: 1240 },
-        { title: "POEMS FROM THE ATTIC", lastEdited: "1 WEEK AGO", words: 856 },
-        { title: "WHISPERS IN LIBRARY", lastEdited: "3 WEEKS AGO", words: 2341 },
+// ==================== BOOKS READ ====================
+const BooksRead: React.FC = () => {
+    return (
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <h2 className="text-base md:text-lg font-serif text-[#5a4d41] mb-2 md:mb-3 flex items-center gap-2">
+                <CheckCircle size={14} className="text-[#c9a394]" /> READ
+            </h2>
+
+            <div className="space-y-2">
+                <div>
+                    <div className="flex justify-between items-center mb-0.5">
+                        <span className="text-xs md:text-sm text-[#5a4d41]">I Like to Read</span>
+                        <span className="text-xs md:text-sm text-[#c9a394]">100%</span>
+                    </div>
+                    <div className="w-full h-1 bg-[#f5d6d4]/30 rounded-full overflow-hidden">
+                        <div className="w-full h-full bg-gradient-to-r from-[#c9a394] to-[#d9b6a8] rounded-full" />
+                    </div>
+                </div>
+
+                <div>
+                    <div className="flex justify-between items-center mb-0.5">
+                        <span className="text-xs md:text-sm text-[#5a4d41]">Full of Secrets</span>
+                        <span className="text-xs md:text-sm text-[#c9a394]">50%</span>
+                    </div>
+                    <div className="w-full h-1 bg-[#f5d6d4]/30 rounded-full overflow-hidden">
+                        <div className="w-1/2 h-full bg-gradient-to-r from-[#c9a394] to-[#d9b6a8] rounded-full" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ==================== RECOMMENDATIONS ====================
+const Recommendations: React.FC = () => {
+    const recs = [
+        { title: "My Favorite", books: "The Secret History" },
+        { title: "The Perfect Library", books: "If We Were Villains" },
     ];
 
     return (
-        <div className="rounded-2xl border border-[#8b7355]/40 p-6 relative z-5">
-            <h2 className="text-2xl text-[#f0e0c0] mb-6 uppercase tracking-wider border-b border-[#8b7355]/30 pb-2">
-                DRAFTS
+        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+            <h2 className="text-base md:text-lg font-serif text-[#5a4d41] mb-2 md:mb-3 flex items-center gap-2">
+                <Star size={14} className="text-[#c9a394]" /> RECS
             </h2>
 
-            <div className="grid grid-cols-1 gap-3">
-                {drafts.map((draft) => (
-                    <div key={draft.title} className="
-                        border border-[#8b7355]/30 p-4 hover:border-[#d4b88a] transition-all font-sans
-                    ">
-                        <div className="flex justify-between items-start">
-                            <h4 className="text-base text-[#f0e0c0]">{draft.title}</h4>
-                            <span className="text-[#8b7355] text-xs">{draft.words} WORDS</span>
+            <div className="space-y-2">
+                {recs.map((rec, idx) => (
+                    <div key={idx} className="flex items-center justify-between pb-1 border-b border-[#e8bfb0]/20 last:border-0">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-xs md:text-sm font-medium text-[#5a4d41] truncate">{rec.title}</p>
+                            <p className="text-[10px] md:text-xs text-[#7e6957] truncate">{rec.books}</p>
                         </div>
-                        <p className="text-[#c4a07c] text-xs mt-1">LAST EDITED: {draft.lastEdited}</p>
-                        <button className="mt-3 text-[#d4b88a] text-xs underline hover:text-[#f0e0c0] transition uppercase">
-                            CONTINUE WRITING →
+                        <button className="text-[10px] px-2 py-0.5 border border-[#c9a394] text-[#c9a394] rounded hover:bg-[#c9a394] hover:text-white transition ml-2 shrink-0">
+                            Save
                         </button>
                     </div>
                 ))}
@@ -335,86 +477,96 @@ const DraftsSection: React.FC = () => {
     );
 };
 
-const NotificationsSection: React.FC = () => {
-    const notifications = [
-        { content: "New message from @litlover", time: "1h", type: "message" },
-        { content: "Follow request from @bookwhisperer", time: "3h", type: "follow" },
-        { content: "Midnight Codex: 2 new replies", time: "Yesterday", type: "thread" },
-        { content: "@candlelitnotes followed you", time: "2d", type: "follow" },
-    ];
+// ==================== MOBILE MENU ====================
+const MobileMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+    if (!isOpen) return null;
 
     return (
-        <div className="border border-[#8b7355]/40 p-6 rounded-2xl relative z-5">
-            <h2 className="text-2xl text-[#f0e0c0] mb-6 uppercase tracking-wider border-b border-[#8b7355]/30 pb-2">
-                NOTIFICATIONS
-            </h2>
-
-            <div className="space-y-3">
-                {notifications.map((notif, index) => (
-                    <div key={index} className="
-            border border-[#8b7355]/30 p-3 hover:border-[#d4b88a] transition-all
-            flex justify-between items-center
-          ">
-                        <p className="text-[#d2b48c] text-sm">{notif.content}</p>
-                        <span className="text-[#8b7355] text-xs">{notif.time}</span>
-                    </div>
-                ))}
+        <div className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={onClose}>
+            <div className="absolute right-0 top-0 h-full w-64 bg-[#fcf9f4] p-5 shadow-lg border-l border-[#e8bfb0]" onClick={e => e.stopPropagation()}>
+                <button className="absolute top-4 right-4 text-[#5a4d41]" onClick={onClose}>✕</button>
+                <div className="mt-10 space-y-4">
+                    <JournalMenu />
+                    <QuickButtons />
+                </div>
             </div>
         </div>
     );
 };
 
-const Footer: React.FC = () => (
-    <footer className="font-sans border-t border-[#8b7355]/30 py-8 text-center mt-10">
-        <p className=" italic text-[#d4b88a]">HARMONY — PRIVATE. SECURE. TIMELESS.</p>
-        <p className="mt-2 text-[#8b7355] text-xs">© {new Date().getFullYear()} • RETURN WHEN THE WORLD GROWS LOUD</p>
-        <div className="flex justify-center gap-6 mt-4 text-[#8b7355] text-xs">
-            <a href='/home#home'>HOME</a>
-            <a href='/home#about'>ABOUT</a>
-            <a href='/home#features'>FEATURES</a>
-            <a>ACCOUNT</a>
-        </div>
-    </footer>
-);
-
+// ==================== MAIN PROFILE PAGE ====================
+// ==================== MAIN PROFILE PAGE ====================
 export default function ProfilePage() {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
     return (
-        <>
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'radial-gradient(ellipse at 50% 30%, rgba(10, 8, 12, 0.92) 0%, transparent 45%, rgba(8, 6, 10, 0.75) 70%, rgba(5, 4, 8, 0.98) 100%)',
-                    pointerEvents: 'none',
-                }}
-            />
+        <div className="min-h-screen bg-[#faf5ea] pt-16 md:pt-20 px-3 md:px-6 pb-8">
+            {/* Decorative elements */}
+            <div className="fixed top-0 left-0 w-48 md:w-64 h-48 md:h-64 bg-[#f5d6d4]/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+            <div className="fixed bottom-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-[#e8bfb0]/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
 
-            <div className="min-h-screen text-[#d2b48c] mt-20">
-                <ProfileHeader />
+            {/* Mobile menu button */}
+            <button
+                className="fixed bottom-4 right-4 z-40 md:hidden bg-[#c9a394] text-white p-3 rounded-full shadow-lg"
+                onClick={() => setMobileMenuOpen(true)}
+            >
+                <Menu size={20} />
+            </button>
 
-                {/* Word of the Day - Full width like in your screenshot */}
-                <div className="max-w-6xl mx-auto px-5 md:px-8 mt-8">
+            <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+
+            <div className="max-w-7xl mx-auto relative z-10">
+                {/* Jane Austen Quote */}
+                <div className="text-center mb-3 md:mb-4 px-2">
+                    <p className="text-xs md:text-base font-serif text-[#5a4d41] italic flex items-center justify-center gap-1 md:gap-2">
+                        <Quote size={12} className="text-[#c9a394]" />
+                        "I declare after all there is no enjoyment like reading."
+                        <Quote size={12} className="text-[#c9a394]" />
+                    </p>
+                    <p className="text-[10px] md:text-xs text-[#c9a394] mt-0.5">— Jane Austen</p>
+                </div>
+
+                {/* Mobile layout - stack everything */}
+                <div className="block md:hidden space-y-4">
+                    <ProfileHeader />
+                    <DateTimeCard />
+                    <Calendar />
                     <WordOfTheDay />
+                    <Shelves />
+                    <CurrentReads />
+                    <BooksRead />
+                    <ReadingGoals />
+                    <Recommendations />
                 </div>
 
-                {/* Main grid layout - Like Dark Academia planner */}
-                <div className="max-w-6xl mx-auto px-5 md:px-8 mt-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <CommunitiesSection />
-                        <FavoritesSection />
-                    </div>
-                </div>
+                {/* Desktop layout - grid */}
+                <div className='hidden md:grid md:grid-cols-6 gap-4'>
+                    {/* Left Column */}
+                    <section className='col-span-4'>
+                        <div className='grid grid-cols-2 gap-4'>
+                            <section><ProfileHeader /></section>
+                            <section><DateTimeCard /></section>
+                            <section className="col-span-2"><Shelves /></section>
+                            <section><CurrentReads /></section>
+                            <section className='space-y-2'>
+                                <BooksRead />
+                                <JournalMenu />
+                            </section>
+                        </div>
+                    </section>
 
-                {/* Secondary grid */}
-                <div className="max-w-6xl mx-auto px-5 md:px-8 mt-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <DraftsSection />
-                        <NotificationsSection />
-                    </div>
+                    {/* Right Column */}
+                    <section className='col-span-2'>
+                        <div className='space-y-4'>
+                            <Calendar />
+                            <WordOfTheDay />
+                            <ReadingGoals />
+                            <QuickButtons />
+                            <Recommendations />
+                        </div>
+                    </section>
                 </div>
-
-                <Footer />
             </div>
-        </>
+        </div>
     );
 }

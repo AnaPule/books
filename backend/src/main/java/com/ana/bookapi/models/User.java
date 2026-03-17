@@ -23,11 +23,14 @@ public class User implements UserDetails {
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "username", unique = true, nullable = true, length = 50)  // ← Add column names
+    @Column(name = "username", unique = true, nullable = true, length = 50)
     private String username;
 
     @Column(name = "email", unique = true, nullable = false, length = 40)
     private String email;
+
+    @Column(name = "cellphone", nullable = false, length = 10)
+    private String cellphone;
 
     @Column(name = "bio", unique = false, nullable = true, length = 300)
     private String bio;
@@ -43,42 +46,28 @@ public class User implements UserDetails {
 
     /* ============== VERIFICATION STUFFIES ================ */
 
+    @Column(name = "verifiedEmail")
+    private boolean verfied = false;
+
     @Column(name = "active")
-    private boolean active = false;
+    private boolean active = true;
 
     //get and set methods
-    public String getId() {
-        return id;
-    }
+    public String getId() {return id;}
 
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername() {return username;}
+    public void setUsername(String username) {this.username = username;}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public String getEmail() {return email;}
+    public void setEmail(String email) {this.email = email;}
 
-    public String getEmail() {
-        return email;
-    }
+    public String getPhone() {return cellphone;}
+    public void setPhone(String cellphone) {this.cellphone = cellphone;}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getPassword() {return password;}
+    public void setPassword(String password) {this.password = password;}
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
+    public String getBio() {return bio;}
     public void setBio(String bio) {
         this.bio = bio;
     }
@@ -86,29 +75,24 @@ public class User implements UserDetails {
     public String getProfilePhoto() {
         return profilePhoto;
     }
-
     public void setProfilePhoto(String profilePhoto) {
         this.profilePhoto = profilePhoto;
     }
 
-    public Boolean getActive() {
-        return active;
-    }
+    public Boolean getVerfied() {return verfied;}
+    public void setVerfied(Boolean verfied) {this.verfied = verfied;}
 
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
+    public Boolean getActive() {return active;}
+    public void setActive(Boolean active) {this.active = active;}
     //METHODS
 
-    //default constructor
-    public User() {
-    }
-
     //custom constructor
-    public User(String username, String email) {
+    public User(String username, String email, String cellphone) {
         this.email = email;
-        this.active = false;
+        this.active = true;
+        this.verfied = false;
         this.username = username;
+        this.cellphone = cellphone;
         this.createdAt = LocalDateTime.now();
         this.profilePhoto = generateDefaultProfilePhoto();
     }
@@ -141,10 +125,5 @@ public class User implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true; // Credentials never expire
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.active; // Return the active status
     }
 }

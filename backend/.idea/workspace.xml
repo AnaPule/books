@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
+    <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70a8dd80-fb33-40c5-9525-39701019340a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/BrevoConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/ResendConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/Gmail.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/EmailService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/VerificationTokenService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/jwt.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/jwt.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/userService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/userService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/key.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/key.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/auth/LoginForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/auth/LoginForm.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/components/auth/SignUpForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/auth/SignUpForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/skeleton/spinner.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/skeleton/spinner.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/nav/bar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/nav/bar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/index.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/models/User.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/models/User.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/auth/auth.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/auth/auth.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/pages/profile/profile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/profile/profile.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/utils/ProtectedRoute.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/utils/ProtectedRoute.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/utils/PublicRoute.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/utils/PublicRoute.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/utils/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/utils/auth.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +78,9 @@
     "last_opened_file_path": "/Users/morwetsanamahlatsepule/projects/books/backend",
     "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.41724136"
+    "project.structure.side.proportion": "0.41724136",
+    "settings.build.tools.auto.reload": "ALL",
+    "settings.editor.selected.configurable": "build.tools"
   }
 }]]></component>
   <component name="RecentsManager">

@@ -88,6 +88,11 @@ public class userService implements UserDetailsService {
             throw new RuntimeException("Could not change email. Please try again later. We apologise for the inconvenience.");
         }
 
+        //phone
+        if (!existinguser.getPhone().equals(user.getPhone())) {
+            existinguser.setPhone(user.getPhone());
+        }else{throw new RuntimeException("Could not change cellphone number. Please try again later. We apologise for the inconvenience.");}
+
         //bio
         if (!existinguser.getBio().equals(user.getBio())) {existinguser.setBio(user.getBio());}
 
@@ -114,6 +119,14 @@ public class userService implements UserDetailsService {
     public void activateUser(String id) {
         User existinguser = ur.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         existinguser.setActive(true);
+        ur.save(existinguser);
+    }
+
+    // verify user
+    public void verifyUser(String id) {
+        User existinguser = ur.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        if (!ur.existsById(id)) {throw new RuntimeException("User not found");}
+        existinguser.setVerfied(true);
         ur.save(existinguser);
     }
 

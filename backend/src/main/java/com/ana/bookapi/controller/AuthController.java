@@ -1,13 +1,16 @@
 package com.ana.bookapi.controller;
 
 /* =================== models =================== */
+
 import com.ana.bookapi.DTO.LoginResponse;
 import com.ana.bookapi.models.User;
 import com.ana.bookapi.DTO.LoginDTO;
 import com.ana.bookapi.DTO.errResponse;
 
 /* =================== services =================== */
+import com.ana.bookapi.service.EmailService;
 import com.ana.bookapi.service.JwtService;
+import com.ana.bookapi.service.VerificationTokenService;
 import com.ana.bookapi.service.userService;
 
 /* =================== PACKAGES =================== */
@@ -17,6 +20,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 import io.jsonwebtoken.Jwts;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,24 +39,29 @@ public class AuthController {
     //@Autowired private errResponse er;
     //@Autowired private JwtService js;
 
-    private errResponse er = new errResponse();
-    private final userService us;
     private final JwtService js;
-    private AuthController(userService us, JwtService js) {
+    private final userService us;
+    private final EmailService es;
+    private final VerificationTokenService ts;
+    private errResponse er = new errResponse();
+
+    private AuthController(userService us, JwtService js, Resend resend, VerificationTokenService ts, EmailService es) {
         this.us = us;
         this.js = js;
+        this.ts = ts;
+        this.es = es;
     }
 
-    @Value("${app.mode}")
-    private String mode;
+    @Value("${app.mode}") private String mode;
+    @Value("${frontend.url}") private String frontendUrl;
 
     // ==================== ENDPOINTS ========================= //
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
-        try{
+        try {
             List<User> user = us.getUsers();
             return ResponseEntity.ok(user);
-        }catch(Exception e){
+        } catch (Exception e) {
             er.setMessage(e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er); // 500 STATUS
@@ -57,7 +69,7 @@ public class AuthController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> AuthenticateUser(@RequestHeader(value = "Authorization", required = false)String header){
+    public ResponseEntity<?> AuthenticateUser(@RequestHeader(value = "Authorization", required = false) String header) {
         // ============ PRODUCTION ============= //
 
         //check authorisation header
@@ -68,7 +80,7 @@ public class AuthController {
         }
 
         String token = header.substring(7); ///**Note: The actual token starts at position 7; "Bearer " = 7 characters
-        try{
+        try {
             String username = js.extractUsername(token);
             User user = us.getUserByUsername(username);
 
@@ -98,11 +110,11 @@ public class AuthController {
              */
 
             Map<String, Object> response = new HashMap<>();
-            response.put("user",user);
+            response.put("user", user);
 
             return ResponseEntity.ok().body(response);
-        }catch(Exception e){
-            er.setMessage("401 error: "+e.getMessage());
+        } catch (Exception e) {
+            er.setMessage("401 error: " + e.getMessage());
             er.setStatus(HttpStatus.UNAUTHORIZED.value());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(er);
         }
@@ -110,14 +122,14 @@ public class AuthController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> GetUserById(@PathVariable String id) {
-        try{
+        try {
             User user = us.getUserById(id);
-            if (user != null){
+            if (user != null) {
                 return ResponseEntity.ok(user);
-            }else{
+            } else {
                 return ResponseEntity.notFound().build(); //404 STATUS
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             er.setMessage(e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
@@ -126,16 +138,55 @@ public class AuthController {
 
     //register
     @PostMapping("/register")
-    public ResponseEntity<?> Register(@RequestBody User user){
-        try{
+    public ResponseEntity<?> Register(@RequestBody User user) {
+        try {
             User createdUser = us.createUser(user);
+            //email token;
+            String token = ts.generateVerificationToken(createdUser);
+            String link = frontendUrl + "/auth/verify?token=" + token;
+
+            es.sendEmail(
+                    createdUser.getEmail(),
+                    "Dearest Gentle Reader. Welcome.",
+                    createdUser.getUsername(),
+                    link
+            );
+            //String htmlBody = ts.buildVerificationEmail(createdUser.getEmail(), createdUser.getUsername(), link);
+            //ts.SendEmail(createdUser.getEmail(), "Pages ń Parchment", htmlBody);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        }catch(RuntimeException e){
-            er.setMessage("400 error: "+e.getMessage());
+        } catch (RuntimeException e) {
+            er.setMessage("400 error: " + e.getMessage());
             er.setStatus(HttpStatus.BAD_REQUEST.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
-        }catch(Exception e){
-            er.setMessage("500 error: "+e.getMessage());
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> VerifyEmail(@RequestParam String token) {
+
+        String email = ts.validateVerificationToken(token);
+        if (email == null) {
+            er.setMessage("401 error: Invalid or expired Token");
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(er);
+        }
+
+        try {
+            User user = us.getUserByEmail(email);
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            //Verify user
+            us.verifyUser(user.getId());
+            return ResponseEntity.ok(Map.of("message", "Email verified successfully!"));
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
         }
@@ -143,20 +194,20 @@ public class AuthController {
 
     //login
     @PostMapping("/login")
-    public ResponseEntity<?> Login(@RequestBody LoginDTO user){
-        try{
-            if(us.authenticate(user)){
+    public ResponseEntity<?> Login(@RequestBody LoginDTO user) {
+        try {
+            if (us.authenticate(user)) {
                 User found_user = us.getUserByEmail(user.getEmail());
                 String jwtToken = js.generateTokenWithUserDetails(found_user);
                 LoginResponse lr = new LoginResponse(jwtToken, js.getExpirationTime());
                 return ResponseEntity.ok(lr);
-            }else{
+            } else {
                 er.setMessage("Invalid Credentials: Please enter the correct credentials");
                 er.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(er);
             }
-        }catch(Exception e){
-            er.setMessage("500 error: "+e.getMessage());
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
         }
@@ -164,16 +215,16 @@ public class AuthController {
 
     //update user
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody User user){
-        try{
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody User user) {
+        try {
             User updatedUser = us.updateUser(id, user);
             return ResponseEntity.ok(updatedUser);
-        }catch(RuntimeException e){
-            er.setMessage("400 error: "+e.getMessage());
+        } catch (RuntimeException e) {
+            er.setMessage("400 error: " + e.getMessage());
             er.setStatus(HttpStatus.BAD_REQUEST.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
-        }catch(Exception e){
-            er.setMessage("500 error: "+e.getMessage());
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
         }
@@ -181,21 +232,21 @@ public class AuthController {
 
     //deactivate user
     @PutMapping("/deactivate/{id}")
-    public ResponseEntity<?> deactivateUser(@PathVariable String id){
-        try{
+    public ResponseEntity<?> deactivateUser(@PathVariable String id) {
+        try {
             User user = us.getUserById(id);
-            if (user != null){
+            if (user != null) {
                 us.deactivateUser(id);
                 return ResponseEntity.ok("User has been deactivated");
-            }else{
+            } else {
                 return new ResponseEntity<>("Failed to deactivate", HttpStatus.EXPECTATION_FAILED);
             }
         } catch (RuntimeException e) {
-            er.setMessage("404 error: "+e.getMessage());
+            er.setMessage("404 error: " + e.getMessage());
             er.setStatus(HttpStatus.NOT_FOUND.value());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(er);
-        }catch(Exception e){
-            er.setMessage("500 error: "+e.getMessage());
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
         }
@@ -203,21 +254,21 @@ public class AuthController {
 
     //activate user
     @PutMapping("/activate/{id}")
-    public ResponseEntity<?> activateUser(@PathVariable String id){
-        try{
+    public ResponseEntity<?> activateUser(@PathVariable String id) {
+        try {
             User user = us.getUserById(id);
-            if (user != null){
+            if (user != null) {
                 us.activateUser(id);
                 return ResponseEntity.ok("User has been activated");
-            }else{
+            } else {
                 return new ResponseEntity<>("Failed to activate", HttpStatus.EXPECTATION_FAILED);
             }
         } catch (RuntimeException e) {
-            er.setMessage("404 error: "+e.getMessage());
+            er.setMessage("404 error: " + e.getMessage());
             er.setStatus(HttpStatus.NOT_FOUND.value());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(er);
-        }catch(Exception e){
-            er.setMessage("500 error: "+e.getMessage());
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
         }
@@ -230,11 +281,11 @@ public class AuthController {
             us.deleteUser(id);
             return ResponseEntity.noContent().build();  // HTTP 204: NO CONTENT (SUCCESSFUL DELETE)
         } catch (RuntimeException e) {
-            er.setMessage("404 error: "+e.getMessage());
+            er.setMessage("404 error: " + e.getMessage());
             er.setStatus(HttpStatus.NOT_FOUND.value());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(er);
         } catch (Exception e) {
-            er.setMessage("500 error: "+e.getMessage());
+            er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);  // HTTP 500
         }

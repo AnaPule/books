@@ -47,7 +47,7 @@ public class User implements UserDetails {
     /* ============== VERIFICATION STUFFIES ================ */
 
     @Column(name = "verifiedEmail")
-    private boolean verfied = false;
+    private boolean verified = false;
 
     @Column(name = "active")
     private boolean active = true;
@@ -61,8 +61,8 @@ public class User implements UserDetails {
     public String getEmail() {return email;}
     public void setEmail(String email) {this.email = email;}
 
-    public String getPhone() {return cellphone;}
-    public void setPhone(String cellphone) {this.cellphone = cellphone;}
+    public String getCellphone() {return cellphone;}
+    public void setCellphone(String cellphone) {this.cellphone = cellphone;}
 
     public String getPassword() {return password;}
     public void setPassword(String password) {this.password = password;}
@@ -79,18 +79,21 @@ public class User implements UserDetails {
         this.profilePhoto = profilePhoto;
     }
 
-    public Boolean getVerfied() {return verfied;}
-    public void setVerfied(Boolean verfied) {this.verfied = verfied;}
+    public Boolean getVerfied() {return verified;}
+    public void setVerfied(Boolean verified) {this.verified = verified;}
 
     public Boolean getActive() {return active;}
     public void setActive(Boolean active) {this.active = active;}
     //METHODS
 
+    //default constructor
+    public User(){}
+
     //custom constructor
     public User(String username, String email, String cellphone) {
         this.email = email;
         this.active = true;
-        this.verfied = false;
+        this.verified = false;
         this.username = username;
         this.cellphone = cellphone;
         this.createdAt = LocalDateTime.now();

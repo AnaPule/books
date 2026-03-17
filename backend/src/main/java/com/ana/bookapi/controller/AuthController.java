@@ -3,6 +3,7 @@ package com.ana.bookapi.controller;
 /* =================== models =================== */
 
 import com.ana.bookapi.DTO.LoginResponse;
+import com.ana.bookapi.DTO.PasswordResetDTO;
 import com.ana.bookapi.models.User;
 import com.ana.bookapi.DTO.LoginDTO;
 import com.ana.bookapi.DTO.errResponse;
@@ -17,19 +18,13 @@ import com.ana.bookapi.service.userService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.resend.Resend;
-import com.resend.core.exception.ResendException;
-import com.resend.services.emails.model.CreateEmailOptions;
-import com.resend.services.emails.model.CreateEmailResponse;
-import io.jsonwebtoken.Jwts;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/auth")
@@ -45,15 +40,17 @@ public class AuthController {
     private final VerificationTokenService ts;
     private errResponse er = new errResponse();
 
-    private AuthController(userService us, JwtService js, Resend resend, VerificationTokenService ts, EmailService es) {
+    private AuthController(userService us, JwtService js, VerificationTokenService ts, EmailService es) {
         this.us = us;
         this.js = js;
         this.ts = ts;
         this.es = es;
     }
 
-    @Value("${app.mode}") private String mode;
-    @Value("${frontend.url}") private String frontendUrl;
+    @Value("${app.mode}")
+    private String mode;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     // ==================== ENDPOINTS ========================= //
     @GetMapping
@@ -141,18 +138,12 @@ public class AuthController {
     public ResponseEntity<?> Register(@RequestBody User user) {
         try {
             User createdUser = us.createUser(user);
-            //email token;
-            String token = ts.generateVerificationToken(createdUser);
-            String link = frontendUrl + "/auth/verify?token=" + token;
-
-            es.sendEmail(
-                    createdUser.getEmail(),
-                    "Dearest Gentle Reader. Welcome.",
-                    createdUser.getUsername(),
-                    link
-            );
-            //String htmlBody = ts.buildVerificationEmail(createdUser.getEmail(), createdUser.getUsername(), link);
-            //ts.SendEmail(createdUser.getEmail(), "Pages ń Parchment", htmlBody);
+            try {
+                sendVerificationEmail(createdUser.getEmail());
+            } catch (Exception e) {
+                Logger log = null;
+                log.warn("Verification email failed to send", e);
+            }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
         } catch (RuntimeException e) {
@@ -166,6 +157,29 @@ public class AuthController {
         }
     }
 
+    //send email verification email
+    @PostMapping("/sendVerificationEmail")
+    public ResponseEntity<?> sendVerificationEmail(@RequestBody String email) {
+        System.out.println(email);
+        try {
+            User existingUser = us.getUserByEmail(email);
+            String token = ts.generateVerificationToken(existingUser);
+            String link = frontendUrl + "/auth/verify?token=" + token;
+            es.sendVerificationEmail(
+                    existingUser.getEmail(),
+                    "Dearest Gentle Reader. Welcome.",
+                    existingUser.getUsername(),
+                    link
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body("Your verification Email has been sent!");
+        } catch (Exception e) {
+            er.setMessage("400 error: " + e.getMessage());
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
+        }
+    }
+
+    //verify email
     @GetMapping("/verify")
     public ResponseEntity<?> VerifyEmail(@RequestParam String token) {
 
@@ -183,8 +197,58 @@ public class AuthController {
             }
 
             //Verify user
-            us.verifyUser(user.getId());
-            return ResponseEntity.ok(Map.of("message", "Email verified successfully!"));
+            Boolean verified = us.verifyUser(user.getId());
+            return ResponseEntity.ok(Map.of(
+                    "verified", verified,
+                    "message", "Email verified successfully!"
+            ));
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> ForgotPassword(@RequestBody PasswordResetDTO dto) {
+        try {
+            User user = us.getUserByEmail(dto.getEmail());
+            String token = ts.generateVerificationToken(user);
+            String link = frontendUrl + "/auth/reset-password?token=" + token;
+            es.SendResetPasswordEmail(
+                    user.getEmail(),
+                    "Reset Password.",
+                    user.getUsername(),
+                    link
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Your Email has been sent!"));
+        } catch (Exception e) {
+            er.setMessage("400 error: " + e.getMessage());
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            System.out.println(er.getStatus() + er.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
+        }
+    }
+
+    // reset password
+    @PostMapping("/password-reset")
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetDTO reset) {
+        String email = ts.validateVerificationToken(reset.getToken());
+
+        if (email == null) {
+            er.setMessage("Password reset Failed: Invalid or expired Token.");
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(er);
+        }
+
+        try {
+            User user = us.getUserByEmail(email);
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            us.ResetPassword(user.getEmail(), reset.getPassword());
+            return ResponseEntity.ok(Map.of("message", "Password successfully reset!"));
         } catch (Exception e) {
             er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -197,6 +261,13 @@ public class AuthController {
     public ResponseEntity<?> Login(@RequestBody LoginDTO user) {
         try {
             if (us.authenticate(user)) {
+
+                if (!us.isVerified(user.getEmail())) {
+                    er.setMessage("Unauthorised: Please verify your email");
+                    er.setStatus(HttpStatus.BAD_GATEWAY.value());
+                    return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+                }
+
                 User found_user = us.getUserByEmail(user.getEmail());
                 String jwtToken = js.generateTokenWithUserDetails(found_user);
                 LoginResponse lr = new LoginResponse(jwtToken, js.getExpirationTime());

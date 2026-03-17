@@ -89,8 +89,8 @@ public class userService implements UserDetailsService {
         }
 
         //phone
-        if (!existinguser.getPhone().equals(user.getPhone())) {
-            existinguser.setPhone(user.getPhone());
+        if (!existinguser.getCellphone().equals(user.getCellphone())) {
+            existinguser.setCellphone(user.getCellphone());
         }else{throw new RuntimeException("Could not change cellphone number. Please try again later. We apologise for the inconvenience.");}
 
         //bio
@@ -123,26 +123,21 @@ public class userService implements UserDetailsService {
     }
 
     // verify user
-    public void verifyUser(String id) {
+    public Boolean verifyUser(String id) {
         User existinguser = ur.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         if (!ur.existsById(id)) {throw new RuntimeException("User not found");}
         existinguser.setVerfied(true);
         ur.save(existinguser);
+        return existinguser.getVerfied();
     }
 
     //forgot password
-    public String ForgotPassword(String email, String rawemail) {
+    public String ResetPassword(String email, String rawpassword) {
         User existinguser = ur.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        existinguser.setPassword(ec.encoder(rawemail));
+        existinguser.setPassword(ec.encoder(rawpassword));
         ur.save(existinguser);
         return "Your password has been updated. Please login";
     }
-
-    //send user email
-
-    // login - username and password
-
-    //logout ..? useless really
 
     //check user password and username for login
     public Boolean authenticate(LoginDTO dto){
@@ -152,6 +147,12 @@ public class userService implements UserDetailsService {
             isAuthenticated = true;
         }
         return isAuthenticated;
+    }
+
+    public Boolean isVerified(String email) {
+        User user = getUserByEmail(email);
+        if (!user.getVerfied()){return false;}
+        return true;
     }
 
     //get users

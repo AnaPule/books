@@ -55,6 +55,13 @@ h3 {
   align-items: center;
 }
 
+.input-group{
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  overflow: scroll;
+}
+
 input {
   flex: 1;
   background: transparent;

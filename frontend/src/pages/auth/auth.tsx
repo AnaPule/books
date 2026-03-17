@@ -72,6 +72,7 @@ export default function AuthPage() {
             px-8 
             lg:px-14 
             py-12 
+            w-[70%]
            bg-[#1a1612]/45
             border-r border-[white]/20">
             <div className="space-y-16 opacity-90">

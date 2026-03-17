@@ -23,6 +23,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
     const [formData, setFormData] = useState<SignUpForm>({
         username: "",
         email: "",
+        cellphone: "",
         password: "",
         accept: false, // for terms and conditions applied
     });
@@ -38,9 +39,11 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                 });
                 return;
             }
+            console.log('user',formData);
 
             await request.post<User>('/auth/register', formData)
                 .then(
+                    
                     ((res: User) => {
                         if (res.username != null) {
                             toast.info(`Thank you for signing up with PńP ${res.username}. Please login.`)
@@ -49,6 +52,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                                 password: '',
                                 username: '',
                                 accept: false,
+                                cellphone: '',
                             });
                             OnChangePage();
                         } else {
@@ -61,7 +65,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
             const msg = error?.response?.data?.message || "Registration failed";
             toast.error(
                 'Sign up failed',
-                {description: msg}
+                { description: msg }
             );
             /*
             toast.error('Sign up failed', {
@@ -99,25 +103,46 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                 />
             </div>
 
-            {/* Email */}
-            <div
-                className="input-container"
-            >
-                <button>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89f85" strokeWidth="1.6">
-                        <rect x="2" y="4" width="20" height="16" rx="2" />
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                    </svg>
-                </button>
+            <div className="input-group">
+                {/* Email */}
+                <div
+                    className="input-container"
+                >
+                    <button>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89f85" strokeWidth="1.6">
+                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                        </svg>
+                    </button>
 
-                <input
-                    type="email"
-                    placeholder="Email address"
-                    value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    required
-                />
+                    <input
+                        type="email"
+                        placeholder="Email address"
+                        value={formData.email}
+                        onChange={(e) => handleChange("email", e.target.value)}
+                        required
+                    />
+                </div>
+
+                {/* cellphone */}
+                <div className='input-container'>
+                    <button>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89f85" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 5.1 12.72 19.79 19.79 0 0 1 2.03 4.1 2 2 0 0 1 4 1.92h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.03z" />
+                        </svg>
+                    </button>
+
+                    <input
+                        type="tel"
+                        placeholder="Cellphone number"
+                        maxLength={10}
+                        value={formData.cellphone}
+                        onChange={(e) => handleChange("cellphone", e.target.value)}
+                        required
+                    />
+                </div>
             </div>
+
 
             {/* Password */}
             <div
@@ -148,25 +173,14 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
             </div>
 
             {/* Checkbox */}
-            <label
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    fontSize: "clamp(0.96rem, 2.1vw, 1.03rem)",
-                    color: "#b89f85",
-                    userSelect: "none",
-                }}
-            >
+            <label className="flex items-center gap-1 text-[#b89f85] font-sans">
                 <input
                     type="checkbox"
                     checked={formData.accept}
                     onChange={(e) => handleChange("accept", e.target.checked)}
+                    className='w-[40] h-[40] cursor-pointer'
                     style={{
-                        width: "18px",
-                        height: "18px",
                         accentColor: "#a68569",
-                        cursor: "pointer",
                     }}
                     required
                 />
@@ -180,11 +194,9 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
             <button
                 type="submit"
                 disabled={loading}
+                className='mt-[12] p-5 font-sans text-[#1b120e]'
                 style={{
-                    marginTop: "12px",
-                    padding: "clamp(14px, 3.5vw, 17px)",
                     background: "linear-gradient(90deg, #7b5f48, #a68569)",
-                    color: "#1b120e",
                     fontSize: "clamp(1.05rem, 2.5vw, 1.15rem)",
                     fontWeight: 500,
                     letterSpacing: "0.06em",

@@ -18,6 +18,7 @@ import { request } from "@utils/ApiRequest";
 {/* =============== models ============ */ }
 import type { User } from "@models/User";
 import type { Book } from "@models/Book";
+import type { Word } from '@models/Word';
 
 {/* =============== env variables ============ */ }
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -40,6 +41,12 @@ interface AuthContextType {
     loading: boolean;
 }
 
+const WordOfTheDay = async() => {
+    const word = await fetch('https://random-word-api.herokuapp.com/word');
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); 
+    console.log('Word', word);
+    console.log('res',res)
+}
 // **Note: Context provides a way to pass data through the component tree without having to pass props down manually at every level.
 // ** Note: Context is designed to share data that can be considered “global” for a tree of React components
 const AuthContext = createContext<AuthContextType>({
@@ -116,9 +123,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             try {
                 request.setAuthToken(token);
-                const res = await request.get<User>('/auth/user');
+                const res = await request.get<any>('/auth/user');
                 //console.log("User fetched successfully:", res?.username || res?.email || 'no name');
-                setUser(res);  // ← This line is critical!
+                const actualUser = res.user as User;
+                if (!actualUser) {
+                    throw new Error("No user object in response");
+                }
+                setUser(actualUser);
+                console.log('User',actualUser)
 
                 // Schedule timers only after user is set
                 const timeLeftMs = getTimeLeft(token);
@@ -156,14 +168,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }, 180_000);
 
         return () => {
-            console.log("AuthProvider cleanup: clearing timers");
+            //console.log("AuthProvider cleanup: clearing timers");
             if (warningTimeout) clearTimeout(warningTimeout);
             if (expiryTimeout) clearTimeout(expiryTimeout);
             if (intervalId) clearInterval(intervalId);
         };
     }, [logout]);
-    
-   
+
+
     return (
         <AuthContext.Provider value={{ user, setUser, setRecommends, recommends, isLoggedIn, logout, loading }}>
             {loading ? (

@@ -1,5 +1,4 @@
 
-
 export interface User{
     id: string;
     username: string;
@@ -30,6 +29,7 @@ export interface SignUpForm{
     password: string;
     username: string;
     accept: boolean;
+    cellphone: string;
 }
 export interface LoginForm{
     email: string;

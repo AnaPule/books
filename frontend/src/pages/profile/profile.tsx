@@ -20,7 +20,7 @@ import Flower_8 from '@assets/Flower_8.jpeg';
 
 const ProfileHeader: React.FC = () => {
     const { user } = useAuth();
-    console.log(user)
+    //console.log(user)
     return (
         <div className="max-w-6xl mx-auto px-5 md:px-8 pt-10 pb-6 relative z-5 font-sans">
             <div className="flex items-start flex-col md:flex-row gap-6 md:gap-8">
@@ -45,7 +45,7 @@ const ProfileHeader: React.FC = () => {
 
                         <div className="flex-1 text-center md:text-left">
                             <h1 className="text-3xl md:text-4xl text-[#f0e0c0] mb-1 tracking-wide uppercase">
-                                {user?.username || "READER"}
+                                {user?.username}
                             </h1>
                             <p className="text-[#c4a07c] italic text-sm mb-3 border-b border-[#8b7355]/30 pb-2 inline-block">
                                 {user?.email || "scholar@oldlibrary.edu"}
@@ -202,6 +202,7 @@ const WordOfTheDay: React.FC = () => {
                     WORD OF THE DAY
                 </h3>
                 <p className="text-4xl text-[#f0e0c0] font-bold font-sans uppercase mb-2">Orenda</p> {/* word */}
+                <p className="text-sm italic test-[#f0e0c0]">noun</p> {/* parts of speech */}
                 <p className="text-sm italic text-[#f0e0c0] mb-2">o • ren • da / (n)</p> {/* latin/ pronunciation */}
                 <p className="text-[#c4a07c] italic text-sm">a mystical force present in all people that empowers them to affect the world, or to effect change in their own lives.</p> {/* meaning */}
                 <div className="mt-4 pt-4 border-t border-[#8b7355]/30">

@@ -56,7 +56,7 @@ const Sidebar = () => {
                 onClick={() => setIsMobileOpen(!isMobileOpen)}
                 className=" font-sans lg:hidden fixed top-6 left-6 z-50 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
             >
-                {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+                {isMobileOpen ? <X className='hidden' size={15} /> : <Menu size={24} />}
             </button>
 
             {/* Mobile Overlay */}

@@ -2,12 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // =============== images ============
-import Background from '@assets/background.jpeg';
-import Background1 from '@assets/background_1.jpeg';
-import Background2 from '@assets/background_2.jpeg';
-import Background3 from '@assets/background_3.jpeg';
-import Background4 from '@assets/background_4.jpeg';
-
+import Orange1 from "@assets/Orange_1.jpeg";
 // =============== components ============
 import { Topnav } from "@pages/home/home";
 
@@ -22,7 +17,7 @@ export default function AuthPage() {
     <div
       className="min-h-screen relative flex flex-col"
       style={{
-        backgroundImage: `url(${Background4})`,
+        backgroundImage: `url(${Orange1})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
@@ -30,22 +25,23 @@ export default function AuthPage() {
     >
       <Topnav />
 
+      {/* light academia parchment overlay */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(ellipse at 50% 30%, rgba(10, 8, 12, 0.92) 0%, transparent 45%, rgba(8, 6, 10, 0.75) 70%, rgba(5, 4, 8, 0.98) 100%)',
+          background: 'radial-gradient(ellipse at 50% 30%, rgba(245, 235, 220, 0.78) 0%, rgba(235, 220, 200, 0.7) 45%, rgba(220, 200, 180, 0.65) 70%, rgba(210, 190, 170, 0.75) 100%)',
           pointerEvents: 'none',
           zIndex: 1,
         }}
       />
 
-      {/*  warm tint overlay */}
+      {/* warm tint overlay */}
       <div
         className="absolute inset-0 pointer-events-none z-0"
         style={{
-          background: "rgba(27,18,14,0.18)",
-          mixBlendMode: "multiply",
+          background: "rgba(200, 175, 150, 0.12)",
+          mixBlendMode: "soft-light",
         }}
       />
 
@@ -56,13 +52,13 @@ export default function AuthPage() {
             w-full max-w-5xl
             grid md:grid-cols-2 items-stretch
             rounded-2xl overflow-hidden
-            bg-[#11100e]/68 backdrop-blur-xl
-            border border-[#7b5f48]/35
-            shadow-[0_20px_80px_-20px_rgba(0,0,0,0.7),
-                    inset_0_1px_0_rgba(255,255,255,0.04)]
+            bg-[#faf5ea]/88 backdrop-blur-sm
+            border border-[#c9b296]/50
+            shadow-[0_20px_50px_-15px_rgba(90,70,50,0.35),
+                    inset_0_1px_0_rgba(255,245,230,0.7)]
           "
         >
-          {/* Side panel*/}
+          {/* Side panel */}
           <div
             className="
             hidden 
@@ -72,45 +68,82 @@ export default function AuthPage() {
             px-8 
             lg:px-14 
             py-12 
-            w-[70%]
-           bg-[#1a1612]/45
-            border-r border-[white]/20">
-            <div className="space-y-16 opacity-90">
+            bg-[#f2e6d8]/85
+            border-r border-[#c9b296]/40
+            relative
+            overflow-hidden
+            before:content-['']
+            before:absolute
+            before:top-0
+            before:left-0
+            before:w-full
+            before:h-[1px]
+            before:bg-gradient-to-r
+            before:from-transparent
+            before:via-[#b89f85]
+            before:to-transparent
+            after:content-['']
+            after:absolute
+            after:bottom-0
+            after:left-0
+            after:w-full
+            after:h-[1px]
+            after:bg-gradient-to-r
+            after:from-transparent
+            after:via-[#b89f85]
+            after:to-transparent
+          "
+          >
+            <div className="space-y-16 opacity-95">
               <div>
-                <h3 className="uppercase tracking-[0.28em] text-[#e8e0d5] text-xl lg:text-2xl font-light mb-4">
-                  {page ? "Access Your Account" : "Create Your Sanctuary"}
+                <h3 className=" tracking-[0.2em] text-[#5a4d41] text-xl lg:text-2xl font-light mb-4 relative inline-block">
+                  {page ? "Return to Your Library" : "Begin Your Collection"}
+                  <span className="absolute -bottom-2 left-0 w-12 h-[1px] bg-[#b89f85]/60" />
                 </h3>
-                <p className="text-[#d4c0a8] text-sm lg:text-base leading-relaxed opacity-90">
+                <p className=" text-[#7e6957] text-sm lg:text-base leading-relaxed italic">
                   {page
-                    ? "Return to your haven of stories and quiet communities."
-                    : "Begin your journey into curated places of rest and reflection."}
+                    ? "The quiet fellowship awaits your return. Turn the page where you left off."
+                    : "Every great library begins with a single volume. Start your story with us."}
                 </p>
               </div>
 
               <div>
-                <h3 className="uppercase tracking-[0.28em] text-[#e8e0d5] text-xl lg:text-2xl font-light mb-4">
-                  Harmony Awaits
+                <h3 className=" tracking-[0.2em] text-[#5a4d41] text-xl lg:text-2xl font-light mb-4 relative inline-block">
+                  A Reading Room for the Soul
+                  <span className="absolute -bottom-2 left-0 w-12 h-[1px] bg-[#b89f85]/60" />
                 </h3>
-                <p className="text-[#d4c0a8] text-sm lg:text-base leading-relaxed opacity-90">
-                  Private. Secure. Timeless.
+                <p className=" text-[#7e6957] text-sm lg:text-base leading-relaxed italic">
+                  "A room without books is like a body without a soul."
+                </p>
+                <p className="font-serif text-[#8d6c45] text-xs mt-4 tracking-widest uppercase">
+                  — Cicero
                 </p>
               </div>
             </div>
           </div>
 
           {/* Form area */}
-          <div className="relative px-6 md:px-12 lg:px-16 py-12 md:py-16 bg-[#11100e]/58 backdrop-blur-lg overflow-hidden">
+          <div className="relative px-6 md:px-12 lg:px-16 py-12 md:py-16 bg-[#fcf9f4]/90 backdrop-blur-sm overflow-hidden">
+            {/* subtle texture overlay - like aged paper */}
+            <div 
+              className="absolute inset-0 opacity-5 pointer-events-none"
+              style={{
+                backgroundImage: `radial-gradient(#8d6c45 1px, transparent 1px)`,
+                backgroundSize: '24px 24px'
+              }}
+            />
+
             {/* height */}
-            <div className="relative min-h-[600px] sm:min-h-[400px] md:min-h-[580px] lg:min-h-[600px]">
+            <div className="relative min-h-[700px] sm:min-h-[700px] md:min-h-[750px] lg:min-h-[700px]">
               {/* Login */}
               <div
                 className={`
-        absolute inset-0 w-full transition-all duration-500 ease-in-out
-        ${page
+                  absolute inset-0 w-full transition-all duration-500 ease-in-out
+                  ${page
                     ? 'translate-x-0 opacity-100'
                     : '-translate-x-full opacity-0 pointer-events-none'
                   }
-      `}
+                `}
               >
                 <LoginForm OnChangePage={() => { setPage((prev) => !prev) }} />
               </div>
@@ -118,12 +151,12 @@ export default function AuthPage() {
               {/* Signup */}
               <div
                 className={`
-        absolute inset-0 w-full transition-all duration-500 ease-in-out
-        ${!page
+                  absolute inset-0 w-full transition-all duration-500 ease-in-out
+                  ${!page
                     ? 'translate-x-0 opacity-100'
                     : 'translate-x-full opacity-0 pointer-events-none'
                   }
-      `}
+                `}
               >
                 <SignUpForm OnChangePage={() => { setPage((prev) => !prev) }} />
               </div>

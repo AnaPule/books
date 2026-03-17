@@ -14,7 +14,8 @@ import HomePage from "@pages/home/home"
 import AuthPage from "@pages/auth/auth";
 import BooksPage from "@pages/books/Books";
 import ProfilePage from "@pages/profile/profile";
-import VerifyEmailPage from "@components/auth/VerifyEmailPage";
+import VerifyEmailPage from "@pages/auth/VerifyEmailPage";
+import ResetPasswordPage from "@pages/auth/ResetPasswordPage";
 
 {/* =============== utils ============ */ }
 import { request } from '@utils/ApiRequest';
@@ -44,8 +45,24 @@ function App() {
       <AuthProvider>
         <PageTemplate>
           <Routes>
-            <Route path='/home' element={<HomePage />} />
-            <Route path='/auth/verify' element={<VerifyEmailPage />} />
+            <Route path='/home' element={
+              <PublicRoute>
+                <HomePage />
+              </PublicRoute>
+            } />
+
+            <Route path='/auth/verify' element={
+              <PublicRoute>
+                <VerifyEmailPage />
+              </PublicRoute>
+            } />
+
+            <Route path='/auth/reset-password' element={
+              <PublicRoute>
+                <ResetPasswordPage />
+              </PublicRoute>
+            } />
+
             <Route path='/auth' element={
               <PublicRoute>
                 <AuthPage />

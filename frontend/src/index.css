@@ -2,30 +2,57 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 
 :root {
-  font-family: -apple-system;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
   line-height: 1.5;
   font-weight: 300;
   text-align: left;
 
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #1b120e;
+  color: #7E6957;
+  background-color: #7E6957;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --parchment: #F5F0E8;
+  /* Background - aged paper */
+  --cream: #FFFCF7;
+  /* Cards - clean but warm */
+  --latte: #C3BDB8;
+  /* Borders, subtle accents */
+  --chai: #7E6957;
+  /* Text - warm brown */
+  --mocha: #5A4D41;
+  /* Headers - deeper brown */
+  --american-roast: #1E1D1D;
+  /* Very dark accents (sparingly) */
+  --aged-gold: #8D6C45;
+  /* Accents, buttons */
+  --deep-tea: #685035;
+  /* Secondary accents */
+
+  --blush: #F9E2E0;
+  /* ultra soft pink - backgrounds */
+  --blush-light: #FCE9E8;
+  /* barely there - hover states */
+  --blush-accent: #F5D6D4;
+  /* slightly deeper - borders, buttons */
+  --dusty-rose: #E8C7C5;
+  /* for depth when needed */
+
 }
 
 a {
   font-weight: 300;
-  color: white;
+  color: var(--deep-tea);
   cursor: pointer;
 }
 
 a:hover {
-  color: #7b5f48;
-  font-weight: 400;
+  color: #634c39;
+  font-weight: 500;
   text-decoration: underline;
 }
 
@@ -46,20 +73,29 @@ h3 {
 
 .input-container {
   position: relative;
-  background: #534030;
-  border: 1px solid #7b5f48;
+  border: 1px solid var(--dusty-rose);
   border-radius: 14px;
   padding: 0 clamp(16px, 4vw, 20px);
   height: clamp(52px, 7vw, 58px);
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
-.input-group{
+.input-group {
   display: flex;
   gap: 10px;
   justify-content: space-between;
   overflow: scroll;
+  width: 100%;
+}
+
+
+@media (max-width: 640px) {
+  .input-group {
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 
 input {
@@ -67,15 +103,57 @@ input {
   background: transparent;
   border: none;
   outline: none;
-  color: #e0cabe;
+  color: var(--chai);
   font-size: clamp(1rem, 2.3vw, 1.08rem);
   padding: 0 14px;
 }
 
 input::placeholder {
+  color: var(--chai);
+}
+
+.input-img {
+  stroke: var(--chai)
+}
+
+.label {
   color: #e0cabe;
 }
 
-.label{
-  color: #e0cabe;
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(to right, #8d6c45, #a68569);
+  color: #fcf9f4;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: all 300ms ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

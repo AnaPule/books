@@ -41,11 +41,18 @@ interface AuthContextType {
     loading: boolean;
 }
 
-const WordOfTheDay = async() => {
+const WordOfTheDay = async () => {
     const word = await fetch('https://random-word-api.herokuapp.com/word');
-    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); 
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
     console.log('Word', word);
-    console.log('res',res)
+    console.log('res', res)
+}
+
+const getToken = () => {
+    let token = sessionStorage.getItem('token');
+    if (!token || token.length === 0 || token === 'null' || token === '') { token = ''; }
+    //alert('altered token: '+token)
+    return token;
 }
 // **Note: Context provides a way to pass data through the component tree without having to pass props down manually at every level.
 // ** Note: Context is designed to share data that can be considered “global” for a tree of React components
@@ -102,19 +109,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     /// cut out some code for now
     useEffect(() => {
+
+        const token = getToken();
+        //if this is the email auth page, then skip all the mess about sessions and such...
+        if (window.location.pathname.includes('/auth/verify') ||
+            window.location.pathname.includes('/home')) {
+            setLoading(false);
+            return;
+        }
+
         let warningTimeout: ReturnType<typeof setTimeout> | null = null;
         let expiryTimeout: ReturnType<typeof setTimeout> | null = null;
         let intervalId: ReturnType<typeof setInterval> | null = null;
 
         const initAuth = async () => {
             // Skip if we already have user data
-            if (user) {
-                return;
-            }
+            if (user) {return;}
+            if (token === ''){return;} // of there is absolutely no tokenthen dont check anything, they didnt log in
             setLoading(true);
 
-            const token = sessionStorage.getItem('token');
-
+            
             if (!token || !isTokenvalid(token)) {
                 logout('Your session has expired. Please log in again.');
                 setLoading(false);
@@ -130,7 +144,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     throw new Error("No user object in response");
                 }
                 setUser(actualUser);
-                console.log('User',actualUser)
+                //console.log('User',actualUser)
 
                 // Schedule timers only after user is set
                 const timeLeftMs = getTimeLeft(token);
@@ -151,7 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 }
             } catch (err) {
                 console.error('Failed to load user:', err);
-                logout('Session invalid. Please log in again.');
+                logout('Session Error invalid. Please log in again.');
             } finally {
                 setLoading(false);
             }
@@ -161,8 +175,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Safety periodic check (every 3 minutes)
         intervalId = setInterval(() => {
-            const token = sessionStorage.getItem('token');
-            if (token && !isTokenvalid(token)) {
+            const token = getToken();
+
+            if (token && token != '' && !isTokenvalid(token)) {
                 logout('Session expired (periodic check).');
             }
         }, 180_000);

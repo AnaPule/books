@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 {/* =============== IMAGES ============ */ }
 import Book from '@assets/book.jpeg';
 import Book1 from '@assets/book1.jpeg';
-import Cabin from '@assets/cabin.jpeg';
-import Lillies from '@assets/Lilies.jpeg';
-import TopImage from '@/assets/TopImage.jpeg';
+import Paris from '@assets/paris.jpeg';
+import Bouqet from "@assets/bouqet.jpeg";
+import Flowers from "@assets/Flowers.jpeg";
 
 export const Topnav: React.FC = () => {
     const navigate = useNavigate();
@@ -15,25 +15,25 @@ export const Topnav: React.FC = () => {
         <div
             className='
             font-sans absolute z-10 
-            bg-[#1b120e]/50 h-[60px] w-full
+            bg-[#f2e8da]/75 h-[60px] w-full
             flex items-center justify-end
             px-10 text-sm flex-wrap gap-10
-            uppercase text-white
+            uppercase text-[#5a4d41]
             tracking-[2px]
+            backdrop-blur-sm
+            border-b border-[#c9b296]/30
+            z-20
+            hover:text-[#F5D6D4] transition-colors
             '
         >
-            {/* Strong vignette – focus in center/left */}
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-black/30 z-22" />
+            {/* Light overlay - removed dark overlay */}
             
-                <a className='relative z-5' href="/home#home" style={{ whiteSpace: 'nowrap' }}>Home</a>
-                <a className='relative z-5'  href="/home#about" style={{ whiteSpace: 'nowrap' }}>About</a>
-                <a className='relative z-5'  href="/home#features" style={{ whiteSpace: 'nowrap' }}>Features</a>
+                <a className='relative z-5 hover:text-[#8d6c45] transition-colors duration-300' href="/home#home" style={{ whiteSpace: 'nowrap' }}>Home</a>
+                <a className='relative z-5 hover:text-[#8d6c45] transition-colors duration-300' href="/home#about" style={{ whiteSpace: 'nowrap' }}>About</a>
+                <a className='relative z-5 hover:text-[#8d6c45] transition-colors duration-300' href="/home#features" style={{ whiteSpace: 'nowrap' }}>Features</a>
                 <a
-                    className='relative z-5' 
-                    href="#"
-                    style={{ whiteSpace: 'nowrap' }}
-                    onClick={() => navigate(`/auth`)}
+                    className='relative z-5 hover:text-[#8d6c45] transition-colors duration-300' 
+                    href="/auth"
                 >Account</a>
 
         </div>
@@ -55,12 +55,11 @@ const Hero: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'white',
-                fontFamily: "'Cormorant Garamond', 'Times New Roman', serif",
+                color: '#5a4d41',
             }}>
-                {/* Blurred background image */}
+                {/* Blurred background image - lighter brightness */}
                 <img
-                    src={TopImage}
+                    src={Flowers}
                     alt="Mountains"
                     style={{
                         position: 'absolute',
@@ -69,16 +68,16 @@ const Hero: React.FC = () => {
                         top: '0%',
                         left: '-100%',
                         transform: 'rotate(90deg) translate(-50%, -50%)',
-                        filter: 'blur(3px) brightness(0.45)',
+                        filter: 'blur(3px) brightness(0.85)',
                     }}
                 />
 
-                {/* Brown vignette overlay */}
+                {/* Light academia vignette overlay - warm and soft */}
                 <div
                     style={{
                         position: 'absolute',
                         inset: 0,
-                        background: 'radial-gradient(ellipse at 50% 30%, rgba(10, 8, 12, 0.92) 0%, transparent 45%, rgba(8, 6, 10, 0.75) 70%, rgba(5, 4, 8, 0.98) 100%)',
+                        background: 'radial-gradient(ellipse at 50% 50%, rgba(207, 197, 181, 0.38) 0%, rgba(235, 220, 200, 0.65) 45%, rgba(220, 200, 180, 0.75) 70%, rgba(210, 190, 170, 0.8) 100%)',
                         pointerEvents: 'none',
                         zIndex: 1,
                     }}
@@ -95,12 +94,12 @@ const Hero: React.FC = () => {
 
                     {/* Main Title */}
                     <h1 style={{
-                        fontSize: 'clamp(40px, 8vw, 72px)',
+                        fontSize: 'clamp(70px, 8vw, 72px)',
                         fontWeight: '300',
                         letterSpacing: 'clamp(4px, 2vw, 12px)',
                         marginBottom: '15px',
                         textTransform: 'uppercase',
-                        borderBottom: '1px solid rgba(255,255,255,0.3)',
+                        borderBottom: '1px solid rgba(139, 111, 76, 0.7)',
                         paddingBottom: '15px',
                         lineHeight: '1.2',
                     }}>
@@ -109,9 +108,9 @@ const Hero: React.FC = () => {
 
                     <button
                         style={{
-                            background: hoverButton ? 'white' : 'transparent',
-                            border: '1px solid white',
-                            color: hoverButton ? 'black' : 'white',
+                            background: hoverButton ? 'rgba(210, 190, 170, 0.9)' : 'transparent',
+                            border: hoverButton ? 'rgb(164, 147, 129)' : '1px solid #685035',
+                            color: hoverButton ? '#685035' : 'var(--deep-tea)',
                             padding: '12px 35px 12px 35px',
                             marginBottom: '20px',
                             fontSize: '14px',
@@ -119,6 +118,7 @@ const Hero: React.FC = () => {
                             cursor: 'pointer',
                             textTransform: 'uppercase',
                             transition: 'all 0.3s ease',
+                            fontWeight:'500',
                         }}
                         onMouseEnter={() => setHoverButton(true)}
                         onMouseLeave={() => setHoverButton(false)}
@@ -129,8 +129,7 @@ const Hero: React.FC = () => {
 
                     {/* Bottom Bar with Location */}
                     <div style={{
-                        borderTop: '1px solid rgba(255,255,255,0.2)',
-
+                        borderTop: '1px solid rgba(139, 111, 76, 0.7)',
                         padding: '30px 0',
                         display: 'flex',
                         justifyContent: 'center',
@@ -143,6 +142,7 @@ const Hero: React.FC = () => {
                             fontSize: 'clamp(17px, 1.5vw, 14px)',
                             opacity: 0.7,
                             letterSpacing: '1px',
+                            color: '#685035',
                         }}>
                             Find Your Community
                         </span>
@@ -159,36 +159,38 @@ const IntersectingCircles: React.FC = () => {
             style={{
                 position: "relative",
                 width: "100%",
-                aspectRatio: "clamp(3.5/5, 2/4, 5/4)",   // taller on mobile → prevents stretch
-                minHeight: "clamp(55vh, 70vh, 90vh)",     // smaller base height on phone
+                aspectRatio: "clamp(3.5/5, 2/4, 5/4)",
+                minHeight: "clamp(55vh, 70vh, 90vh)",
                 maxHeight: "100vh",
                 overflow: "hidden",
                 isolation: "isolate",
                 padding: "clamp(20px, 8vw, 50px) 0",
+                background: "#faf5ea",
             }}
         >
-            {/* Top-right heading*/}
+            {/* Top-right heading - warm brown */}
             <h1 style={{
                 position: 'absolute',
                 left: '5%',
-                fontSize: 'clamp(2.2rem, 7vw, 4.5rem)',   // smaller on mobile
+                fontSize: 'clamp(2.2rem, 7vw, 4.5rem)',
                 fontWeight: '300',
                 letterSpacing: 'clamp(4px, 2vw, 12px)',
                 textTransform: 'uppercase',
                 lineHeight: '1.2',
                 zIndex: 5,
+                color: '#5a4d41',
             }}>
                 about
             </h1>
 
-            {/* Bottom-right paragraph */}
+            {/* Bottom-right paragraph - warm text */}
             <div
                 style={{
                     position: "absolute",
                     bottom: "clamp(6%, 8%, 12%)",
                     right: "clamp(4%, 6%, 8%)",
                     maxWidth: "clamp(38%, 45%, 52%)",
-                    color: "#d0c8b8",
+                    color: "#7e6957",
                     fontSize: "clamp(0.95rem, 2.3vw, 1.35rem)",
                     lineHeight: 1.7,
                     fontStyle: "italic",
@@ -204,19 +206,20 @@ const IntersectingCircles: React.FC = () => {
                 и насладиться красотой окружающего мира.
             </div>
 
-            {/* circle 1 – bottom left */}
+            {/* circle 1 – bottom left - warmer tones */}
             <div
                 style={{
                     position: "absolute",
-                    width: "clamp(42%, 48%, 55%)", // bigger overlap on mobile
+                    width: "clamp(42%, 48%, 55%)",
                     aspectRatio: "1",
-                    bottom: "clamp(-6%, -2%, 4%)",            // pulled up on small screens
-                    left: "clamp(-6%, -2%, 4%)",              // pulled right
+                    bottom: "clamp(-6%, -2%, 4%)",
+                    left: "clamp(-6%, -2%, 4%)",
                     borderRadius: "50%",
                     opacity: 0.76,
-                    mixBlendMode: "screen",
-                    filter: "brightness(0.78) contrast(1.18)",
-                    border: "1px solid rgba(220, 230, 255, 0.28)",
+                    mixBlendMode: "multiply",
+                    filter: "brightness(0.95) contrast(1.1)",
+                    border: "1px solid rgba(139, 111, 76, 0.28)",
+                    background: "radial-gradient(circle at 30% 30%, #f2e6d8, #d9c9b5)",
                     zIndex: 0,
                 }}
             >
@@ -229,23 +232,22 @@ const IntersectingCircles: React.FC = () => {
                 />
             </div>
 
-            {/* circle 2 – center */}
+            {/* circle 2 – center - with image but lighter */}
             <div
                 style={{
                     position: "absolute",
-                    width: '48%',          // dominant on mobile
+                    width: '48%',
                     aspectRatio: "1",
                     top: "50%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
                     borderRadius: "50%",
-                    backgroundImage: `url(${Cabin})`,
+                    backgroundImage: `url(${Paris})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center 30%",
-                    opacity: 0.74,
-                    mixBlendMode: "screen",
-                    filter: "brightness(0.76) contrast(1.20)",
-                    border: "1px solid rgba(220, 230, 255, 0.28)",
+                    opacity: 0.35,
+                    filter: "contrast(1.1) sepia(0.4)",
+                    border: "1px solid rgba(139, 111, 76, 0.28)",
                     zIndex: 5
                 }}
             >
@@ -258,19 +260,20 @@ const IntersectingCircles: React.FC = () => {
                 />
             </div>
 
-            {/* circle 3 – top right */}
+            {/* circle 3 – top right - warm */}
             <div
                 style={{
                     position: "absolute",
                     width: "38%",
                     aspectRatio: "1",
                     top: "11%",
-                    right: "clamp(-6%, -2%, 4%)",             // pulled left on mobile
+                    right: "clamp(-6%, -2%, 4%)",
                     borderRadius: "50%",
-                    opacity: 0.36,
-                    mixBlendMode: "screen",
-                    filter: "brightness(0.78) contrast(1.18)",
-                    border: "1px solid rgba(220, 230, 255, 0.28)",
+                    opacity: 0.45,
+                    mixBlendMode: "multiply",
+                    filter: "brightness(0.95) contrast(1.1)",
+                    border: "1px solid rgba(139, 111, 76, 0.28)",
+                    background: "radial-gradient(circle at 70% 70%, #e8d9c8, #c9b296)",
                 }}
             >
                 <div
@@ -282,17 +285,15 @@ const IntersectingCircles: React.FC = () => {
                 />
             </div>
 
-            {/* Text labels – following the diagonal positions */}
+            {/* Text labels – following the diagonal positions - warm colors */}
             <div
                 style={{
                     position: "absolute",
                     inset: 0,
-                    color: "#f8f8f8",
-                    pointerEvents: "none",
+                    color: "#5a4d41",
                     zIndex: 5,
                     textTransform: "uppercase",
-                    fontFamily: "system-ui, -apple-system, sans-serif",
-                    textShadow: "0 2px 14px rgba(0,0,0,0.9)",
+                    textShadow: "0 2px 14px rgba(245, 235, 220, 0.7)",
                 }}
             >
                 {/*bottom left */}
@@ -305,6 +306,7 @@ const IntersectingCircles: React.FC = () => {
                         fontSize: "clamp(2.0rem, 5vw, 4.2rem)",
                         fontWeight: 550,
                         letterSpacing: "0.26em",
+                        color: "#7e6957",
                     }}
                 >
                     Comfort
@@ -321,6 +323,7 @@ const IntersectingCircles: React.FC = () => {
                         fontWeight: 700,
                         letterSpacing: "0.38em",
                         lineHeight: 0.92,
+                        color: "#5a4d41",
                     }}
                 >
                     harmony
@@ -336,19 +339,20 @@ const IntersectingCircles: React.FC = () => {
                         fontSize: "clamp(1.5rem, 4.5vw, 3.6rem)",
                         fontWeight: 550,
                         letterSpacing: "0.20em",
+                        color: "#8d6c45",
                     }}
                 >
                     classics
                 </div>
             </div>
 
-            {/* Vignette */}
+            {/* Light vignette - warm instead of dark */}
             <div
                 style={{
                     position: "absolute",
                     inset: 0,
                     background:
-                        "radial-gradient(ellipse at 50% 28%, rgba(8, 10, 14, 0.94) 0%, transparent 45%, rgba(6, 8, 12, 0.78) 70%, rgba(4, 6, 10, 0.98) 100%)",
+                        "radial-gradient(ellipse at 50% 28%, rgba(245, 235, 225, 0.6) 0%, transparent 45%, rgba(235, 220, 205, 0.3) 70%, rgba(225, 210, 190, 0.4) 100%)",
                     pointerEvents: "none",
                     zIndex: 2,
                 }}
@@ -362,7 +366,7 @@ const About: React.FC = () => {
         <div
             id="about"
             style={{
-                width: "100%",       // white outside the dark area
+                width: "100%",
             }}
         >
             <IntersectingCircles />
@@ -380,19 +384,19 @@ const Features: React.FC = () => {
             <div
                 style={{
                     position: "relative",
-                    background: "#1a1612",
-                    color: "#e8e0d5",
+                    background: "#faf5ea",
+                    color: "#5a4d41",
                     overflow: "hidden",
                     padding: "clamp(60px, 8vw, 120px) 0 0 clamp(20px, 5vw, 80px)"
                 }}
             >
-                {/* Strong vignette – focus in center/left */}
+                {/* Light vignette – warm glow */}
                 <div
                     style={{
                         position: "absolute",
                         inset: 0,
                         background:
-                            "radial-gradient(ellipse at 35% 45%, transparent 18%, rgba(0,0,0,0.92) 65%, rgba(0,0,0,0.98) 100%)",
+                            "radial-gradient(ellipse at 35% 45%, transparent 18%, rgba(245, 235, 225, 0.6) 65%, rgba(235, 225, 210, 0.7) 100%)",
                         pointerEvents: "none",
                         zIndex: 1,
                     }}
@@ -420,14 +424,14 @@ const Features: React.FC = () => {
                             justifyContent: "center",
                         }}
                     >
-                        {/* Background vignette glow */}
+                        {/* Background vignette glow - warm */}
                         <div
                             style={{
                                 position: "absolute",
                                 inset: 0,
                                 borderRadius: "50%",
                                 background:
-                                    "radial-gradient(circle at 50% 50%, rgba(180,140,100,0.12) 0%, transparent 70%)",
+                                    "radial-gradient(circle at 50% 50%, rgba(139, 111, 76, 0.12) 0%, transparent 70%)",
                                 filter: "blur(80px)",
                                 zIndex: 1,
                             }}
@@ -441,14 +445,15 @@ const Features: React.FC = () => {
                             }}
                         >
                             <img
-                                src={Lillies}
+                                src={Bouqet}
                                 alt="Laptop with presentation"
                                 style={{
                                     width: "100%",
                                     height: "auto",
                                     borderRadius: "12px",
-                                    boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+                                    boxShadow: "0 20px 60px rgba(139, 111, 76, 0.25)",
                                     transform: "perspective(1000px) rotateY(-8deg)",
+                                    filter: "brightness(0.98) sepia(0.1)",
                                 }}
                             />
 
@@ -470,9 +475,8 @@ const Features: React.FC = () => {
                                         position: 'relative',
                                         left: '30%',
                                         borderRadius: "8px",
-                                        boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
-                                        filter: 'brightness(0.45)',
-
+                                        boxShadow: "0 10px 30px rgba(139, 111, 76, 0.2)",
+                                        filter: 'brightness(0.95) sepia(0.15)',
                                     }}
                                 />
                             </div>
@@ -483,7 +487,7 @@ const Features: React.FC = () => {
                                     top: "-30%",
                                     left: "15%",
                                     width: "clamp(140px, 22vw, 220px)",
-                                    opacity: 0.9,
+                                    opacity: 0.95,
                                     zIndex: 2,
                                 }}
                             >
@@ -492,8 +496,9 @@ const Features: React.FC = () => {
                                     style={{
                                         width: "100%",
                                         height: "auto",
-                                        filter: "brightness(0.9) contrast(1.1)",
+                                        filter: "brightness(0.95) contrast(1.05) sepia(0.1)",
                                         borderRadius: '12px',
+                                        boxShadow: "0 10px 25px rgba(139, 111, 76, 0.15)",
                                     }}
                                 />
                             </div>
@@ -510,11 +515,11 @@ const Features: React.FC = () => {
                                 letterSpacing: "0.25em",
                                 textTransform: "uppercase",
                                 marginBottom: "clamp(20px, 4vw, 40px)",
-                                color: "#e8e0d5",
+                                color: "#5a4d41",
                                 lineHeight: 1.15,
                             }}
                         >
-                            featues
+                            features
                             <br />
                             PńP
                         </h2>
@@ -524,13 +529,13 @@ const Features: React.FC = () => {
                             style={{
                                 fontSize: "clamp(1.1rem, 2.5vw, 1.45rem)",
                                 lineHeight: 1.75,
-                                color: "#d0c8b8",
+                                color: "#7e6957",
                                 marginBottom: "clamp(30px, 5vw, 60px)",
                                 fontStyle: "italic",
                                 maxWidth: "520px",
                             }}
                         >
-                            Find out what you an access through our platform:
+                            Find out what you can access through our platform:
                         </p>
 
                         {/* Numbered list */}
@@ -543,8 +548,8 @@ const Features: React.FC = () => {
                         >
                             {[
                                 "Read and explore new books",
-                                "Connect and Communicate with communities that have similar tastes. Geek about yoyur experience of a booka as you read.",
-                                "Write and publish books of your own to your followeres and communities.",
+                                "Connect and Communicate with communities that have similar tastes. Geek about your experience of a book as you read.",
+                                "Write and publish books of your own to your followers and communities.",
                                 "Participate in reading challenges and live interactions with your fellow readers.",
                             ].map((text, index) => (
                                 <div
@@ -559,7 +564,7 @@ const Features: React.FC = () => {
                                         style={{
                                             fontSize: "clamp(1.6rem, 4vw, 2.8rem)",
                                             fontWeight: 700,
-                                            color: "#a68a64",
+                                            color: "#8d6c45",
                                             minWidth: "clamp(36px, 6vw, 60px)",
                                             textAlign: "right",
                                         }}
@@ -571,6 +576,7 @@ const Features: React.FC = () => {
                                             fontSize: "clamp(1.05rem, 2.4vw, 1.35rem)",
                                             lineHeight: 1.65,
                                             margin: 0,
+                                            color: "#5a4d41",
                                         }}
                                     >
                                         {text}
@@ -581,7 +587,7 @@ const Features: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Curved line overlay – connecting title to list */}
+                {/* Curved line overlay – connecting title to list - warm */}
                 <svg
                     style={{
                         position: "absolute",
@@ -597,7 +603,7 @@ const Features: React.FC = () => {
                     <path
                         d="M 200 180 Q 600 400, 1000 320"
                         fill="none"
-                        stroke="rgba(168,138,100,0.18)"
+                        stroke="rgba(139, 111, 76, 0.18)"
                         strokeWidth="2"
                         strokeDasharray="8 4"
                     />
@@ -619,19 +625,19 @@ const Contact: React.FC = () => {
             <div
                 style={{
                     position: "relative",
-                    background: "#1a1612",
-                    color: "#e8e0d5",
+                    background: "#f5f0e8",
+                    color: "#5a4d41",
                     overflow: "hidden",
-                    padding: "clamp(60px, 8vw, 120px) 0 0 clamp(20px, 5vw, 80px)",
+                    padding: "clamp(60px, 8vw, 120px) clamp(20px, 5vw, 80px)",
                 }}
             >
-                {/* Strong vignette*/}
+                {/* Light vignette - warm */}
                 <div
                     style={{
                         position: "absolute",
                         inset: 0,
                         background:
-                            "radial-gradient(ellipse at 35% 45%, transparent 18%, rgba(0,0,0,0.92) 65%, rgba(0,0,0,0.98) 100%)",
+                            "radial-gradient(ellipse at 35% 45%, transparent 18%, rgba(245, 235, 225, 0.5) 65%, rgba(235, 225, 210, 0.6) 100%)",
                         pointerEvents: "none",
                         zIndex: 1,
                     }}
@@ -645,7 +651,7 @@ const Contact: React.FC = () => {
                         letterSpacing: "0.25em",
                         textTransform: "uppercase",
                         marginBottom: "clamp(20px, 4vw, 40px)",
-                        color: "#e8e0d5",
+                        color: "#5a4d41",
                         lineHeight: 1.15,
                         zIndex: 5,
                         position: "relative",
@@ -656,7 +662,7 @@ const Contact: React.FC = () => {
                     PńP
                 </h2>
 
-                {/* Main responsive grid – same as Features */}
+                {/* Main responsive grid */}
                 <div
                     style={{
                         position: "relative",
@@ -664,7 +670,7 @@ const Contact: React.FC = () => {
                         maxWidth: "1400px",
                         margin: "0 auto",
                         display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", // ← this makes it stack on mobile
+                        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
                         gap: "clamp(40px, 6vw, 100px)",
                         alignItems: "start",
                     }}
@@ -677,7 +683,8 @@ const Contact: React.FC = () => {
                                 fontWeight: "400",
                                 letterSpacing: "2px",
                                 marginBottom: "20px",
-                                color: "#c4b5a0",
+                                color: "#7e6957",
+                                fontFamily: "'Cormorant Garamond', serif",
                             }}
                         >
                             Morwetsana Pule
@@ -685,8 +692,9 @@ const Contact: React.FC = () => {
                         <p
                             style={{
                                 lineHeight: "1.8",
-                                opacity: 0.7,
+                                opacity: 0.8,
                                 fontSize: "clamp(1rem, 2.4vw, 1.2rem)",
+                                color: "#5a4d41",
                             }}
                         >
                             University of Pretoria Student
@@ -701,18 +709,19 @@ const Contact: React.FC = () => {
                                 fontWeight: "400",
                                 letterSpacing: "1px",
                                 marginBottom: "20px",
-                                color: "#c4b5a0",
+                                color: "#7e6957",
+                                fontFamily: "'Cormorant Garamond', serif",
                             }}
                         >
                             Contact Me
                         </h4>
-                        <p style={{ marginBottom: "10px", opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                        <p style={{ marginBottom: "10px", opacity: 0.8, fontSize: "clamp(1rem, 2.2vw, 1.2rem)", color: "#5a4d41" }}>
                             morwetsana.pule@gmail.com
                         </p>
-                        <p style={{ marginBottom: "10px", opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                        <p style={{ marginBottom: "10px", opacity: 0.8, fontSize: "clamp(1rem, 2.2vw, 1.2rem)", color: "#5a4d41" }}>
                             +27 63 519 9397
                         </p>
-                        <p style={{ opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                        <p style={{ opacity: 0.8, fontSize: "clamp(1rem, 2.2vw, 1.2rem)", color: "#5a4d41" }}>
                             Pretoria, Cullinan, 1000
                         </p>
                     </div>
@@ -725,18 +734,19 @@ const Contact: React.FC = () => {
                                 fontWeight: "400",
                                 letterSpacing: "1px",
                                 marginBottom: "20px",
-                                color: "#c4b5a0",
+                                color: "#7e6957",
+                                fontFamily: "'Cormorant Garamond', serif",
                             }}
                         >
                             Social Media
                         </h4>
-                        <p style={{ marginBottom: "10px", opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                        <p style={{ marginBottom: "10px", opacity: 0.8, fontSize: "clamp(1rem, 2.2vw, 1.2rem)", color: "#5a4d41" }}>
                             LinkedIn
                         </p>
-                        <p style={{ marginBottom: "10px", opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                        <p style={{ marginBottom: "10px", opacity: 0.8, fontSize: "clamp(1rem, 2.2vw, 1.2rem)", color: "#5a4d41" }}>
                             Github
                         </p>
-                        <p style={{ opacity: 0.7, fontSize: "clamp(1rem, 2.2vw, 1.2rem)" }}>
+                        <p style={{ opacity: 0.8, fontSize: "clamp(1rem, 2.2vw, 1.2rem)", color: "#5a4d41" }}>
                             Glassdoor
                         </p>
                     </div>
@@ -748,12 +758,13 @@ const Contact: React.FC = () => {
                         maxWidth: "1200px",
                         margin: "clamp(40px, 8vw, 60px) auto 0",
                         paddingTop: "30px",
-                        borderTop: "1px solid rgba(255,255,255,0.1)",
+                        borderTop: "1px solid rgba(139, 111, 76, 0.2)",
                         textAlign: "center",
-                        opacity: 0.5,
+                        opacity: 0.7,
                         fontSize: "clamp(12px, 2vw, 14px)",
                         zIndex: 2,
                         position: "relative",
+                        color: "#7e6957",
                     }}
                 >
                     © 2026 Morwetsana Pule. All rights reserved.

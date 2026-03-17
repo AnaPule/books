@@ -39,11 +39,11 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                 });
                 return;
             }
-            console.log('user',formData);
+            console.log('user', formData);
 
             await request.post<User>('/auth/register', formData)
                 .then(
-                    
+
                     ((res: User) => {
                         if (res.username != null) {
                             toast.info(`Thank you for signing up with PńP ${res.username}. Please login.`)
@@ -86,10 +86,30 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
             }}
             onSubmit={handleSubmitSignUp}
         >
+
+            <h3
+                style={{
+                    fontSize: 'clamp(10px, 2vw, 72px)',
+                    fontWeight: '300',
+                    textAlign: 'center',
+                    margin: '0',
+                }}
+            >
+                Pages ń Parchments <br />
+                <section
+                    style={{
+                        fontSize: 'clamp(10px, 3vw, 72px)',
+                        fontWeight: '400',
+                    }}
+                >
+                    Sign Up
+                </section>
+
+            </h3>
             {/* Username */}
             <div className='input-container'>
                 <button>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89f85" strokeWidth="1.6">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className='input-img' strokeWidth="1.6">
                         <circle cx="12" cy="7" r="4" />
                         <path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2" strokeLinecap="round" />
                     </svg>
@@ -103,13 +123,14 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                 />
             </div>
 
+            {/* cell and email */}
             <div className="input-group">
                 {/* Email */}
                 <div
                     className="input-container"
                 >
                     <button>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89f85" strokeWidth="1.6">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className='input-img' strokeWidth="1.6">
                             <rect x="2" y="4" width="20" height="16" rx="2" />
                             <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                         </svg>
@@ -127,7 +148,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                 {/* cellphone */}
                 <div className='input-container'>
                     <button>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89f85" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className='input-img' strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 5.1 12.72 19.79 19.79 0 0 1 2.03 4.1 2 2 0 0 1 4 1.92h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.03z" />
                         </svg>
                     </button>
@@ -154,11 +175,11 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                     style={{ background: "none", border: "none", cursor: "pointer", padding: "0 8px 0 0" }}
                 >
                     {showPassword ?
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89f85" strokeWidth="1.6">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className='input-img' strokeWidth="1.6">
                             <path d="M17 11V7a5 5 0 0 0-9.9-1" />
                             <rect x="3" y="11" width="18" height="11" rx="2" />
                         </svg> :
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89f85" strokeWidth="1.6">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className='input-img' strokeWidth="1.6">
                             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                             <rect x="3" y="11" width="18" height="11" rx="2" />
                         </svg>}
@@ -231,7 +252,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                     <div className="w-full border-t border-[#c9b296]/30"></div>
                 </div>
                 <div className="relative flex justify-center">
-                    <span className="px-6 text-[#b8a58f] uppercase tracking-[0.25em] text-xs">
+                    <span className="px-6 text-[#b8a58f] uppercase tracking-[0.25em] text-xs bg-[#faf5ea]">
                         or
                     </span>
                 </div>

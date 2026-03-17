@@ -14,28 +14,42 @@ export const Topnav: React.FC = () => {
     return (
         <div
             className='
-            font-sans absolute z-10 
-            bg-[#f2e8da]/75 h-[60px] w-full
-            flex items-center justify-end
-            px-10 text-sm flex-wrap gap-10
+            font-sans absolute z-20 
+            bg-[#f2e8da]/95 h-auto min-h-[60px] w-full
+            flex items-center justify-center sm:justify-end
+            px-4 sm:px-6 md:px-10 py-3 sm:py-0
+            flex-wrap gap-4 sm:gap-6 md:gap-10
             uppercase text-[#5a4d41]
-            tracking-[2px]
+            tracking-[1px] sm:tracking-[2px]
+            text-sm sm:text-base
             backdrop-blur-sm
             border-b border-[#c9b296]/30
-            z-20
-            hover:text-[#F5D6D4] transition-colors
             '
         >
-            {/* Light overlay - removed dark overlay */}
-            
-                <a className='relative z-5 hover:text-[#8d6c45] transition-colors duration-300' href="/home#home" style={{ whiteSpace: 'nowrap' }}>Home</a>
-                <a className='relative z-5 hover:text-[#8d6c45] transition-colors duration-300' href="/home#about" style={{ whiteSpace: 'nowrap' }}>About</a>
-                <a className='relative z-5 hover:text-[#8d6c45] transition-colors duration-300' href="/home#features" style={{ whiteSpace: 'nowrap' }}>Features</a>
-                <a
-                    className='relative z-5 hover:text-[#8d6c45] transition-colors duration-300' 
-                    href="/auth"
-                >Account</a>
-
+            <a
+                className='hover:text-[#8d6c45] transition-colors duration-300 whitespace-nowrap'
+                href="/home#home"
+            >
+                Home
+            </a>
+            <a
+                className='hover:text-[#8d6c45] transition-colors duration-300 whitespace-nowrap'
+                href="/home#about"
+            >
+                About
+            </a>
+            <a
+                className='hover:text-[#8d6c45] transition-colors duration-300 whitespace-nowrap'
+                href="/home#features"
+            >
+                Features
+            </a>
+            <a
+                className='hover:text-[#8d6c45] transition-colors duration-300 whitespace-nowrap'
+                href="/auth"
+            >
+                Account
+            </a>
         </div>
     );
 };
@@ -118,7 +132,7 @@ const Hero: React.FC = () => {
                             cursor: 'pointer',
                             textTransform: 'uppercase',
                             transition: 'all 0.3s ease',
-                            fontWeight:'500',
+                            fontWeight: '500',
                         }}
                         onMouseEnter={() => setHoverButton(true)}
                         onMouseLeave={() => setHoverButton(false)}

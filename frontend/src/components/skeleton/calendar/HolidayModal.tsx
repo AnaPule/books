@@ -1,6 +1,6 @@
 
 import { Modal } from '@components/skeleton/modal';
-import { Calendar, Globe, BookOpen, Sparkles } from 'lucide-react';
+import { Calendar, Globe, BookOpen, Sparkles, Cross, Library } from 'lucide-react';
 
 interface Holiday {
     name: string;
@@ -23,16 +23,16 @@ const HolidayModal: React.FC<HolidayModalProps> = ({ isOpen, onClose, holiday })
 
     const typeConfig = {
         reading: {
-            emoji: '📚',
+            icon: <Library size={12} color='var(--slate-pastel)' />,
             label: 'Reading & Literature',
-            badgeClass: 'bg-[#c9a394]/20 text-[#8d6c45]',
+            badgeClass: 'bg-[var(--sage-mist)] text-[var(--forest-pastel)]',
             accentClass: 'text-[#c9a394]',
         },
         christian: {
-            emoji: '✝️',
+            icon: <Cross size={12} color='var(--slate-pastel)' />,
             label: 'Christian',
-            badgeClass: 'bg-[#e8bfb0]/30 text-[#b58b7c]',
-            accentClass: 'text-[#d9b6a8]',
+            badgeClass: 'bg-[var(--powder-blue)] text-[[var(--powder-blue)]',
+            accentClass: 'text-[[var(--powder-blue)]',
         },
     };
 
@@ -48,8 +48,8 @@ const HolidayModal: React.FC<HolidayModalProps> = ({ isOpen, onClose, holiday })
                         <Calendar size={14} className="text-[#c9a394]" />
                         <span>{holiday.date}</span>
                     </div>
-                    <span className={`text-[11px] px-2.5 py-1 rounded-full font-medium ${config.badgeClass}`}>
-                        {config.emoji} {config.label}
+                    <span className={`text-[11px] px-2.5 py-1 rounded-full font-medium flex gap-2 items-center ${config.badgeClass}`}>
+                        {config.icon} {config.label}
                     </span>
                 </div>
 

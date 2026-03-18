@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Feather, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Feather, ChevronLeft, ChevronRight, Cross } from 'lucide-react';
 import Tooltip from '@components/skeleton/ToolTip';
 import HolidayModal from '@components/skeleton/calendar/HolidayModal';
 

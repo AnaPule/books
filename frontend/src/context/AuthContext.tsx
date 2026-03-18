@@ -18,7 +18,7 @@ import { request } from "@utils/ApiRequest";
 {/* =============== models ============ */ }
 import type { User } from "@models/User";
 import type { Book } from "@models/Book";
-import type { Word } from '@models/Word';
+import { type Word, wordList } from '@models/Word';
 
 {/* =============== env variables ============ */ }
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -39,13 +39,18 @@ interface AuthContextType {
     isLoggedIn: Boolean;
     logout: () => void;
     loading: boolean;
+
+    word: Word | null;
 }
 
-const WordOfTheDay = async () => {
-    const word = await fetch('https://random-word-api.herokuapp.com/word');
-    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-    console.log('Word', word);
-    console.log('res', res)
+const WordOfTheDay = async (userId: String) => {
+    const word = wordList[Math.floor(Math.random() * wordList.length)]; //floor makes sure of no decimals.
+    const dto = {
+        userId: userId,
+        word: word
+    }
+    const res = await request.post<Word>(`/auth/word`, dto);
+    return res;
 }
 
 const getToken = () => {
@@ -68,7 +73,9 @@ const AuthContext = createContext<AuthContextType>({
     //setLibrary: () => [],
     //setWishlist: () => [],
     setRecommends: () => [],
-    loading: false
+    loading: false,
+
+    word: null,
 });
 
 interface AuthProviderProps {
@@ -78,6 +85,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const navigate = useNavigate(); //For redirecting users
     const [user, setUser] = useState<User | null>(null);
+    const [word, setWord] = useState<Word | any>(null);
     const isLoggedIn = !!user;
     //const [isLoggedIn, setLoggedIn] = useState<Boolean>(false);
     //const [wishlist, setWishlist] = useState<Book[] | []>([]);
@@ -94,6 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         sessionStorage.removeItem('token');
         setUser(null);
         request.setAuthToken(null);
+        
 
         if (message) {
             toast.error('Session ended', { description: message });
@@ -138,13 +147,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 request.setAuthToken(token);
                 const res = await request.get<any>('/auth/user');
-                //console.log("User fetched successfully:", res?.username || res?.email || 'no name');
+                
                 const actualUser = res.user as User;
                 if (!actualUser) {
                     throw new Error("No user object in response");
                 }
                 setUser(actualUser);
-                //console.log('User',actualUser)
+                setWord(await WordOfTheDay(actualUser.id));
 
                 // Schedule timers only after user is set
                 const timeLeftMs = getTimeLeft(token);
@@ -192,7 +201,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <AuthContext.Provider value={{ user, setUser, setRecommends, recommends, isLoggedIn, logout, loading }}>
+        <AuthContext.Provider value={{ user, setUser, setRecommends, recommends, isLoggedIn, logout, loading, word }}>
             {loading ? (
                 <div className='flex items-center justify-center h-screen'>
                     <Spinner loadingLabel="Please Wait" />

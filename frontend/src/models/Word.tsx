@@ -1,9 +1,71 @@
-export interface Word{
+export interface Word {
     word: string;
     phonetic: string;
-    meanings: {
-        partsOfSpeech: string
-        definition: []
-    };
-    origin: string;
+    meanings: Array<{
+        partsOfSpeech: string,
+        definitions: Array<{
+            definition: string
+        }>
+    }>;
 }
+
+export const wordList: string[] = [
+    "serendipity", "ephemeral", "mellifluous", "ineffable", "luminous",
+    "effervescent", "halcyon", "petrichor", "sonorous", "quintessential",
+    "ethereal", "perspicacious", "surreptitious", "opulent", "resplendent",
+    "ebullient", "effulgent", "liminal", "susurrus", "crepuscular",
+    "nocturne", "solipsism", "apricity", "vellichor", "nubivagant",
+    "selcouth", "numinous", "lacuna", "syzygy", "epiphany",
+    "sonder", "mondegreen", "weltschmerz", "saudade", "hiraeth",
+    "fernweh", "meraki", "sobremesa", "komorebi", "tsundoku",
+    "ataraxia", "eunoia", "nemophilist", "philocalist", "querencia",
+    "sobriquet", "defenestration", "tintinnabulation", "sesquipedalian",
+    "floccinaucinihilipilification", "honorificabilitudinitatibus",
+    "antidisestablishmentarianism", "supercalifragilisticexpialidocious",
+    "onomatopoeia", "anemochory", "autodidact", "callipygian",
+    "deipnosophist", "eudaimonia", "foudroyant", "gossamer",
+    "imbroglio", "jouska", "kintsugi", "languor", "mnemotechny",
+    "nimbus", "obstreperous", "panacea", "quixotic", "ramshackle",
+    "scintilla", "umbrage", "venerable", "wistful", "xenial",
+    "yugen", "zephyr", "aberration", "beatific", "catharsis",
+    "diaphanous", "effloresce", "fugacious", "harrowing", "incandescent",
+    "juxtapose", "kismet", "languid", "mellifluence", "nefarious",
+    "obfuscate", "palimpsest", "quiescent", "recondite", "sanguine",
+    "tenebrous", "unctuous", "vicissitude", "winsome", "xenogenesis",
+    "yare", "alacrity", "beguile", "cynosure", "dalliance",
+    "effrontery", "farrago", "garrulous", "harbinger", "iconoclast",
+    "jejune", "knell", "lugubrious", "mendacious", "nadir",
+    "paroxysm", "querulous", "recalcitrant", "sartorial", "taciturn",
+    "ubiquitous", "vermilion", "wraith", "xeric", "yoke",
+    "zany", "abstruse", "bifurcate", "capricious", "deleterious",
+    "ebullition", "facetious", "grandiloquent", "hegemony", "intransigent",
+    "jocund", "lachrymose", "magniloquent", "nebulous", "obdurate",
+    "palliate", "quagmire", "sagacious", "tenebrous", "vicarious",
+    "xenial", "yugen", "zephyr", "apotheosis", "benediction",
+    "chimerical", "denouement", "ephemerality", "fugue", "gossamer",
+    "hiraeth", "incandescence", "juvenescent", "kaleidoscope", "languorous",
+    "mellifluous", "noctilucent", "obstreperous", "panoply", "quixotism",
+    "reverie", "sempiternal", "tintinnabulation", "ubiquitous", "verisimilitude",
+    "weltschmerz", "xenophobia", "yarely", "zephyr", "abnegation",
+    "beatitude", "cathartic", "diaphaneity", "effulgence", "fugacity",
+    "gossamer", "harrow", "incipient", "juxtaposition", "kismet",
+    "languish", "mellisonant", "nefariousness", "obfuscation", "palimpsest",
+    "quiescence", "reconditeness", "sanguinity", "tenebrosity", "unctuosity",
+    "vicissitudinous", "winsomeness", "xenogenesis", "yugen", "zephyr",
+    "altruism", "beguiling", "cynosural", "dalliance", "effrontery",
+    "farraginous", "garrulity", "harbingering", "iconoclastic", "jejunosity",
+    "knell", "lugubriosity", "mendacity", "nadir", "obstreperousness",
+    "paroxysmal", "querulousness", "recalcitrance", "sartorialism", "taciturnity",
+    "ubiquity", "vermilion", "wraithlike", "xeric", "yoke",
+    "zanyism", "abstruseness", "bifurcation", "capriciousness", "deleteriousness",
+    "ebullient", "facetiousness", "grandiloquence", "hegemonic", "intransigence",
+    "jocundity", "lachrymosity", "magniloquence", "nebulosity", "obduracy",
+    "palliation", "quagmiry", "recondite", "sagacity", "tenebrous",
+    "unctuousness", "vicariousness", "wistfulness", "xenial", "yare",
+    "zephyr", "apothegm", "beatify", "cathartically", "diaphanously",
+    "efflorescent", "fugitive", "gossamer", "harrowed", "incandescently",
+    "juxtaposed", "kismet", "languishing", "mellifluently", "nefariously",
+    "obfuscatory", "palimpsestic", "quiescently", "reconditely", "sanguinely",
+    "tenebrously", "unctuously", "vicissitudinous", "winsomely", "xenogenetically",
+    "yarely", "zephyr"
+];

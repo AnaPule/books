@@ -17,7 +17,7 @@ import {
     Star, Target, BookMarked,
     Sparkles, Quote
     , CheckCircle, Plus
-    , Heart, Feather, Menu
+    , Heart, Menu
 } from 'lucide-react';
 
 {/* =============== models ============ */ }
@@ -27,7 +27,7 @@ import { useAuth } from "@context/AuthContext";
 
 {/* =============== components ============ */ }
 import { AccountSettings } from './AccountSettings';
-import {Calendar} from "@components/skeleton/calendar/Calendar";
+import { Calendar } from "@components/skeleton/calendar/Calendar";
 
 const ProfileHeader: React.FC = () => {
     const { user } = useAuth();
@@ -91,46 +91,8 @@ const DateTimeCard: React.FC = () => {
         </div>
     );
 };
-/*
-const Calendar: React.FC = () => {
-    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const march2024 = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
-    ];
-
-    return (
-        <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
-            <h2 className="text-sm md:text-base font-serif text-[#5a4d41] mb-2 md:mb-3 flex items-center gap-2">
-                <Feather size={14} className="text-[#c9a394]" /> March 2024
-            </h2>
-
-            <div className="grid grid-cols-7 gap-0.5 md:gap-1 mb-1 md:mb-2">
-                {days.map((day,idx) => (
-                    <div key={`day-${idx}`} className="text-center text-[10px] md:text-xs font-medium text-[#d9b6a8]">{day}</div>
-                ))}
-            </div>
-
-            <div className="grid grid-cols-7 gap-0.5 md:gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={`empty-${i}`} className="text-center p-0.5 md:p-1"></div>
-                ))}
-                {march2024.map(date => (
-                    <div
-                        key={date}
-                        className={`
-                            text-center p-0.5 md:p-1.5 text-[10px] md:text-sm rounded-md cursor-pointer
-                            ${date === 15 ? 'bg-gradient-to-r from-[#c9a394] to-[#d9b6a8] text-white' : 'text-[#5a4d41] hover:bg-[#f5d6d4]/30'}
-                        `}
-                    >
-                        {date}
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
-*/
 const WordOfTheDay: React.FC = () => {
+    const { word } = useAuth();
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [previousImageIndex, setPreviousImageIndex] = useState(0);
@@ -170,9 +132,18 @@ const WordOfTheDay: React.FC = () => {
                 <p className="text-[10px] md:text-md tracking-wider mb-1 md:mb-2 flex items-center gap-1 font-semibold">
                     <Sparkles size={10} /> WORD OF THE DAY
                 </p>
-                <h3 className="text-2xl md:text-3xl font-serif mb-0.5 md:mb-1 font-bold">Sonder</h3>
-                <p className="text-[10px] md:text-xs italic mb-2 md:mb-3 font-medium">/sɒn.dər/ — noun</p>
-                <p className="text-sm md:text-sm leading-relaxed font-medium">the realization that every passerby has a life as vivid and complex as your own.</p>
+                <h3 className="text-2xl md:text-3xl font-serif mb-0.5 md:mb-1 font-bold">
+                    {word?.word || "Sonder"}
+                </h3>
+                <p className="text-[10px] md:text-xs italic mb-2 md:mb-3 font-medium">
+                    {word?.phonetic && word?.meanings?.[0]?.partsOfSpeech
+                        ? `${word.phonetic} — ${word.meanings[0].partsOfSpeech}`
+                        : "/sɒn.dər/ — noun"}
+                </p>
+                <p className="text-sm md:text-sm leading-relaxed font-medium">
+                    {word?.meanings?.[0]?.definitions?.[0]?.definition ||
+                        "the realization that every passerby has a life as vivid and complex as your own."}
+                </p>
             </div>
         </div>
     );

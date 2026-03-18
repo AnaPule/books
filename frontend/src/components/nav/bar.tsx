@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 import { useState, useEffect } from "react";
 
 {/* =============== components ============ */ }
+import { AccountSettings } from '@pages/profile/AccountSettings';
 import { Home, BookOpen, Clock, Bookmark, Settings, Menu, Search, TrendingUp, Heart, LogOut, X, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 
 {/* =============== services ============ */ }
@@ -28,6 +29,7 @@ const Sidebar = () => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    {/* account settings */ } const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
     // Check if mobile on mount and resize
     useEffect(() => {
@@ -78,6 +80,10 @@ const Sidebar = () => {
 
     return (
         <>
+            <AccountSettings
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+            />
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -182,7 +188,7 @@ const Sidebar = () => {
                 <div className="px-3 py-2">
                     <button
                         onClick={() => {
-                            navigate('/settings');
+                            setIsSettingsOpen(true);
                             setIsMobileOpen(false);
                         }}
                         className={`

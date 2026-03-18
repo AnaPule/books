@@ -4,6 +4,7 @@ export interface User{
     username: string;
     email: string;
     bio: string;
+    cellphone: string;
     profilePhoto: string;
     createdAt: Date;
     verificationCode: string;

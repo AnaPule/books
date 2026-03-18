@@ -16,31 +16,62 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --parchment: #F5F0E8;
-  /* Background - aged paper */
-  --cream: #FFFCF7;
-  /* Cards - clean but warm */
-  --latte: #C3BDB8;
-  /* Borders, subtle accents */
-  --chai: #7E6957;
-  /* Text - warm brown */
-  --mocha: #5A4D41;
-  /* Headers - deeper brown */
-  --american-roast: #1E1D1D;
-  /* Very dark accents (sparingly) */
-  --aged-gold: #8D6C45;
-  /* Accents, buttons */
-  --deep-tea: #685035;
-  /* Secondary accents */
+  --parchment: #F5F0E8; /* Background - aged paper */
+  --cream: #FFFCF7; /* Cards - clean but warm */
+  --latte: #C3BDB8; /* Borders, subtle accents */
+  --chai: #7E6957; /* Text - warm brown */
+  --mocha: #5A4D41; /* Headers - deeper brown */
+  --leaf: #c9a394;
+  --american-roast: #1E1D1D; /* Very dark accents (sparingly) */
+  --aged-gold: #8D6C45; /* Accents, buttons */
+  --deep-tea: #685035; /* Secondary accents */
 
-  --blush: #F9E2E0;
-  /* ultra soft pink - backgrounds */
-  --blush-light: #FCE9E8;
-  /* barely there - hover states */
-  --blush-accent: #F5D6D4;
-  /* slightly deeper - borders, buttons */
-  --dusty-rose: #E8C7C5;
-  /* for depth when needed */
+  --blush: #F9E2E0; /* ultra soft pink - backgrounds */
+  --blush-light: #FCE9E8; /* barely there - hover states */
+  --blush-accent: #F5D6D4; /* slightly deeper - borders, buttons */
+  --dusty-rose: #E8C7C5; /* for depth when needed */
+
+   --rose-pink: #E6B8B5;         /* medium pink - cards, accents */
+  --coral-blush: #DEA8A3;       /* warmer pink - buttons, highlights */
+  --mauve-pink: #C98F8A;        /* dusty mauve - deeper accents */
+  --terracotta-rose: #B57A74;   /* earthy pink - headers, depth */
+  --deep-rosewood: #9C655F;     /* rich deep pink - special accents */
+
+  --sage-mist: #E2E9DC;         /* light sage - backgrounds */
+  --mint-cream: #D4E3D4;        /* soft mint - cards, overlays */
+  --seafoam: #C2D9C2;           /* gentle seafoam - borders, accents */
+  --pistachio: #B5CCB5;         /* warm pastel green - buttons, highlights */
+  --olive-mist: #9FB89F;        /* muted olive - deeper accents */
+  --forest-pastel: #8AA88A;     /* soft forest - headers, depth */
+
+  --powder-blue: #E0E9F0;       /* lightest blue - backgrounds */
+  --sky-mist: #D0E0E8;          /* soft sky - cards, overlays */
+  --periwinkle-light: #C0D4E0;  /* gentle periwinkle - borders */
+  --misty-lavender: #B0C4D0;    /* blue-lavender blend - accents */
+  --dusty-blue: #9CB0C0;        /* muted blue - buttons, highlights */
+  --slate-pastel: #8098A8;      /* soft slate - deeper accents */
+
+  --butter-cream: #FFF3DC;      /* warm cream-yellow - backgrounds */
+  --vanilla-mist: #FFE9C9;      /* soft vanilla - cards, overlays */
+  --honey-pastel: #F5DDB5;      /* gentle honey - borders, accents */
+  --wheat-glow: #ECD0A5;        /* warm wheat - buttons, highlights */
+  --camel-soft: #D9B890;        /* soft camel - deeper accents */
+  --amber-pale: #C9A37A;        /* pale amber - headers, depth */
+
+  /* combinations */
+  --pink-to-peach: linear-gradient(135deg, var(--blush-accent), var(--coral-blush));
+  --green-to-sage: linear-gradient(135deg, var(--seafoam), var(--sage-mist));
+  --blue-to-lavender: linear-gradient(135deg, var(--powder-blue), var(--misty-lavender));
+  --yellow-to-honey: linear-gradient(135deg, var(--butter-cream), var(--honey-pastel));
+
+  --holiday-reading-dot: var(--leaf);
+  --holiday-christian-dot: var(--deep-rosewood);
+  --calendar-today: var(--rose-pink);
+  --calendar-hover: var(--blush-accent);
+  --success-green: var(--seafoam);
+  --info-blue: var(--powder-blue);
+  --warning-yellow: var(--honey-pastel);
+  --error-pink: var(--deep-rosewood);
 
 }
 

@@ -2,28 +2,28 @@ package com.ana.bookapi.controller;
 
 /* =================== models =================== */
 
-import com.ana.bookapi.DTO.LoginResponse;
-import com.ana.bookapi.DTO.PasswordResetDTO;
+import com.ana.bookapi.DTO.*;
 import com.ana.bookapi.models.User;
-import com.ana.bookapi.DTO.LoginDTO;
-import com.ana.bookapi.DTO.errResponse;
+import com.ana.bookapi.models.UserQuote;
 
 /* =================== services =================== */
-import com.ana.bookapi.service.EmailService;
+import com.ana.bookapi.models.UserWord;
 import com.ana.bookapi.service.JwtService;
-import com.ana.bookapi.service.VerificationTokenService;
 import com.ana.bookapi.service.userService;
+import com.ana.bookapi.service.EmailService;
+import com.ana.bookapi.service.VerificationTokenService;
 
 /* =================== PACKAGES =================== */
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import com.resend.Resend;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
 
 @RestController
@@ -40,7 +40,11 @@ public class AuthController {
     private final VerificationTokenService ts;
     private errResponse er = new errResponse();
 
-    private AuthController(userService us, JwtService js, VerificationTokenService ts, EmailService es) {
+    private AuthController(
+            userService us,
+            JwtService js,
+            VerificationTokenService ts,
+            EmailService es) {
         this.us = us;
         this.js = js;
         this.ts = ts;
@@ -53,6 +57,173 @@ public class AuthController {
     private String frontendUrl;
 
     // ==================== ENDPOINTS ========================= //
+    @PostMapping("/word")
+    public ResponseEntity<?> getWord(@RequestBody WordDTO dto) {
+        LocalDateTime now = LocalDateTime.now();
+        String word = dto.getWord();
+
+        try {
+            // Check DB first
+            if (us.wordCheck(dto.getUserId(), now)) {
+                UserWord data = us.getUserWord(dto.getUserId(), now);
+                word = data.getWord();
+            }
+
+            // Try to fetch from dictionary API
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://api.dictionaryapi.dev/api/v2/entries/en/" + word;
+
+            ResponseEntity<Object[]> response = restTemplate.getForEntity(url, Object[].class);
+
+            if (response.getBody() != null && response.getBody().length > 0) {
+                // Success - process and save
+                Map<String, Object> entry = (Map<String, Object>) response.getBody()[0];
+
+                // Extract what you need
+                String wordText = (String) entry.get("word");
+                String phonetic = (String) entry.getOrDefault("phonetic", "");
+
+                // Get the first meaning
+                List<Map<String, Object>> meanings = (List<Map<String, Object>>) entry.get("meanings");
+                Map<String, Object> firstMeaning = meanings.get(0);
+
+                // Get the first definition
+                List<Map<String, Object>> definitions = (List<Map<String, Object>>) firstMeaning.get("definitions");
+                Map<String, Object> firstDefinition = definitions.get(0);
+
+                // Map to your structure
+                Map<String, Object> wordData = new HashMap<>();
+                wordData.put("word", wordText);
+                wordData.put("phonetic", phonetic);
+
+                List<Map<String, Object>> meaningsList = new ArrayList<>();
+                Map<String, Object> meaningMap = new HashMap<>();
+                meaningMap.put("partsOfSpeech", firstMeaning.get("partOfSpeech"));
+
+                List<Map<String, String>> definitionList = new ArrayList<>();
+                Map<String, String> defMap = new HashMap<>();
+                defMap.put("definition", (String) firstDefinition.get("definition"));
+                definitionList.add(defMap);
+
+                meaningMap.put("definitions", definitionList);
+                meaningsList.add(meaningMap);
+
+                wordData.put("meanings", meaningsList);
+
+                // Save to DB only if successful
+                if (!us.wordCheck(dto.getUserId(), now)) {
+                    us.setUserWord(word, dto.getUserId());
+                }
+
+                return ResponseEntity.ok(wordData);
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+        } catch (HttpClientErrorException.NotFound e) {
+            // Word not found in dictionary - try a different word
+            List<String> wordList = Arrays.asList(
+                    "serendipity", "ephemeral", "eloquent", "magnificent",
+                    "perspicacious", "surreptitious", "mellifluous",
+                    "ethereal", "luminous", "effervescent", "halcyon", "petrichor",
+                    "sonorous", "ineffable", "quintessential", "epiphany", "solitude",
+                    "melancholy", "nostalgia", "euphoria", "serenity", "zenith",
+                    "cherish", "wanderlust", "cascade", "whimsy"
+            );
+
+            // Pick a different random word
+            String newWord;
+            do {
+                newWord = wordList.get(new Random().nextInt(wordList.size()));
+            } while (newWord.equals(word)); // Avoid infinite loop
+
+            // Recursive call with new word
+            WordDTO newDto = new WordDTO();
+            newDto.setUserId(dto.getUserId());
+            newDto.setWord(newWord);
+            return getWord(newDto);
+
+        } catch (Exception e) {
+            er.setMessage(e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    @PostMapping("/quote")
+    public ResponseEntity<?> getQuote(@RequestBody QuoteDTO dto) {
+        LocalDateTime now = LocalDateTime.now();
+        Map<String, Object> quoteData = new HashMap<>();
+
+        try {
+            System.out.println("Has existing quote: " + us.quoteCheck(dto.getUserId(), now));
+
+            //check if user has a quote of the day
+            if (us.quoteCheck(dto.getUserId(), now)) {
+                UserQuote existingQuote = us.getUserQuote(dto.getUserId(), now);
+                System.out.println("Found existing quote: " + existingQuote.getQuoteText());
+
+                quoteData.put("quote", existingQuote.getQuoteText());
+                quoteData.put("author", existingQuote.getQuoteAuthor());
+                return ResponseEntity.ok(quoteData);
+            }
+
+            //user has no quote: fetch from API
+            System.out.println("Fetching new quote from API...");
+
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://dummyjson.com/quotes/random";
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
+            //if response body is empty
+            if (response.getBody() == null) {
+                System.out.println("API returned empty body");
+                List<Map<String, Object>> fallbackQuotes = Arrays.asList(
+                        Map.of("quote", "The only way to do great work is to love what you do.", "author", "Steve Jobs"),
+                        Map.of("quote", "Be the change that you wish to see in the world.", "author", "Mahatma Gandhi"),
+                        Map.of("quote", "In the middle of difficulty lies opportunity.", "author", "Albert Einstein"),
+                        Map.of("quote", "Close your eyes, fall in Love, stay there.", "author", "Rumi"),
+                        Map.of("quote", "The unexamined life is not worth living.", "author", "Socrates")
+                );
+
+                Random random = new Random();
+                int randomIndex = random.nextInt(fallbackQuotes.size()); // No -1 needed
+                Map<String, Object> selectedQuote = fallbackQuotes.get(randomIndex);
+
+                UserQuote uq = new UserQuote(
+                        dto.getUserId(),
+                        (String) selectedQuote.get("quote"),
+                        (String) selectedQuote.get("author")
+                );
+                return ResponseEntity.ok(uq);
+            }
+
+            //map the response
+            Map<String, Object> apiResponse = response.getBody();
+            System.out.println("API Response Body: " + apiResponse);
+
+            String quoteText = (String) apiResponse.get("quote");
+            String quoteAuthor = (String) apiResponse.get("author");
+
+            System.out.println("Quote Text: " + quoteText);
+            System.out.println("Quote Author: " + quoteAuthor);
+
+            // Save to database
+            us.setUserQuote(dto.getUserId(), quoteText, quoteAuthor);
+            System.out.println("Quote saved to database");
+
+            // Return the quote
+            quoteData.put("quote", quoteText);
+            quoteData.put("author", quoteAuthor);
+
+            return ResponseEntity.ok(quoteData);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+            er.setMessage(e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
         try {
@@ -289,7 +460,10 @@ public class AuthController {
     public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody User user) {
         try {
             User updatedUser = us.updateUser(id, user);
-            return ResponseEntity.ok(updatedUser);
+            return ResponseEntity.ok(Map.of(
+                    "message", "User successfully updated!",
+                    "user", updatedUser
+            ));
         } catch (RuntimeException e) {
             er.setMessage("400 error: " + e.getMessage());
             er.setStatus(HttpStatus.BAD_REQUEST.value());

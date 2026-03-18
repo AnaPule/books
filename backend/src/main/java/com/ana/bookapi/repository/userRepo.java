@@ -16,6 +16,7 @@ public interface userRepo extends JpaRepository<User, String> {
     Optional<User> findByUsername(String username); // SPRING CREATES SQL: SELECT * FROM user WHERE username = ?
     Optional<User> findByEmail(String email); // SPRING CREATES SQL: SELECT * FROM user WHERE email = ?
 
+
     // CHECK IF USERNAME AND EMAIL EXIST (FOR VALIDATION)
     boolean existsById(String id);
     boolean existsByUsername(String username); // SPRING SQL: SELECT COUNT(*) > 0 FROM user WHERE username = ?

@@ -5,27 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70a8dd80-fb33-40c5-9525-39701019340a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/PasswordResetDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/QuoteDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/UserQuote.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/UserQuoteRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/ResendConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/WordDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/WordDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/EmailService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/VerificationTokenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/VerificationTokenService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/UserWord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/UserWord.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/userRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/userRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/userWordRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/userWordRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/userService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/userService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/assets/Lilies.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/assets/TopImage.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/assets/book.jpeg" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/assets/book.jpeg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/assets/book1.jpeg" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/assets/book1.jpeg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/auth/LoginForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/auth/LoginForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/auth/SignUpForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/auth/SignUpForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/auth/VerifyEmailPage.tsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/auth/auth.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/auth/auth.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/home/home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/home/home.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/main.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/models/Word.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/models/Word.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/profile/profile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/profile/profile.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +28,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>

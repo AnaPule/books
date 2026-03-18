@@ -9,6 +9,11 @@ export interface Word {
     }>;
 }
 
+export interface Quote {
+    quote: string;
+    author: string;
+}
+
 export const wordList: string[] = [
     "serendipity", "ephemeral", "mellifluous", "ineffable", "luminous",
     "effervescent", "halcyon", "petrichor", "sonorous", "quintessential",

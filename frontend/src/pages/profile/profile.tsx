@@ -459,6 +459,7 @@ const MobileMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
     );
 };
 export default function ProfilePage() {
+    const {quote} = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     return (
         <div className="min-h-screen bg-[#faf5ea] pt-16 md:pt-20 px-3 md:px-6 pb-8">
@@ -481,10 +482,10 @@ export default function ProfilePage() {
                 <div className="text-center mb-3 md:mb-4 px-2">
                     <p className="text-xs md:text-base font-serif text-[#5a4d41] italic flex items-center justify-center gap-1 md:gap-2">
                         <Quote size={12} className="text-[#c9a394]" />
-                        "I declare after all there is no enjoyment like reading."
+                        {quote?.quote || `"I declare after all there is no enjoyment like reading."`}
                         <Quote size={12} className="text-[#c9a394]" />
                     </p>
-                    <p className="text-[10px] md:text-xs text-[#c9a394] mt-0.5">— Jane Austen</p>
+                    <p className="text-[10px] md:text-xs text-[#c9a394] mt-0.5">~ {quote?.author || "Jane Austen"}</p>
                 </div>
 
                 {/* Mobile layout - stack everything */}

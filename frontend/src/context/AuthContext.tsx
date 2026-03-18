@@ -18,7 +18,7 @@ import { request } from "@utils/ApiRequest";
 {/* =============== models ============ */ }
 import type { User } from "@models/User";
 import type { Book } from "@models/Book";
-import { type Word, wordList } from '@models/Word';
+import { type Word, type Quote, wordList } from '@models/Word';
 
 {/* =============== env variables ============ */ }
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -41,24 +41,9 @@ interface AuthContextType {
     loading: boolean;
 
     word: Word | null;
+    quote: Quote | null;
 }
 
-const WordOfTheDay = async (userId: String) => {
-    const word = wordList[Math.floor(Math.random() * wordList.length)]; //floor makes sure of no decimals.
-    const dto = {
-        userId: userId,
-        word: word
-    }
-    const res = await request.post<Word>(`/auth/word`, dto);
-    return res;
-}
-
-const getToken = () => {
-    let token = sessionStorage.getItem('token');
-    if (!token || token.length === 0 || token === 'null' || token === '') { token = ''; }
-    //alert('altered token: '+token)
-    return token;
-}
 // **Note: Context provides a way to pass data through the component tree without having to pass props down manually at every level.
 // ** Note: Context is designed to share data that can be considered “global” for a tree of React components
 const AuthContext = createContext<AuthContextType>({
@@ -76,7 +61,36 @@ const AuthContext = createContext<AuthContextType>({
     loading: false,
 
     word: null,
+    quote: null
 });
+
+/// helper methods
+const WordOfTheDay = async (userId: String) => {
+    const word = wordList[Math.floor(Math.random() * wordList.length)]; //floor makes sure of no decimals.
+    const dto = {
+        userId: userId,
+        word: word
+    }
+    const res = await request.post<Word>(`/auth/word`, dto);
+    return res;
+}
+
+const QuoteOfTheDay = async (userId: string) => {
+    const dto = {
+        userId: userId,
+        quote: '',
+        author: ''
+    }
+    const res = await request.post<Quote>('/auth/quote', dto);
+    return res;
+}
+
+const getToken = () => {
+    let token = sessionStorage.getItem('token');
+    if (!token || token.length === 0 || token === 'null' || token === '') { token = ''; }
+    //alert('altered token: '+token)
+    return token;
+}
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -86,6 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const navigate = useNavigate(); //For redirecting users
     const [user, setUser] = useState<User | null>(null);
     const [word, setWord] = useState<Word | any>(null);
+    const [quote, setQuote] = useState<Quote | any>(null);
     const isLoggedIn = !!user;
     //const [isLoggedIn, setLoggedIn] = useState<Boolean>(false);
     //const [wishlist, setWishlist] = useState<Book[] | []>([]);
@@ -102,7 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         sessionStorage.removeItem('token');
         setUser(null);
         request.setAuthToken(null);
-        
+
 
         if (message) {
             toast.error('Session ended', { description: message });
@@ -118,7 +133,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     /// cut out some code for now
     useEffect(() => {
-
         const token = getToken();
         //if this is the email auth page, then skip all the mess about sessions and such...
         if (window.location.pathname.includes('/auth/verify') ||
@@ -133,11 +147,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         const initAuth = async () => {
             // Skip if we already have user data
-            if (user) {return;}
-            if (token === ''){return;} // of there is absolutely no tokenthen dont check anything, they didnt log in
+            if (user) { return; }
+            if (token === '') { return; } // of there is absolutely no tokenthen dont check anything, they didnt log in
             setLoading(true);
 
-            
+
             if (!token || !isTokenvalid(token)) {
                 logout('Your session has expired. Please log in again.');
                 setLoading(false);
@@ -147,13 +161,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 request.setAuthToken(token);
                 const res = await request.get<any>('/auth/user');
-                
+
                 const actualUser = res.user as User;
                 if (!actualUser) {
                     throw new Error("No user object in response");
                 }
                 setUser(actualUser);
-                setWord(await WordOfTheDay(actualUser.id));
 
                 // Schedule timers only after user is set
                 const timeLeftMs = getTimeLeft(token);
@@ -199,9 +212,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
     }, [logout]);
 
+    //for word and quote of the day
+    useEffect(() => {
+        if (!user?.id) return;
+
+        let isCurrent = true;
+
+        const loadExtras = async () => {
+            try {
+                const word = await WordOfTheDay(user.id);
+                const quote = await QuoteOfTheDay(user.id);
+
+                if (isCurrent) {
+                    setWord(word);
+                    setQuote(quote);
+                }
+            } catch (err) {
+                console.error("Failed to load word/quote:", err);
+            }
+        };
+
+        loadExtras();
+
+        return () => {
+            isCurrent = false;
+        };
+    }, [user?.id]); // only when user ID changes
+
 
     return (
-        <AuthContext.Provider value={{ user, setUser, setRecommends, recommends, isLoggedIn, logout, loading, word }}>
+        <AuthContext.Provider value={{ user, setUser, setRecommends, recommends, isLoggedIn, logout, loading, word, quote }}>
             {loading ? (
                 <div className='flex items-center justify-center h-screen'>
                     <Spinner loadingLabel="Please Wait" />

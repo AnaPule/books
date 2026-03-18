@@ -5,7 +5,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <>
     <Toaster
       position='top-right'
       visibleToasts={3}
@@ -14,5 +14,5 @@ createRoot(document.getElementById('root')!).render(
       closeButton
     />
     <App />
-  </StrictMode>,
+  </>,
 )

@@ -14,35 +14,17 @@ public class Book {
     }
 
     @Id
-    @Column(name = "id", length = 70)
-    private String id;
-
-    @Column(name = "author_id", nullable = false, length = 70)
-    private String authorId;
-
-    @Column(name = "name", nullable = false, length = 100)
-    private String name;
-
-    @Column(name = "cover_art", nullable = false, length = 500) // Increased length
-    private String coverArt;
-
-    @Column(name = "publisher", nullable = false, length = 100)
-    private String publisher;
-
-    @Column(name = "publication_date", nullable = false)
-    private Date publicationDate;
-
-    @Column(name = "page_count", nullable = false)
-    private Integer pageCount; // Removed length="3" - not valid for Integer
-
-    @Column(name = "synopsis", nullable = false, length = 2000) // Increased length
-    private String synopsis;
-
-    @Column(name = "isbn", unique = true, nullable = false, length = 50)
-    private String isbn;
-
-    @Column(name = "language", nullable = false, length = 10)
-    private String language = "en";
+    @Column(name = "id", length = 70) private String id;
+    @Column(name = "author_id", nullable = false, length = 70) private String authorId; //FK
+    @Column(name="genre_id", nullable = false, length = 70) private String genreId;
+    @Column(name = "name", nullable = false, length = 100) private String name;
+    @Column(name = "cover_art", nullable = true, length = 500) private String coverArt; // display book name and book with pretty colour instead if unavailable
+    @Column(name = "publisher", nullable = false, length = 100) private String publisher; //display publisher, but never unknown
+    @Column(name = "publication_date", nullable = false) private Date publicationDate;
+    @Column(name = "page_count", nullable = false) private Integer pageCount;
+    @Column(name = "synopsis", nullable = false, length = 10000) private String synopsis;
+    @Column(name = "isbn", unique = true, nullable = false, length = 50) private String isbn;
+    @Column(name = "language", nullable = false, length = 10) private String language = "en";
 
     // Getters and Setters
     public String getId() { return id; }
@@ -50,6 +32,9 @@ public class Book {
 
     public String getAuthorId() { return authorId; }
     public void setAuthorId(String authorId) { this.authorId = authorId; }
+
+    public String getGenreId() { return genreId; }
+    public void setGenreId(String genreId) { this.genreId = genreId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

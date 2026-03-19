@@ -42,7 +42,7 @@ public class GoogleBooks {
             try {
                 String url = "https://www.googleapis.com/books/v1/volumes?q=subject:" + subject + "&maxResults=40&key=" + googleApiKey;
                 //String url = "https://www.googleapis.com/books/v1/volumes/key=" + apiKey;
-                System.out.println("Google books fetch URL: " + url);
+                //System.out.println("Google books fetch URL: " + url);
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(url))
                         .GET()
@@ -50,7 +50,7 @@ public class GoogleBooks {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() == 200) {
-                    TotalBooksRetrievedForMongo += extractAndSaveGoogleBook(response.body());
+                    TotalBooksRetrievedForMongo += extractAndSaveGoogleBook(response.body(), subject);
                     //System.out.println("Processed subject: " + response.body());
                     Thread.sleep(500);// Small delay to avoid rate limiting
                 } else {
@@ -65,7 +65,7 @@ public class GoogleBooks {
         return TotalBooksRetrievedForMongo;
     }
 
-    private int extractAndSaveGoogleBook(String jsonResponse) {
+    private int extractAndSaveGoogleBook(String jsonResponse, String subject) {
         org.bson.Document fullResponse = org.bson.Document.parse(jsonResponse); // raw json response
         List<Document> items = (List<org.bson.Document>) fullResponse.get("items");// get the list array of books
         int totalSavedBooks = 0;
@@ -91,7 +91,6 @@ public class GoogleBooks {
                     book.put("synopsis", volumeInfo.getString("description"));
                     book.put("publisher", volumeInfo.getString("publisher"));
                     book.put("published_date", volumeInfo.getString("publishedDate"));
-                    //book.put("genre", volumeInfo.getString("mainCategory"));
                     book.put("page_count", volumeInfo.getInteger("pageCount"));
                     book.put("previewLink", volumeInfo.getString("previewLink"));
                     book.put("webReaderLink", accessInfo.getString("webReaderLink"));
@@ -109,6 +108,7 @@ public class GoogleBooks {
                     }
 
                     // Categories and subject and authors
+                    book.put("genre", subject);
                     book.put("categories", volumeInfo.get("categories"));
                     //book.put("subject", subject); -> not looping through non right now
                     book.put("language", volumeInfo.getString("language"));

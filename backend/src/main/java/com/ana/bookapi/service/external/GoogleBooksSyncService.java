@@ -9,7 +9,9 @@ import java.util.Optional;
 
 import com.ana.bookapi.models.Book;
 import com.ana.bookapi.models.Author;
+import com.ana.bookapi.models.Genre;
 import com.ana.bookapi.repository.BookRepo;
+import com.ana.bookapi.repository.GenreRepo;
 import com.ana.bookapi.repository.AuthorRepo;
 import org.springframework.stereotype.Service;
 import com.ana.bookapi.config.external.GoogleBooks;
@@ -19,32 +21,48 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 public class GoogleBooksSyncService {
 
     private final BookRepo br;
+    private final GenreRepo gr;
     private final AuthorRepo ar;
     private final GoogleBooks gb;
     private final MongoTemplate mongo;
 
     public GoogleBooksSyncService(
             BookRepo br,
+            GenreRepo gr,
             AuthorRepo ar,
             GoogleBooks gb,
             MongoTemplate mongo) {
         this.br = br;
         this.ar = ar;
         this.gb = gb;
+        this.gr = gr;
         this.mongo = mongo;
     }
 
     public Book convertMongoGoogleBookToBook(org.bson.Document document) {
         Author a = createOrFindAuthor(document.getString("author"));
+        Genre g = createOrFindGenre(document.getString("genre"));
         Book b = new Book();
 
+        String isbn;
+        String isbn13 = document.getString("primary_isbn13");
+        String isbn10 = document.getString("primary_isbn10");
+
+        if (isbn13 != null && !isbn13.isEmpty()) { isbn = isbn13;}
+        else if (isbn10 != null && !isbn10.isEmpty()) {isbn = isbn10;
+        } else {
+            System.out.println("Book skipped - No valid ISBN (13 or 10)");
+            return null;
+        }
+
+        b.setIsbn(isbn);
         b.setName(document.getString("title"));
         b.setCoverArt(document.getString("book_image"));
-        b.setPublisher(document.getString("publisher"));
-        b.setPageCount(document.getInteger("page_count"));
-        b.setSynopsis(document.getString("synopsis"));
-        b.setIsbn(document.getString("primary_isbn13"));
+        b.setPublisher(Optional.ofNullable(document.getString("publisher")).orElse("Unknown"));
+        b.setPageCount(Optional.ofNullable(document.getInteger("page_count")).orElse(0));
+        b.setSynopsis(Optional.ofNullable(document.getString("synopsis")).orElse("No description available."));
         b.setAuthorId(a.getId());
+        b.setGenreId(g.getId());
 
         // Handle publication date safely
         String pubDate = document.getString("published_date");
@@ -136,5 +154,20 @@ public class GoogleBooksSyncService {
         Author newAuthor = new Author();
         newAuthor.setName(authorName);
         return ar.save(newAuthor);
+    }
+
+    private Genre createOrFindGenre(String name) {
+        String genreName = (name == null || name.trim().isEmpty()) ? "Unknown Genre" : name;
+
+        //check if genre already exists
+        Optional<Genre> existingGenre = gr.findByName(genreName);
+        if (existingGenre.isPresent()) {
+            return existingGenre.get();
+        }
+
+        //create new genre otherwise
+        Genre newGenre = new Genre();
+        newGenre.setName(genreName);
+        return gr.save(newGenre);
     }
 }

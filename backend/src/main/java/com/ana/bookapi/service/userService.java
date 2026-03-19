@@ -180,10 +180,16 @@ public class userService implements UserDetailsService {
         }
         return isAuthenticated;
     }
-
     public Boolean isVerified(String email) {
         User user = getUserByEmail(email);
         if (!user.getVerfied()) {
+            return false;
+        }
+        return true;
+    }
+    public Boolean isActive(String email) {
+        User user = getUserByEmail(email);
+        if (!user.getActive()) {
             return false;
         }
         return true;

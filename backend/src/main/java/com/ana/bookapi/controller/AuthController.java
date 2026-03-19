@@ -155,12 +155,12 @@ public class AuthController {
         Map<String, Object> quoteData = new HashMap<>();
 
         try {
-            System.out.println("Has existing quote: " + us.quoteCheck(dto.getUserId(), now));
+            //System.out.println("Has existing quote: " + us.quoteCheck(dto.getUserId(), now));
 
             //check if user has a quote of the day
             if (us.quoteCheck(dto.getUserId(), now)) {
                 UserQuote existingQuote = us.getUserQuote(dto.getUserId(), now);
-                System.out.println("Found existing quote: " + existingQuote.getQuoteText());
+                //System.out.println("Found existing quote: " + existingQuote.getQuoteText());
 
                 quoteData.put("quote", existingQuote.getQuoteText());
                 quoteData.put("author", existingQuote.getQuoteAuthor());
@@ -168,7 +168,7 @@ public class AuthController {
             }
 
             //user has no quote: fetch from API
-            System.out.println("Fetching new quote from API...");
+            //System.out.println("Fetching new quote from API...");
 
             RestTemplate restTemplate = new RestTemplate();
             String url = "https://dummyjson.com/quotes/random";
@@ -204,12 +204,12 @@ public class AuthController {
             String quoteText = (String) apiResponse.get("quote");
             String quoteAuthor = (String) apiResponse.get("author");
 
-            System.out.println("Quote Text: " + quoteText);
-            System.out.println("Quote Author: " + quoteAuthor);
+            //System.out.println("Quote Text: " + quoteText);
+            //System.out.println("Quote Author: " + quoteAuthor);
 
             // Save to database
             us.setUserQuote(dto.getUserId(), quoteText, quoteAuthor);
-            System.out.println("Quote saved to database");
+            //System.out.println("Quote saved to database");
 
             // Return the quote
             quoteData.put("quote", quoteText);
@@ -217,7 +217,7 @@ public class AuthController {
 
             return ResponseEntity.ok(quoteData);
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+            //System.out.println("ERROR: " + e.getMessage());
             er.setMessage(e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
@@ -380,6 +380,7 @@ public class AuthController {
         }
     }
 
+    // password reset email
     @PostMapping("/forgot-password")
     public ResponseEntity<?> ForgotPassword(@RequestBody PasswordResetDTO dto) {
         try {
@@ -392,7 +393,29 @@ public class AuthController {
                     user.getUsername(),
                     link
             );
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Your Email has been sent!"));
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("message", "Your Email has been sent!"));
+        } catch (Exception e) {
+            er.setMessage("400 error: " + e.getMessage());
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            System.out.println(er.getStatus() + er.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
+        }
+    }
+
+    // resubscription email
+    @PostMapping("/resubscribe/{email}")
+    public ResponseEntity<?> Resubscribe(@PathVariable String email) {
+        try {
+            User user = us.getUserByEmail(email);
+            String token = ts.generateVerificationToken(user);
+            String link = frontendUrl + "/auth/resubscribe?token=" + token;
+            es.sendResubscribeEmail(
+                    user.getEmail(),
+                    "Welcome Back to the Fellowship - Pages & Parchment",
+                    user.getUsername(),
+                    link
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Your Email for return has been sent!"));
         } catch (Exception e) {
             er.setMessage("400 error: " + e.getMessage());
             er.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -436,7 +459,13 @@ public class AuthController {
                 if (!us.isVerified(user.getEmail())) {
                     er.setMessage("Unauthorised: Please verify your email");
                     er.setStatus(HttpStatus.BAD_GATEWAY.value());
-                    return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+                    return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(er);
+                }
+
+                if (!us.isActive(user.getEmail())) {
+                    er.setMessage("Your have unsubscribed from this service. :(");
+                    er.setStatus(HttpStatus.BAD_GATEWAY.value());
+                    return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(er);
                 }
 
                 User found_user = us.getUserByEmail(user.getEmail());
@@ -482,7 +511,7 @@ public class AuthController {
             User user = us.getUserById(id);
             if (user != null) {
                 us.deactivateUser(id);
-                return ResponseEntity.ok("User has been deactivated");
+                return ResponseEntity.ok(Map.of("message", "Fair well, Dearest Gentle reader."));
             } else {
                 return new ResponseEntity<>("Failed to deactivate", HttpStatus.EXPECTATION_FAILED);
             }
@@ -498,15 +527,21 @@ public class AuthController {
     }
 
     //activate user
-    @PutMapping("/activate/{id}")
-    public ResponseEntity<?> activateUser(@PathVariable String id) {
+    @PutMapping("/activate/{token}")
+    public ResponseEntity<?> activateUser(@PathVariable String token) {
+        String email = ts.validateVerificationToken(token);
+        if (email == null) {
+            er.setMessage("401 error: Invalid or expired Token");
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(er);
+        }
         try {
-            User user = us.getUserById(id);
+            User user = us.getUserByEmail(email);
             if (user != null) {
-                us.activateUser(id);
-                return ResponseEntity.ok("User has been activated");
+                us.activateUser(user.getId());
+                return ResponseEntity.ok(Map.of("message", "User has been activated", "active", true));
             } else {
-                return new ResponseEntity<>("Failed to activate", HttpStatus.EXPECTATION_FAILED);
+                return new ResponseEntity<>("Failed to resubscribe", HttpStatus.EXPECTATION_FAILED);
             }
         } catch (RuntimeException e) {
             er.setMessage("404 error: " + e.getMessage());

@@ -19,6 +19,86 @@ public class EmailService {
         this.br = br;
     }
 
+    public void sendResubscribeEmail(String to, String subject, String username, String link) throws MessagingException {
+        String plainText = String.format("""
+                Dearest %s,
+                
+                The quiet fellowship welcomes you back with open arms (and open books).
+                Your reading castle has been restored, and your library awaits.
+                
+                We've missed your presence in our literary sanctuary. Your bookmarks,
+                notes, and communities are all exactly as you left them.
+                
+                Return to your stories whenever you're ready:
+                %s
+                
+                With warmest regards,
+                The Pages & Parchment Fellowship
+                """, username, link);
+
+        String htmlText = String.format("""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body style="margin: 0; padding: 0; font-family: 'Georgia', 'Times New Roman', serif; background-color: #faf3ed; color: #3e3329;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 30px 20px; background: linear-gradient(145deg, #fffaf7 0%%, #fff5f0 100%%); border: 1px solid #f0dbd0; box-shadow: 0 8px 20px rgba(181, 131, 111, 0.15);">
+                
+                        <!-- Header with rosy border -->
+                        <div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #e8bfb0;">
+                            <h1 style="font-family: 'Georgia', serif; color: #7c5e54; font-weight: normal; letter-spacing: 2px; margin: 0; font-size: 28px;">Pages & Parchment</h1>
+                            <p style="color: #b58b7c; font-style: italic; margin: 5px 0 0 0; font-size: 14px;">A Quiet Fellowship of Readers</p>
+                        </div>
+                
+                        <!-- Content -->
+                        <div style="padding: 30px 20px; line-height: 1.8; color: #4a3f38;">
+                            <p style="font-size: 16px; margin-bottom: 25px;">Dearest <strong style="color: #b58b7c;">%s</strong>,</p>
+                
+                            <p style="font-size: 16px; margin-bottom: 20px;">The quiet fellowship welcomes you back with open arms (and open books). Your reading castle has been restored, and your library awaits.</p>
+                
+                            <p style="font-size: 16px; margin-bottom: 20px;">We've missed your presence in our literary sanctuary. Your bookmarks, notes, and communities are all exactly as you left them.</p>
+                
+                            <!-- Pink button -->
+                            <div style="text-align: center; margin: 40px 0;">
+                                <a href="%s" style="background: linear-gradient(135deg, #c9a394 0%%, #b58b7c 100%%); color: #fffcf9; padding: 14px 32px; text-decoration: none; font-family: 'Georgia', serif; letter-spacing: 1px; font-size: 15px; border-radius: 30px; border: 1px solid #9d6f5f; display: inline-block; box-shadow: 0 4px 10px rgba(181, 139, 124, 0.3);">Return to Your Library</a>
+                            </div>
+                            
+                            <p style="font-size: 14px; color: #9d7b6e; font-style: italic; margin-bottom: 20px;">This letter shall lose its power in 20 minutes, as is our custom.</p>
+                
+                            <p style="font-size: 14px; color: #7e6957; margin-bottom: 10px;">If the button above fails you, copy this passage into your browser:</p>
+                            <p style="font-size: 13px; background-color: #faece8; padding: 12px; border-left: 3px solid #e8bfb0; font-family: monospace; word-break: break-all; color: #7c5e54; border-radius: 4px;">%s</p>
+                        </div>
+                
+                        <!-- Footer -->
+                        <div style="text-align: center; padding-top: 25px; border-top: 1px solid #f0dbd0; font-size: 12px; color: #b58b7c;">
+                            <p style="margin: 5px 0;">Pages & Parchment — A Sanctuary for the Literary Soul</p>
+                            <p style="margin: 5px 0; font-style: italic;">"The page was never turned, only bookmarked."</p>
+                            <p style="margin: 15px 0 5px 0; font-size: 11px; color: #d4b6a8;">© 2026 Pages & Parchment. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """, username, link, link);
+
+        MimeMessage mimeMessage = sender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        try {
+            helper.setFrom("Pages ń Parchment<pagesnparchments@gmail.com>");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(plainText, htmlText);
+
+            sender.send(mimeMessage);
+            //System.out.println("Resubscribe email sent to: " + to);
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.out.println("Failed to send email: " + e.getMessage());
+        }
+    }
+
     public void SendResetPasswordEmail(String RecipientEmail, String subject, String username, String link) throws MessagingException {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("Pages ń Parchment<pagesnparchments@gmail.com>");
@@ -87,7 +167,6 @@ public class EmailService {
 
         MimeMessage mimeMessage = sender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
         try {
             helper.setFrom("Pages ń Parchment<pagesnparchments@gmail.com>");
             helper.setTo(RecipientEmail);

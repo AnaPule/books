@@ -1,4 +1,4 @@
-package com.ana.bookapi.models;
+package com.ana.bookapi.models.user;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

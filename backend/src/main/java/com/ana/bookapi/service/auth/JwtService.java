@@ -1,4 +1,4 @@
-package com.ana.bookapi.service;
+package com.ana.bookapi.service.auth;
 
 /* =================== models =================== */
 import java.security.Key;
@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import com.ana.bookapi.models.User;
+import com.ana.bookapi.models.user.User;
 
 /* =================== PACKAGES =================== */
 import io.jsonwebtoken.Jwts;

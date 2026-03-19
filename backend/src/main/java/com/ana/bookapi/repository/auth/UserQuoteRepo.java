@@ -1,10 +1,10 @@
-package com.ana.bookapi.repository;
+package com.ana.bookapi.repository.auth;
 
 
 import java.util.Optional;
 import java.time.LocalDateTime;
 
-import com.ana.bookapi.models.UserQuote;
+import com.ana.bookapi.models.user.UserQuote;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

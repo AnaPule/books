@@ -1,4 +1,4 @@
-package com.ana.bookapi.models;
+package com.ana.bookapi.models.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,8 +7,6 @@ import jakarta.persistence.Id;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.UUID;
 
 @Entity(name = "Word")
 public class UserWord {

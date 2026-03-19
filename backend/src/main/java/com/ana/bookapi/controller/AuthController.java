@@ -3,21 +3,20 @@ package com.ana.bookapi.controller;
 /* =================== models =================== */
 
 import com.ana.bookapi.DTO.*;
-import com.ana.bookapi.models.User;
-import com.ana.bookapi.models.UserQuote;
+import com.ana.bookapi.models.user.User;
+import com.ana.bookapi.models.user.UserQuote;
 
 /* =================== services =================== */
-import com.ana.bookapi.models.UserWord;
-import com.ana.bookapi.service.JwtService;
-import com.ana.bookapi.service.userService;
-import com.ana.bookapi.service.EmailService;
-import com.ana.bookapi.service.VerificationTokenService;
+import com.ana.bookapi.models.user.UserWord;
+import com.ana.bookapi.service.auth.JwtService;
+import com.ana.bookapi.service.auth.userService;
+import com.ana.bookapi.service.auth.EmailService;
+import com.ana.bookapi.service.auth.VerificationTokenService;
 
 /* =================== PACKAGES =================== */
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.resend.Resend;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -310,7 +309,9 @@ public class AuthController {
         try {
             User createdUser = us.createUser(user);
             try {
-                sendVerificationEmail(createdUser.getEmail());
+                PasswordResetDTO dto = new PasswordResetDTO();
+                dto.setEmail(user.getEmail());
+                sendVerificationEmail(dto);
             } catch (Exception e) {
                 Logger log = null;
                 log.warn("Verification email failed to send", e);
@@ -330,10 +331,10 @@ public class AuthController {
 
     //send email verification email
     @PostMapping("/sendVerificationEmail")
-    public ResponseEntity<?> sendVerificationEmail(@RequestBody String email) {
-        System.out.println(email);
+    public ResponseEntity<?> sendVerificationEmail(@RequestBody PasswordResetDTO dto) {
+        System.out.println(dto.getEmail());
         try {
-            User existingUser = us.getUserByEmail(email);
+            User existingUser = us.getUserByEmail(dto.getEmail());
             String token = ts.generateVerificationToken(existingUser);
             String link = frontendUrl + "/auth/verify?token=" + token;
             es.sendVerificationEmail(

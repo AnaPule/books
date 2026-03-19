@@ -1,7 +1,7 @@
-package com.ana.bookapi.repository;
+package com.ana.bookapi.repository.auth;
 
 /* =================== MODELS =================== */
-import com.ana.bookapi.models.User;
+import com.ana.bookapi.models.user.User;
 
 /* =================== PACKAGES =================== */
 import org.springframework.data.jpa.repository.JpaRepository; // spring data fro db operations

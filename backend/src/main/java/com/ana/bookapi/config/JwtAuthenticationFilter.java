@@ -2,7 +2,7 @@ package com.ana.bookapi.config;
 
 /* =================== models =================== */
 
-import com.ana.bookapi.service.JwtService;
+import com.ana.bookapi.service.auth.JwtService;
 
 /* =================== packages =================== */
 
@@ -12,7 +12,6 @@ import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.beans.factory.annotation.Qualifier;

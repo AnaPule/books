@@ -1,21 +1,21 @@
-package com.ana.bookapi.service;
+package com.ana.bookapi.service.auth;
 
 /* =================== config =================== */
 
 import com.ana.bookapi.config.EncodeConfig;
 
 /* =================== MODELS =================== */
-import com.ana.bookapi.models.User;
+import com.ana.bookapi.models.user.User;
 import com.ana.bookapi.DTO.LoginDTO;
-import com.ana.bookapi.models.UserWord;
-import com.ana.bookapi.models.UserQuote;
+import com.ana.bookapi.models.user.UserWord;
+import com.ana.bookapi.models.user.UserQuote;
 
 /* =================== repo =================== */
-import com.ana.bookapi.repository.userRepo;
-import com.ana.bookapi.repository.UserQuoteRepo;
+import com.ana.bookapi.repository.auth.userRepo;
+import com.ana.bookapi.repository.auth.UserQuoteRepo;
 
 /* =================== PACKAGES =================== */
-import com.ana.bookapi.repository.userWordRepo;
+import com.ana.bookapi.repository.auth.userWordRepo;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,11 +24,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service; // telling spring boot to treat this class as a service
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-import static com.ana.bookapi.repository.userWordRepo.now;
+import static com.ana.bookapi.repository.auth.userWordRepo.now;
 
 @Service
 public class userService implements UserDetailsService {

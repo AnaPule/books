@@ -64,7 +64,12 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
         if (!formData.email || formData.email == '') {
             toast.error('Email Required', { description: 'Please enter your email' });
         }
-        await request.post<String>(`/auth/sendVerificationEmail`, { email: formData.email })
+        const dto = {
+            email: formData.email,
+            password: '',
+            token: ''
+        }
+        await request.post<String>(`/auth/sendVerificationEmail`, dto)
             .then(
                 ((res: String) => {
                     toast.info('Email Sent', { description: res });

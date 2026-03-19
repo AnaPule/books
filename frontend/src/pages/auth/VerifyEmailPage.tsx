@@ -1,9 +1,19 @@
+
+{/* =============== packages ============ */ }
+import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { toast } from 'sonner';
-import { NoResults } from '@components/skeleton/noResults';
+
+{/* =============== services ============ */ }
 import { request } from '@utils/ApiRequest';
+
+{/* =============== components ============ */ }
 import styles from './book.module.css';
+
+{/* =============== images ============ */ }
+import Picture3 from"@assets/flower.jpeg";
+import Picture1 from "@assets/bouqet.jpeg";
+import Picture2 from"@assets/Flower_6.jpeg";
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -12,25 +22,42 @@ export default function VerifyEmailPage() {
   const token = searchParams.get('token');
 
   const PageTurner: React.FC = () => {
-    return (
-      <div className="flex flex-row items-center justify-center gap-8">
-        <div className={styles.book}>
-          <span className={styles.cover}></span>
-          <span className={`${styles.cover} ${!verified ? styles.turn : styles.close}`}></span>
+        const Pictures = [Picture1, Picture2, Picture3];
+        return (
+            <div className={styles.library}>
+                <div className={`${styles.book} ${verified ? styles.bookToSpine : ''}`}>
+                    <span className={styles.cover}></span>
+                    <span className={`${styles.cover} ${!verified ? styles.turn : styles.close}`}></span>
 
-          {Array.from({ length: 16 }).map((_, i) => (
-            <span
-              key={i}
-              className={`${styles.page} ${verified ? styles.close : styles.turn}`}
-              style={{ '--target-rotate': i < 3 ? '180deg' : i < 6 ? '150deg' : i < 9 ? '55deg' : '30deg' } as React.CSSProperties}
-            ></span>
-          ))}
+                    {Array.from({ length: 16 }).map((_, i) => (
+                        <span
+                            key={i}
+                            className={`${styles.page} ${verified ? styles.close : styles.turn}`}
+                            style={{ '--target-rotate': i < 3 ? '180deg' : i < 6 ? '150deg' : i < 9 ? '55deg' : '30deg' } as React.CSSProperties}
+                        ></span>
+                    ))}
 
-          <span className={styles.cover}></span>
-        </div>
-      </div>
-    );
-  };
+                    <span className={styles.cover}></span>
+                </div>
+
+                {verified && (
+                    <div className="flex items-end">
+                        <div className={`${styles.libraryBook} ${styles.libraryBook1}`} />
+                        <div className={`${styles.libraryBook} ${styles.libraryBook2}`} />
+                        <div className={`${styles.libraryBook} ${styles.libraryBook3} ${styles.slideIn}`} />
+                    </div>
+                )}
+
+                {verified && (
+                    <>
+                        <div className={styles.shelf} />
+                        <div style={{backgroundImage: `url(${Pictures[Math.floor(Math.random() * Pictures.length)]})`}} className={styles.frame} />
+                    </>
+                )}
+
+            </div>
+        );
+    };
 
   useEffect(() => {
     const verify = async () => {

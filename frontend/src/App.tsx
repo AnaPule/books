@@ -15,6 +15,7 @@ import AuthPage from "@pages/auth/auth";
 import BooksPage from "@pages/books/Books";
 import ProfilePage from "@pages/profile/profile";
 import VerifyEmailPage from "@pages/auth/VerifyEmailPage";
+import ResubscribePage from "@pages/auth/Resubscribe";
 import ResetPasswordPage from "@pages/auth/ResetPasswordPage";
 
 {/* =============== utils ============ */ }
@@ -45,42 +46,17 @@ function App() {
       <AuthProvider>
         <PageTemplate>
           <Routes>
-            <Route path='/home' element={
-              <PublicRoute>
-                <HomePage />
-              </PublicRoute>
-            } />
+            <Route path='/home' element={<PublicRoute><HomePage /> </PublicRoute>} />
+            <Route path='/auth/verify' element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
+            <Route path='/auth/reset-password' element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
+            <Route path='/auth/resubscribe' element={<PublicRoute><ResubscribePage /></PublicRoute>}></Route>
+            <Route path='/auth' element={<PublicRoute><AuthPage /></PublicRoute>} />
 
-            <Route path='/auth/verify' element={
-              <PublicRoute>
-                <VerifyEmailPage />
-              </PublicRoute>
-            } />
+            {/* protected routes */}
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/books" element={<ProtectedRoute><BooksPage /></ProtectedRoute>} />
 
-            <Route path='/auth/reset-password' element={
-              <PublicRoute>
-                <ResetPasswordPage />
-              </PublicRoute>
-            } />
-
-            <Route path='/auth' element={
-              <PublicRoute>
-                <AuthPage />
-              </PublicRoute>
-            } />
-
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/books" element={
-              <ProtectedRoute>
-                <BooksPage />
-              </ProtectedRoute>
-            } />
-
+            {/* error pages */}
             <Route path="*" element={<E404 />} /> {/* page not found*/}
             <Route path='/unauthorised' element={<E403 />} />
             <Route path='/not-found' element={<E404 />} />

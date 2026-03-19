@@ -1,28 +1,54 @@
-.book {
+/* ═══════════════════════════════════════════════════════════════
+   BOOK MODULE
+   Sections: Layout · Cover & Page Base · Open · Close · 
+             Spine Tilt · Library Books · Shelf · Decor · Welcome Text
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ── Layout ────────────────────────────────────────────────── */
+
+.library {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.01rem;
+    height: inherit;
     position: relative;
-    width: 18.5rem;
-    height: 12.5rem;
-    perspective: 70rem;
-    transform-style: preserve-3d;
 }
 
+.book {
+    position: relative;
+    width: 2rem;
+    height: 12.5rem;
+    perspective: 90rem;
+    transform-style: preserve-3d;
+    display: flex;
+    margin-right: 0.3rem;
+    align-items: center;
+    left: 10%;
+}
+
+
+/* ── Cover & Page Base ─────────────────────────────────────── */
+
 .cover {
-    background-color: var(--american-roast);
+    background-color: var(--mocha);
     transform: rotateY(0deg);
     width: 6.25rem;
     height: 8.5rem;
     z-index: 20;
+    outline: 1px solid var(--aged-gold);
+    outline-offset: -3px;
 }
 
 .page {
-    top: 0.25rem;
-    background-color: #e9e6c4;
+    background-color: var(--parchment);
     transform: rotateY(0deg);
     width: 6rem;
     height: 8rem;
     text-align: left;
     font-size: 8px;
-    color: #777;
+    color: var(--chai);
     font-family: monospace;
     z-index: 1;
 }
@@ -30,7 +56,7 @@
 .page::before,
 .page::after {
     display: block;
-    border-top: 1px dashed rgba(0, 0, 0, 0.3);
+    border-top: 1px dashed rgba(0, 0, 0, 0.15);
     content: "";
     padding-bottom: 1rem;
 }
@@ -43,10 +69,13 @@
     transform-style: preserve-3d;
     border-radius: 5px 0 0 5px;
     box-sizing: border-box;
-    box-shadow: inset 3px 0px 20px rgba(0, 0, 0, 0.2),
-        /* Add this line for center separation */
+    box-shadow:
+        inset 3px 0px 20px rgba(0, 0, 0, 0.2),
         6px 0 8px -4px rgba(0, 0, 0, 0.3);
 }
+
+
+/* ── Open Animations ───────────────────────────────────────── */
 
 .cover.turn {
     animation: bookCover 6s forwards;
@@ -57,13 +86,12 @@
     animation: bookOpen 6s ease-in forwards;
 }
 
-/* Use explicit classes instead of nth-of-type to avoid cover interference */
 .page:nth-of-type(1) {
     animation-delay: 0.05s;
 }
 
 .page:nth-of-type(2) {
-    animation-delay: 0.33s
+    animation-delay: 0.33s;
 }
 
 .page:nth-of-type(3) {
@@ -87,7 +115,7 @@
 
 @keyframes bookOpen {
     30% {
-        z-index: 999
+        z-index: 999;
     }
 
     100% {
@@ -98,7 +126,7 @@
 
 @keyframes bookCover {
     30% {
-        z-index: 999
+        z-index: 999;
     }
 
     100% {
@@ -109,7 +137,7 @@
 
 @keyframes bookOpen150deg {
     30% {
-        z-index: 999
+        z-index: 999;
     }
 
     100% {
@@ -120,7 +148,7 @@
 
 @keyframes bookOpen55deg {
     30% {
-        z-index: 999
+        z-index: 999;
     }
 
     100% {
@@ -131,7 +159,7 @@
 
 @keyframes bookOpen30deg {
     50% {
-        z-index: 999
+        z-index: 999;
     }
 
     100% {
@@ -141,11 +169,12 @@
 }
 
 
-/* closing purposes - experimentation in progress */
+/* ── Close Animations ──────────────────────────────────────── */
+
 .cover.close {
     animation: bookClose 6s backwards;
-    -index: 30 !important;
     animation-delay: 1.25s;
+    -index: 30 !important;
 }
 
 .page.close {
@@ -192,20 +221,204 @@
     }
 }
 
-/* text slide in animation */
-@keyframes slideInLeft {
+
+/* ── Spine Tilt ────────────────────────────────────────────── */
+
+.bookToSpine {
+    animation: tiltToSpine 2.5s cubic-bezier(0.2, 0, 0.2, 1) forwards;
+    animation-delay: 5.5s;
+}
+
+@keyframes tiltToSpine {
     0% {
-        transform: translateX(-100%);
+        transform: rotateY(0deg);
+    }
+
+    100% {
+        transform: rotateY(75deg);
+        left: 0%;
+    }
+}
+
+
+/* ── Library Books ─────────────────────────────────────────── */
+
+.libraryBook {
+    position: relative;
+    width: 1.8rem;
+    opacity: 0;
+    perspective: 100rem;
+    transform-style: preserve-3d;
+    transform: translateX(60px);
+    animation: slideFromRight 2.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    box-shadow:
+        inset 3px 0px 20px rgba(0, 0, 0, 0.2),
+        6px 0 8px -4px rgba(0, 0, 0, 0.3);
+    outline: 1px solid var(--aged-gold);
+    outline-offset: -3px;
+}
+
+.libraryBook1 {
+    height: 8rem;
+    background-color: var(--leaf);
+    animation-delay: 6.2s;
+}
+
+.libraryBook2 {
+    height: 8.5rem;
+    background-color: var(--olive-mist);
+    animation-delay: 6.7s;
+}
+
+.libraryBook3 {
+    height: 7rem;
+    background-color: var(--dusty-blue);
+    animation-delay: 7s;
+    transform-origin: top left;
+}
+
+.libraryBook3.slideIn {
+    animation: slideFromRightTilt 2.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation-delay: 6.9s;
+}
+
+@keyframes slideFromRight {
+    0% {
+        transform: translateX(60px) translateY(-32px);
         opacity: 0;
     }
 
-    50%{opacity: 0.01;}
-
     100% {
-        transform: translateX(-5%);
+        transform: translateX(0) translateY(-32px);
         opacity: 1;
     }
 }
+
+@keyframes slideFromRightTilt {
+    0% {
+        transform: translateX(60px) translateY(-26px) rotate(0deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0) translateY(-26px) rotate(-18deg);
+        opacity: 1;
+    }
+}
+
+
+/* ── Shelf ─────────────────────────────────────────────────── */
+
+.shelf {
+    position: absolute;
+    width: 20rem;
+    bottom: 0;
+    left: -7rem;
+    right: 5rem;
+    opacity: 0;
+    animation: shelfRise 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 5.8s;
+}
+
+.shelf::before {
+    content: "";
+    display: block;
+    height: 0.6rem;
+    background-color: var(--deep-tea);
+    border-radius: 2px 2px 0 0;
+    box-shadow:
+        0 -1px 0 var(--aged-gold),
+        0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.shelf::after {
+    content: "";
+    display: block;
+    height: 2px;
+    background: linear-gradient(to right,
+            transparent,
+            var(--aged-gold) 15%,
+            var(--aged-gold) 85%,
+            transparent);
+    margin-top: -0.6rem;
+    border-radius: 2px 2px 0 0;
+}
+
+@keyframes shelfRise {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(-29px);
+        opacity: 1;
+    }
+}
+
+
+/* ── Decor — Framed Photo ──────────────────────────────────── */
+/*
+  Slides in from the left, arriving just after the shelf settles.
+  Built entirely from CSS — outer frame, inner mount, small oval
+  silhouette inside to suggest a portrait.
+*/
+
+.frame {
+    position: absolute;
+    left: -5rem;
+    bottom: 0.7rem;
+    /* sits on the shelf */
+    width: 5.2rem;
+    height: 6.8rem;
+    opacity: 0;
+    animation: slideFromLeft 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 6.0s;
+
+    /* Outer frame — dark wood tone */
+    background-color: var(--mocha);
+    border: 2px solid var(--aged-gold);
+    border-radius: 1px;
+    box-shadow:
+        inset 0 0 0 2px var(--deep-tea),
+        /* inner frame rebate */
+        2px 4px 8px rgba(0, 0, 0, 0.3);
+    /* cast shadow on shelf */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-80px);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.frameImage {
+    position: absolute;
+    inset: 15px;
+    /* inside the inner gold bead */
+    border-radius: 1px;
+    object-fit: cover;
+    z-index: 1;
+    display: block;
+}
+
+@keyframes slideFromLeft {
+    0% {
+        transform: translateX(-60px) translateY(-80px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0) translateY(-21px);
+        opacity: 1;
+    }
+}
+
+
+/* ── Welcome Text ──────────────────────────────────────────── */
 
 .welcomeContainer {
     text-align: left;
@@ -213,4 +426,20 @@
     white-space: nowrap;
     animation: slideInLeft 10s ease-out forwards;
     z-index: 0;
+}
+
+@keyframes slideInLeft {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0.01;
+    }
+
+    100% {
+        transform: translateX(-5%);
+        opacity: 1;
+    }
 }

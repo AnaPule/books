@@ -10,6 +10,7 @@ class ApiService {
     // Register logout callback from Auth Context
     onLogout(callback: (message?: string) => void) {
         this.logoutCallback = callback;
+        sessionStorage.removeItem('token');
     }
 
 

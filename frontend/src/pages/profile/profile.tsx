@@ -478,7 +478,7 @@ export default function ProfilePage() {
             <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
             <div className="max-w-7xl mx-auto relative z-10">
-                {/* Jane Austen Quote */}
+                {/* Quote */}
                 <div className="text-center mb-3 md:mb-4 px-2">
                     <p className="text-xs md:text-base font-serif text-[#5a4d41] italic flex items-center justify-center gap-1 md:gap-2">
                         <Quote size={12} className="text-[#c9a394]" />

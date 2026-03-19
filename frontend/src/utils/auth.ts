@@ -45,6 +45,7 @@ export function getTokenExpiryTime(token: string | null): number | null {
 export function getTimeLeft(token: string | null): number {
     const expiry = getTokenExpiryTime(token);
     if (!expiry) return 0;
+    //console.log('Expiry time',expiry);
     return expiry - Date.now();
 }
 

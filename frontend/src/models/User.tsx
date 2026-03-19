@@ -7,8 +7,6 @@ export interface User{
     cellphone: string;
     profilePhoto: string;
     createdAt: Date;
-    verificationCode: string;
-    verificationCodeExpiresAt: Date;
     verified: boolean;
     active: boolean;
 }

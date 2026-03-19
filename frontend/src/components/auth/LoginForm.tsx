@@ -14,6 +14,7 @@ import { request } from '@utils/ApiRequest';
 {/* =============== components ============ */ }
 import Spinner from '@components/skeleton/spinner';
 import { Modal } from '@components/skeleton/modal';
+import { Resubscribe } from '@pages/profile/Subscription';
 import ForgotPasswordPage from '@pages/auth/ResetPasswordPage';
 
 interface LoginFormProps {
@@ -37,6 +38,9 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
     const [submitted, setSubmitted] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isResubscribeOpen, setResubscribeOpen] = useState<boolean>(false);
+    const handleResubscribe = () => {setResubscribeOpen((prev) => !prev)}
+
     const [formData, setFormData] = useState<LoginFormData>({
         email: "",
         password: "",
@@ -85,11 +89,14 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
             await request.post("/auth/login", formData)
                 .then(((res: any) => {
                     if (!res.token) {
-                        toast.error('Login Failed', {
-                            description: res.message ?
-                                res.message :
-                                "Invalid Credentials: Please enter the correct credentials"
+                        const errorMsg = typeof res === 'string' ? res : res?.message;
+                        toast.error('Pages ń Parchments', {
+                            description: errorMsg || "Invalid Credentials: Please enter the correct credentials"
                         })
+
+                        if (errorMsg?.includes('unsubscribed')){
+                            handleResubscribe();
+                        }
                     } else {
                         const cleanToken = res.token.trim();
                         sessionStorage.setItem('token', cleanToken);
@@ -218,6 +225,11 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
 
     return (
         <>
+        <Resubscribe 
+            isOpen={isResubscribeOpen} 
+            onClose={() => handleResubscribe()} 
+            email={formData.email} />
+
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

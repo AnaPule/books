@@ -119,17 +119,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         request.setAuthToken(null);
 
 
+        //show message only if there is one
         if (message) {
-            toast.error('Session ended', { description: message });
+            toast.error('Pages ń Parchments', { description: message });
             if (message.includes('expired')) {
                 hasShownExpiryToast.current = true;
             }
-        } else {
-            toast.error('Session Terminated');
-        }
-
-        navigate(`/auth`, { replace: true });
-    }, [navigate])
+        } 
+        navigate(`/home`, { replace: true });
+    }, [navigate]);
 
     /// cut out some code for now
     useEffect(() => {
@@ -167,12 +165,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     throw new Error("No user object in response");
                 }
                 setUser(actualUser);
+                //console.log(actualUser)
 
                 // Schedule timers only after user is set
                 const timeLeftMs = getTimeLeft(token);
 
                 if (timeLeftMs > 0) {
-                    if (timeLeftMs > 5 * 60 * 1000) {
+                    if (timeLeftMs <= 5 * 60 * 1000) {
+                        //console.log('Time leftMs', timeLeftMs)
                         warningTimeout = setTimeout(() => {
                             toast.warning('Session expiring soon', {
                                 description: 'Less than 5 minutes remaining. Save your work!',

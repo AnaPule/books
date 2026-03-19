@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AutoImportSettings">
-    <option name="autoReloadType" value="ALL" />
+    <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70a8dd80-fb33-40c5-9525-39701019340a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/UsedToken.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/auth/UsedTokenRepo.java" afterDir="false" />
+    <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="it wants me to commit before checking out">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/MongoConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/external/GoogleBooks.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/BookSyncController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/Author.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/Book.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/AuthorRepo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/BookRepo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/external/GoogleBooksSyncService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/JwtAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/UserQuote.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/UserQuote.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/UserWord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/UserWord.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/UserQuoteRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/auth/UserQuoteRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/userRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/auth/userRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/userWordRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/auth/userWordRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/EmailService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/JwtService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/VerificationTokenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/VerificationTokenService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/userService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/userService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/auth/LoginForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/auth/LoginForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,23 +36,25 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;AnaPule&quot;
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "AnaPule"
   }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/AnaPule/books.git&quot;,
-    &quot;accountId&quot;: &quot;98ba9aae-dd3f-409a-8483-13a3b9b9aebb&quot;
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/AnaPule/books.git",
+    "accountId": "98ba9aae-dd3f-409a-8483-13a3b9b9aebb"
   }
-}</component>
-  <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 2
-}</component>
-  <component name="ProjectId" id="3AkqaFRQlpOUGT6Lu1J5LO3QDuG" />
+}]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="3B9Go1IsdmYJ8vuXac54DSEpHSw" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -63,29 +62,17 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.Main.executor": "Run",
-    "Downloaded.Files.Path.Enabled": "false",
-    "Repository.Attach.Annotations": "true",
-    "Repository.Attach.JavaDocs": "true",
-    "Repository.Attach.Sources": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "backend",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/morwetsanamahlatsepule/projects/books/backend",
-    "project.structure.last.edited": "Libraries",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.41724136",
-    "settings.build.tools.auto.reload": "ALL",
-    "settings.editor.selected.configurable": "build.tools"
+    "git-widget-placeholder": "books",
+    "kotlin-language-version-configured": "true"
   }
 }]]></component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources" />
-    </key>
-    <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="com.ana.bookapi.DTO" />
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.ana.bookapi.repository" />
+      <recent name="com.ana.bookapi.models" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -97,12 +84,16 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="70a8dd80-fb33-40c5-9525-39701019340a" name="Changes" comment="" />
-      <created>1773147751228</created>
+      <changelist id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="it wants me to commit before checking out" />
+      <created>1773894043461</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1773147751228</updated>
+      <updated>1773894043461</updated>
     </task>
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="it wants me to commit before checking out" />
+    <option name="LAST_COMMIT_MESSAGE" value="it wants me to commit before checking out" />
   </component>
 </project>

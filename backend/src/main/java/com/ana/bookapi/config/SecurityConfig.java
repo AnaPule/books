@@ -56,6 +56,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorise -> authorise
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/auth/user").permitAll()
+                        .requestMatchers("/sync/**").permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

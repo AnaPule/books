@@ -1,5 +1,9 @@
 package com.ana.bookapi;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,11 +12,24 @@ import org.springframework.context.annotation.PropertySource;
 @SpringBootApplication
 @PropertySource("classpath:key.properties")
 @PropertySource("classpath:jwt.properties") // loading these two files so their env variables can be used all round...
+
 public class Main implements CommandLineRunner {
 
     // just running the program and that...
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
+    }
+
+    @Value("${mongo.uri}") private static String mongoUri;
+    //mongo connection
+    public static void MongoConnection(){
+        try(MongoClient mongo = MongoClients.create(mongoUri)){
+            //access database
+            MongoDatabase database = mongo.getDatabase("bookmardb");
+        }catch(Exception e){
+            e.printStackTrace();
+            System.err.println("Error connecting to MongoDB: "+e.getMessage());
+        }
     }
 
     @Override

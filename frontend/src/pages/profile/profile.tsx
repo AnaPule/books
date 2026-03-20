@@ -455,7 +455,7 @@ const MobileMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
     );
 };
 export default function ProfilePage() {
-    const {quote} = useAuth();
+    const {quote, wishlist, library} = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     return (
         <div className="min-h-screen bg-[#faf5ea] pt-16 md:pt-20 px-3 md:px-6 pb-8">
@@ -490,7 +490,7 @@ export default function ProfilePage() {
                     <DateTimeCard />
                     <Calendar />
                     <WordOfTheDay />
-                    <Shelves />
+                    <Shelves shelf1Caption="Read list" shelf1={wishlist} shelf2Caption="Library" shelf2={library}/>
                     <CurrentReads />
                     <BooksRead />
                     <ReadingGoals />
@@ -504,7 +504,7 @@ export default function ProfilePage() {
                         <div className='grid grid-cols-2 gap-4'>
                             <section><ProfileHeader /></section>
                             <section><DateTimeCard /></section>
-                            <section className="col-span-2"><Shelves /></section>
+                            <section className="col-span-2"><Shelves shelf1Caption="Read list" shelf1={wishlist} shelf2Caption="Library" shelf2={library}/></section>
                             <section><CurrentReads /></section>
                             <section className='space-y-2'>
                                 <BooksRead />

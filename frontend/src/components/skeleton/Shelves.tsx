@@ -1,95 +1,147 @@
-export const Shelves: React.FC = () => {
-    const readingBooks = [
-        { title: "The Midnight\nLibrary", w: 65, h: 90, bg: "#F0D9D4", textColor: "#5A3A3A", progress: 35 },
-        { title: "The Art of\nThinking", w: 68, h: 90, bg: "#D4C0B8", textColor: "#3A2A2A", progress: 60 },
-        { title: "Strategic\nWriting", w: 64, h: 90, bg: "#F5E0D8", textColor: "#2A2A2A", progress: 20 },
+{/* =============== models ============ */ }
+import type { Book as Bk } from "@models/Book";
+
+interface ShelvesProps {
+    shelf1: Bk[];
+    shelf1Caption: string;
+    shelf2?: Bk[] | null;
+    shelf2Caption?: string;
+    shelf3?: Bk[] | null;
+    shelf3Caption?: string;
+}
+
+interface BookCoverProps {
+    title: string;
+    w?: number;
+    h?: number;
+    progress?: number;
+    variant?: 'default' | 'small' | 'large';
+}
+
+export const Shelves: React.FC<ShelvesProps> = ({
+    shelf1,
+    shelf1Caption,
+    shelf2 = null,
+    shelf2Caption = "",
+    shelf3 = null,
+    shelf3Caption = ""
+}) => {
+    const colorPalette = [
+        { bg: '#f5e6d7', text: '#5a4d41' },
+        { bg: '#f0ddd5', text: '#5a4d41' },
+        { bg: '#f2e0d8', text: '#7e6957' },
+        { bg: '#edd9d0', text: '#5a4d41' },
+        { bg: '#e8d5cc', text: '#7e6957' },
+        { bg: '#f5e0d9', text: '#5a4d41' },
+        { bg: '#fcf9f4', text: '#8d6c45' },
+        { bg: '#fceae8', text: '#5a4d41' },
+        { bg: '#f5d6d4', text: '#685035' },
     ];
 
-    const nextUpBooks = [
-        { title: "Lietuvos\nPaukščiai", w: 62, h: 88, bg: "#E8D0C8", textColor: "#2A4A5A" },
-        { title: "The Lord of\nthe Rings", w: 64, h: 88, bg: "#C0A8A0", textColor: "#F0E0C0" },
-        { title: "Around the\nWorld", w: 62, h: 88, bg: "#F0D0A8", textColor: "#5A3A10" },
-    ];
-
-    const finishedBooks = [
-        { title: "Steve Jobs", w: 62, h: 86, bg: "#E8E0D8", textColor: "#1A1A1A" },
-        { title: "Profesionalas", w: 64, h: 86, bg: "#F0E0D0", textColor: "#3A2A1A" },
-        { title: "One Year\nin a Ring", w: 62, h: 86, bg: "#C0D0D8", textColor: "#1A2A3A" },
-    ];
-
-    type Book = {
-        title: string;
-        w: number;
-        h: number;
-        bg: string;
-        textColor: string;
-        progress?: number;
+    const getRandomColorSet = () => {
+        return colorPalette[Math.floor(Math.random() * colorPalette.length)];
     };
 
-    function BookCover({ book }: { book: Book }) {
-        const { w, h, bg, textColor, title, progress } = book;
+    const DEFAULT_WIDTH = 72;
+    const DEFAULT_HEIGHT = 104;
+
+    const BookCover: React.FC<BookCoverProps> = ({
+        title,
+        w = DEFAULT_WIDTH,
+        h = DEFAULT_HEIGHT,
+        variant = 'default'
+    }) => {
+        const colorSet = getRandomColorSet();
+        
+        let width = w;
+        let height = h;
+        
+        if (variant === 'small') {
+            width = Math.floor(w * 0.85);
+            height = Math.floor(h * 0.85);
+        } else if (variant === 'large') {
+            width = Math.floor(w * 1.15);
+            height = Math.floor(h * 1.15);
+        }
+
         const lines = title.split("\n");
-        const mid = h / 2;
+        const mid = height / 2;
+        const fontSize = Math.max(6, Math.min(10, Math.floor(width / 8)));
 
         return (
-            <div className="flex flex-col items-center" style={{ width: w }}>
+            <div className="flex flex-col items-center" style={{ width }}>
                 <div
-                    className="rounded-sm overflow-hidden"
-                    style={{ width: w, height: h, boxShadow: "2px 3px 12px rgba(181,139,124,0.25)", flexShrink: 0 }}
+                    className="rounded-sm overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    style={{ width, height, boxShadow: "2px 3px 12px rgba(181,139,124,0.25)", flexShrink: 0 }}
                 >
-                    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-                        <rect width={w} height={h} fill={bg} rx={2} />
-                        <text x={w / 2} y={mid} textAnchor="middle" fontSize={8} fill={textColor} fontFamily="Georgia,serif">
+                    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+                        <rect width={width} height={height} fill={colorSet.bg} rx={2} />
+                        <text 
+                            x={width / 2} 
+                            y={mid} 
+                            textAnchor="middle" 
+                            fontSize={fontSize} 
+                            fill={colorSet.text}
+                            fontFamily="Georgia, serif"
+                        >
                             {lines.map((line, i) => (
-                                <tspan key={i} x={w / 2} dy={i === 0 ? 0 : 10}>{line}</tspan>
+                                <tspan key={i} x={width / 2} dy={i === 0 ? 0 : 10}>{line}</tspan>
                             ))}
                         </text>
-                        <rect x={0} y={0} width={3} height={h} fill="rgba(0,0,0,0.08)" />
+                        <rect x={0} y={0} width={3} height={height} fill="rgba(90, 77, 65, 0.2)" />
                     </svg>
                 </div>
-                {progress !== undefined && (
-                    <div className="mt-1 rounded-sm overflow-hidden" style={{ width: w - 10, height: 3, background: "#F0D9D4" }}>
-                        <div style={{ width: `${progress}%`, height: "100%", background: "#D9B6A8" }} />
-                    </div>
-                )}
             </div>
         );
-    }
+    };
 
     return (
         <div className="bg-[#FAF0E8] rounded-2xl border border-[#E8BFB0] p-4 md:p-6 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)] overflow-x-auto">
             <div className="min-w-[600px] md:min-w-0">
+                {/* Shelf 1 */}
                 <div className="mb-6">
                     <div className="flex justify-between items-baseline mb-3">
-                        <span className="text-xs md:text-sm text-[#5C4F40] font-serif">Currently reading</span>
+                        <span className="text-xs md:text-sm text-[#5C4F40] font-serif">{shelf1Caption}</span>
                     </div>
                     <div className="flex gap-4 items-end pb-3">
-                        {readingBooks.map((book, i) => <BookCover key={i} book={book} />)}
+                        {shelf1.slice(0, 3).map((book, i) => (
+                            <BookCover key={i} title={book.name} />
+                        ))}
                     </div>
                     <div className="h-1 bg-gradient-to-b from-[#F0D9D4] to-[#E8C0B8] rounded" />
                 </div>
 
-                <div className="mb-6">
-                    <div className="flex justify-between items-baseline mb-3">
-                        <span className="text-xs md:text-sm text-[#5C4F40] font-serif">Next up</span>
-                        <span className="text-[10px] md:text-xs text-[#D9B6A8]">Full shelf →</span>
+                {/* Shelf 2 - Only render if shelf2 exists and has books */}
+                {shelf2 && shelf2.length > 0 && (
+                    <div className="mb-6">
+                        <div className="flex justify-between items-baseline mb-3">
+                            <span className="text-xs md:text-sm text-[#5C4F40] font-serif">{shelf2Caption || "Next Up"}</span>
+                            <span className="text-[10px] md:text-xs text-[#D9B6A8]">Full shelf →</span>
+                        </div>
+                        <div className="flex gap-4 items-end pb-3">
+                            {shelf2.slice(0, 3).map((book, i) => (
+                                <BookCover key={i} title={book.name} />
+                            ))}
+                        </div>
+                        <div className="h-1 bg-gradient-to-b from-[#F0D9D4] to-[#E8C0B8] rounded" />
                     </div>
-                    <div className="flex gap-4 items-end pb-3">
-                        {nextUpBooks.map((book, i) => <BookCover key={i} book={book} />)}
-                    </div>
-                    <div className="h-1 bg-gradient-to-b from-[#F0D9D4] to-[#E8C0B8] rounded" />
-                </div>
+                )}
 
-                <div>
-                    <div className="flex justify-between items-baseline mb-3">
-                        <span className="text-xs md:text-sm text-[#5C4F40] font-serif">Finished</span>
-                        <span className="text-[10px] md:text-xs text-[#D9B6A8]">Full shelf →</span>
+                {/* Shelf 3 - Only render if shelf3 exists and has books */}
+                {shelf3 && shelf3.length > 0 && (
+                    <div>
+                        <div className="flex justify-between items-baseline mb-3">
+                            <span className="text-xs md:text-sm text-[#5C4F40] font-serif">{shelf3Caption || "Finished"}</span>
+                            <span className="text-[10px] md:text-xs text-[#D9B6A8]">Full shelf →</span>
+                        </div>
+                        <div className="flex gap-4 items-end pb-3">
+                            {shelf3.slice(0, 3).map((book, i) => (
+                                <BookCover key={i} title={book.name} />
+                            ))}
+                        </div>
+                        <div className="h-1 bg-gradient-to-b from-[#F0D9D4] to-[#E8C0B8] rounded" />
                     </div>
-                    <div className="flex gap-4 items-end pb-3">
-                        {finishedBooks.map((book, i) => <BookCover key={i} book={book} />)}
-                    </div>
-                    <div className="h-1 bg-gradient-to-b from-[#F0D9D4] to-[#E8C0B8] rounded" />
-                </div>
+                )}
             </div>
         </div>
     );

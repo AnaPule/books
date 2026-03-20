@@ -359,6 +359,7 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
 }
 
 export const BookDetails: React.FC<Book> = (book) => {
+    const { wishlist, setWishlist, library, setLibrary, dislike, setDislike, user } = useAuth();
     return (
         <div className="min-h-screen bg-[#faf5ea] py-12 px-4 sm:px-6 md:px-8">
             {/* Decorative elements */}
@@ -391,7 +392,7 @@ export const BookDetails: React.FC<Book> = (book) => {
                                     See all <ChevronRight size={16} />
                                 </button>
                             </div>
-                            <Shelves />
+                            <Shelves shelf1Caption="" shelf1={wishlist} /> {/* // TO DO: change this up */}
                         </section>
 
                         {/* More by Author - Using Shelves Component */}
@@ -402,7 +403,7 @@ export const BookDetails: React.FC<Book> = (book) => {
                                     See all <ChevronRight size={16} />
                                 </button>
                             </div>
-                            <Shelves />
+                            <Shelves shelf1Caption="" shelf1={wishlist} /> {/* // TO DO: change this up */}
                         </section>
                     </div>
 

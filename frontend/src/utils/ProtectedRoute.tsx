@@ -27,6 +27,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/auth" replace />;
   }
 
+  if (isLoggedIn && !isTokenvalid){
+    return <Navigate to="/auth" replace />;
+  }
+
   if (loading){
     return <div className="flex justify-center items-center h-screen"><Spinner loadingLabel='Loading' /></div>; 
   }

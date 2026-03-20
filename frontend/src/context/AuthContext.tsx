@@ -165,7 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     throw new Error("No user object in response");
                 }
                 setUser(actualUser);
-                //console.log(actualUser)
+                console.log(actualUser)
 
                 // Schedule timers only after user is set
                 const timeLeftMs = getTimeLeft(token);

@@ -1,23 +1,11 @@
 
-{/* =============== images ============ */ }
-import Flower_0 from '@assets/bouqet.jpeg';
-import Flower_1 from '@assets/Flower_1.jpeg';
-import Flower_2 from '@assets/Flower_2.jpeg';
-import Flower_3 from '@assets/Flower_3.jpeg';
-import Flower_4 from '@assets/Flower_4.jpeg';
-import Flower_5 from '@assets/Flower_5.jpeg';
-import Flower_6 from '@assets/Flower_6.jpeg';
-import Flower_7 from '@assets/Flower_7.jpeg';
-import Flower_8 from '@assets/Flower_8.jpeg';
 
 {/* =============== packages ============ */ }
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
     Bell, BookOpen,
-    Star, Target, BookMarked,
-    Sparkles, Quote
-    , CheckCircle, Plus
-    , Heart, Menu
+    Star, Target, BookMarked
+    , Quote, CheckCircle, Plus, Menu
 } from 'lucide-react';
 
 {/* =============== models ============ */ }
@@ -27,6 +15,9 @@ import { useAuth } from "@context/AuthContext";
 
 {/* =============== components ============ */ }
 import { AccountSettings } from './AccountSettings';
+import {Shelves} from "@components/skeleton/Shelves";
+import { WordOfTheDay } from "@components/skeleton/WordofTheDay";
+import { DateTimeCard } from '@components/skeleton/DateTimeCard';
 import { Calendar } from "@components/skeleton/calendar/Calendar";
 
 const ProfileHeader: React.FC = () => {
@@ -72,7 +63,8 @@ const ProfileHeader: React.FC = () => {
 
     );
 };
-const DateTimeCard: React.FC = () => {
+/*
+export const DateTimeCard: React.FC = () => {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
@@ -91,7 +83,8 @@ const DateTimeCard: React.FC = () => {
         </div>
     );
 };
-const WordOfTheDay: React.FC = () => {
+
+export const WordOfTheDay: React.FC = () => {
     const { word } = useAuth();
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
@@ -110,7 +103,7 @@ const WordOfTheDay: React.FC = () => {
 
     return (
         <div className=" rounded-2xl border border-[#e8bfb0] p-4 md:p-5 relative overflow-hidden min-h-[180px] md:min-h-[220px]">
-            {/* Background Images - Reduced opacity significantly */}
+            {/* Background Images - Reduced opacity significantly 
             <img
                 src={flowerImages[previousImageIndex]}
                 alt=""
@@ -148,6 +141,7 @@ const WordOfTheDay: React.FC = () => {
         </div>
     );
 };
+*/
 const JournalMenu: React.FC = () => {
     const menuItems = [
         "my library",
@@ -175,7 +169,7 @@ const JournalMenu: React.FC = () => {
         </div>
     );
 };
-const CurrentReads: React.FC = () => {
+export const CurrentReads: React.FC = () => {
     const books = [
         {
             title: "The Picture of Dorian Gray",
@@ -232,6 +226,7 @@ const CurrentReads: React.FC = () => {
         </div>
     );
 };
+/*
 const Shelves: React.FC = () => {
     const readingBooks = [
         { title: "The Midnight\nLibrary", w: 65, h: 90, bg: "#F0D9D4", textColor: "#5A3A3A", progress: 35 },
@@ -328,7 +323,8 @@ const Shelves: React.FC = () => {
         </div>
     );
 };
-const ReadingGoals: React.FC = () => {
+*/
+export const ReadingGoals: React.FC = () => {
     return (
         <div className="bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
             <h2 className="text-base md:text-lg font-serif text-[#5a4d41] mb-2 md:mb-3 flex items-center gap-2">

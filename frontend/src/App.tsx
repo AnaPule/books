@@ -12,7 +12,7 @@ import E429 from '@pages/errors/E429';
 
 import HomePage from "@pages/home/home"
 import AuthPage from "@pages/auth/auth";
-import BooksPage from "@pages/books/Books";
+import BooksPage from "@pages/books/BooksPage";
 import ProfilePage from "@pages/profile/profile";
 import VerifyEmailPage from "@pages/auth/VerifyEmailPage";
 import ResubscribePage from "@pages/auth/Resubscribe";

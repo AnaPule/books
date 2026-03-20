@@ -44,7 +44,7 @@ const Sidebar = () => {
     }, []);
 
     const navItems: NavItem[] = [
-        { icon: Home, label: 'Home', element: '/home' },
+        { icon: Home, label: 'Home', element: '/books' },
         { icon: Search, label: 'Browse', element: '/browse-books' },
         { icon: TrendingUp, label: 'Trending', element: '/trending' },
         { icon: Clock, label: 'History', element: '/history' },

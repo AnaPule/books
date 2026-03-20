@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 // =============== images ============
 import Orange1 from "@assets/Orange_1.jpeg";
@@ -10,8 +9,18 @@ import { Topnav } from "@pages/home/home";
 import LoginForm from "@components/auth/LoginForm";
 import SignUpForm from "@components/auth/SignUpForm";
 
+// =============== services ============
+import { useAuth } from "@context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 export default function AuthPage() {
+  const navigate = useNavigate();
+  const {isLoggedIn, loading} = useAuth();
   const [page, setPage] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!loading && isLoggedIn){navigate('/profile', {replace: true})}
+  },[navigate, isLoggedIn, loading]);
 
   return (
     <div

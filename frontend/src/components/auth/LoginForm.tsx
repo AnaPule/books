@@ -39,7 +39,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isResubscribeOpen, setResubscribeOpen] = useState<boolean>(false);
-    const handleResubscribe = () => {setResubscribeOpen((prev) => !prev)}
+    const handleResubscribe = () => { setResubscribeOpen((prev) => !prev) }
 
     const [formData, setFormData] = useState<LoginFormData>({
         email: "",
@@ -87,6 +87,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
     }
 
     const handleSubmitLogin = async (e: FormEvent) => {
+        const now = new Date();
         e.preventDefault();
         setLoading(true);
 
@@ -99,12 +100,13 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                             description: errorMsg || "Invalid Credentials: Please enter the correct credentials"
                         })
 
-                        if (errorMsg?.includes('unsubscribed')){
+                        if (errorMsg?.includes('unsubscribed')) {
                             handleResubscribe();
                         }
                     } else {
                         const cleanToken = res.token.trim();
                         sessionStorage.setItem('token', cleanToken);
+                        sessionStorage.setItem('lastLoginTime', now.toDateString())
                         request.setAuthToken(cleanToken);
 
                         const decoded = jwtDecode<tokenResponse>(cleanToken);
@@ -112,7 +114,6 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                         toast.success('Pages ń Parchments',
                             { description: `Welcome back ${decoded.username || decoded.sub || "reader"}!` }
                         );
-
                         navigate("/profile", { replace: true });
 
                         setFormData({ email: "", password: "" });
@@ -230,10 +231,10 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
 
     return (
         <>
-        <Resubscribe 
-            isOpen={isResubscribeOpen} 
-            onClose={() => handleResubscribe()} 
-            email={formData.email} />
+            <Resubscribe
+                isOpen={isResubscribeOpen}
+                onClose={() => handleResubscribe()}
+                email={formData.email} />
 
             <Modal
                 isOpen={isModalOpen}

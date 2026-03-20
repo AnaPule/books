@@ -1,7 +1,7 @@
 
 
 {/* =============== packages ============ */ }
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 {/* =============== components ============ */ }
@@ -16,24 +16,27 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const {loading,isLoggedIn} = useAuth();
+  const { isLoggedIn, loading: authLoading } = useAuth();
+  const [routeReady, setRouteReady] = useState(false);
+  const token = sessionStorage.getItem('token');
 
-  if (isLoggedIn && isTokenvalid === null) {
+  // Give AuthProvider ~500ms to finish setting user after login/refresh
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRouteReady(true);
+    }, 800)
+    return () => clearTimeout(timer);
+  }, [])
+
+  if (authLoading || !routeReady) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spinner loadingLabel="Verifying session..." />
+      </div>
+    );
+  }
+  if (!isLoggedIn) {
     return <Navigate to="/auth" replace />;
-    //return <div className="flex justify-center items-center h-screen"><Spinner loadingLabel='Loading' /></div>; 
   }
-
-  if (!isTokenvalid || !isLoggedIn) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (isLoggedIn && !isTokenvalid){
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (loading){
-    return <div className="flex justify-center items-center h-screen"><Spinner loadingLabel='Loading' /></div>; 
-  }
-
   return <>{children}</>;
 }

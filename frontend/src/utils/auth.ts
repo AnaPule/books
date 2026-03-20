@@ -21,19 +21,33 @@ export function decodeToken(token: string | null): tokenResponse | null {
     }
 }
 
-export function isTokenvalid(token:string | null): boolean {
-    if (!token) return false;
+export function isTokenvalid(token: string | null): boolean {
+  if (!token || token === null) return false;
 
-    try{
-        const decoded = jwtDecode<tokenResponse>(token);
-        
-        if (!decoded.exp || !decoded) return false; // No expiration = assume invalid // exp is in seconds
-        return decoded.exp*1000 > Date.now();
-    }catch(error){
-        toast.error(`FATAL SYSTEM ERROR: Token unavailable`, {description: `${error}`});
-        console.error('Invalid error: ',error)
-        return false;
+  try {
+    const decoded = jwtDecode<tokenResponse>(token);
+
+    // Only check if exp exists and is in the future
+    if (!decoded.exp) {
+      console.warn("Token has no expiration claim");
+      return false;
     }
+
+    const expiryTimeMs = decoded.exp * 1000;
+    const isValid = expiryTimeMs > Date.now();
+
+    // Optional debug
+    console.log("Token validation:", {
+      decodedExp: new Date(expiryTimeMs).toLocaleString(),
+      now: new Date().toLocaleString(),
+      isValid
+    });
+
+    return isValid;
+  } catch (error) {
+    console.error("Token validation failed:", error);
+    return false;
+  }
 }
 
 export function getTokenExpiryTime(token: string | null): number | null {

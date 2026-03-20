@@ -71,7 +71,7 @@ const AuthContext = createContext<AuthContextType>({
     setAuthor: () => [],
     setLibrary: () => [],
     setWishlist: () => [],
-    setDislike: () =>  [],
+    setDislike: () => [],
     setRecommends: () => [],
     loading: false,
 
@@ -143,18 +143,160 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (message.includes('expired')) {
                 hasShownExpiryToast.current = true;
             }
-        } 
+        }
         navigate(`/home`, { replace: true });
     }, [navigate]);
 
+    useEffect(() => {
+
+        //skip the auth mess on every path stipulated in the follwoing
+        const publicPaths = [
+        '/auth/verify',
+        '/auth/reset-password', 
+        '/auth/resubscribe',
+        '/home',
+        '/unauthorised',
+        '/not-found',
+        '/too-many-requests'
+    ];
+        if (publicPaths.some(p => location.pathname.includes(p))) {
+            setLoading(false);
+            return;
+        }
+
+        //otherwise procedd
+
+        const token = getToken();
+        // session timer clean ups
+        let warningTimeout: ReturnType<typeof setTimeout> | null = null;
+        let expiryTimeout: ReturnType<typeof setTimeout> | null = null;
+        let intervalId: ReturnType<typeof setInterval> | null = null;
+
+        const initAuth = async () => {
+            if (user) return;
+            //cehck token validity
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
+            //if invalid, logout immediately
+            if (!isTokenvalid(token)) {
+                logout('Your session has expired. Please log in again.');
+                setLoading(false);
+                return;
+            }
+            setLoading(true);
+            try {
+                request.setAuthToken(token); // this is set so the valid token can be added to the header for other requests to the backend
+                //now we need the user details of the logged in user
+                await request.get<any>('/auth/user')
+                    .then(
+                        (res: any) => {
+                            //right now the json is in any format in ts, and we need to extract the user details from the res and they need to be in User format.
+                            const actualUser = res.user as User;
+                            if (!actualUser) {
+                                throw new Error("No user object in response");
+                            }
+                            setUser(actualUser);
+                        }
+                    )
+
+                // session timers
+                const timeLeftMs = getTimeLeft(token);
+                if (timeLeftMs > 0) {
+                    if (timeLeftMs > 5 * 60 * 100) {
+                        //if time left imore than 0 and more 
+                        warningTimeout = setTimeout(() => {
+                            toast.warning('Pages ń Parchment', {
+                                description: "Less that 5 minutes left. Save your work!",
+                                duration: 10000
+                            });
+                        }, timeLeftMs - 5 * 60 * 1000);
+                    }
+                }
+
+                expiryTimeout = setTimeout(() => {
+                    logout('Your session has expired.')
+                }, timeLeftMs);
+            } catch (error) {
+                console.log('auth failed: ', error)
+                logout('Please log in again.');
+            } finally {
+                setLoading(false);
+            }
+            navigate('/profile')
+        }
+        initAuth();
+        // periodic check for valid session (5 minutes)
+        intervalId = setInterval(() => {
+            if (token && !isTokenvalid(token)) {
+                logout('Session expired')
+            }
+        }, 300_000);
+
+        return () => {
+            warningTimeout && clearTimeout(warningTimeout);
+            expiryTimeout && clearTimeout(expiryTimeout);
+            intervalId && clearInterval(intervalId);
+        }
+
+    }, [logout, navigate]); //It prevents the effect from running on every render. logout very rarely changes - it only changes when navigate changes , meaning its stable.
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        let isCurrent = true;
+
+        const loadExtras = async () => {
+            try {
+                const word = await WordOfTheDay(user.id);
+                const quote = await QuoteOfTheDay(user.id);
+
+                if (isCurrent) {
+                    setWord(word);
+                    setQuote(quote);
+                }
+            } catch (err) {
+                console.error("Failed to load word/quote:", err);
+            }
+        };
+
+        loadExtras();
+
+        return () => {
+            isCurrent = false;
+        };
+    }, [user?.id]); // only when user ID changes
+    /*
     /// cut out some code for now
     useEffect(() => {
         const token = getToken();
-        //if this is the email auth page, then skip all the mess about sessions and such...
-        if (window.location.pathname.includes('/auth/verify') ||
-            window.location.pathname.includes('/home')) {
+        const pathname = window.location.pathname;
+
+        // Skip auth check for these public paths
+        const publicPaths = [
+            '/auth/verify',
+            '/auth/reset-password',
+            '/auth/resubscribe',
+            '/home',
+            '/',
+            '/unauthorised',
+            '/not-found',
+            '/too-many-requests'
+        ];
+
+        //skip all the mess about sessions and such...
+        const isPublicPath = publicPaths.some(path => pathname.includes(path));
+
+        if (isPublicPath) {
             setLoading(false);
             return;
+        }
+
+        if (user && window.location.pathname === '/auth') {
+            console.log("User logged in, redirecting from /auth");
+            navigate("/profile", { replace: true });
         }
 
         let warningTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -162,9 +304,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         let intervalId: ReturnType<typeof setInterval> | null = null;
 
         const initAuth = async () => {
+            if (!token || token === '') {
+                setLoading(false);
+                return;
+            }
+
+            // Skip full re-fetch if we just logged in (token is fresh)
+            const lastLogin = sessionStorage.getItem('lastLoginTime');
+            const now = Date.now();
+            if (lastLogin && now - Number(lastLogin) < 5000) { // 5 seconds
+                console.log("Skipping re-fetch after fresh login");
+                setLoading(false);
+                return;
+            }
+
             // Skip if we already have user data
             if (user) { return; }
-            if (token === '') { return; } // of there is absolutely no tokenthen dont check anything, they didnt log in
             setLoading(true);
 
 
@@ -216,11 +371,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Safety periodic check (every 3 minutes)
         intervalId = setInterval(() => {
             const token = getToken();
-
-            if (token && token != '' && !isTokenvalid(token)) {
+            if (token && token !== '' && !isTokenvalid(token)) {
+                console.log("Periodic check: Token invalid → logging out");
                 logout('Session expired (periodic check).');
             }
-        }, 180_000);
+        }, 300_000); // 5 min
 
         return () => {
             //console.log("AuthProvider cleanup: clearing timers");
@@ -256,20 +411,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             isCurrent = false;
         };
     }, [user?.id]); // only when user ID changes
-
-
+    */
     return (
-        <AuthContext.Provider value={{ 
+        <AuthContext.Provider value={{
             user, setUser,
-             recommends, setRecommends, 
-             wishlist, setWishlist, 
-             library, setLibrary,
-             genre, setGenre,
-             author, setAuthor,
-             dislike, setDislike,
-             word, quote,
-             isLoggedIn, logout, 
-             loading  }}>
+            recommends, setRecommends,
+            wishlist, setWishlist,
+            library, setLibrary,
+            genre, setGenre,
+            author, setAuthor,
+            dislike, setDislike,
+            word, quote,
+            isLoggedIn, logout,
+            loading
+        }}>
             {loading ? (
                 <div className='flex items-center justify-center h-screen'>
                     <Spinner loadingLabel="Please Wait" />

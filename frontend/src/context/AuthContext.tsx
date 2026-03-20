@@ -27,11 +27,20 @@ interface AuthContextType {
     user: User | null; // Current user object or null if not logged in
     setUser: (user: User | null) => void; // Function to update user state
 
-    //wishlist: Book[] | [];
-    //setWishlist: (books: Book[] | []) => void; // Function to update book state
+    wishlist: Book[] | [];
+    setWishlist: (books: Book[] | []) => void; // Function to update book state
 
-    //library: Book[] | [],
-    //setLibrary: (book: Book[] | []) => void;
+    library: Book[] | [],
+    setLibrary: (book: Book[] | []) => void;
+
+    genre: Book[] | [],
+    setGenre: (book: Book[] | []) => void;
+
+    author: Book[] | [],
+    setAuthor: (book: Book[] | []) => void;
+
+    dislike: Book[] | [],
+    setDislike: (book: Book[] | []) => void;
 
     recommends: Book[] | [],
     setRecommends: (book: Book[] | []) => void;
@@ -48,15 +57,21 @@ interface AuthContextType {
 // ** Note: Context is designed to share data that can be considered “global” for a tree of React components
 const AuthContext = createContext<AuthContextType>({
     user: null,
-    //wishlist: [],
-    //library: [],
+    wishlist: [],
+    library: [],
+    genre: [],
+    author: [],
+    dislike: [],
     recommends: [],
     isLoggedIn: false,
     logout: () => { },
 
     setUser: () => { },
-    //setLibrary: () => [],
-    //setWishlist: () => [],
+    setGenre: () => [],
+    setAuthor: () => [],
+    setLibrary: () => [],
+    setWishlist: () => [],
+    setDislike: () =>  [],
     setRecommends: () => [],
     loading: false,
 
@@ -103,8 +118,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [quote, setQuote] = useState<Quote | any>(null);
     const isLoggedIn = !!user;
     //const [isLoggedIn, setLoggedIn] = useState<Boolean>(false);
-    //const [wishlist, setWishlist] = useState<Book[] | []>([]);
-    //const [library, setLibrary] = useState<Book[] | []>([]);
+    const [dislike, setDislike] = useState<Book[] | []>([]);
+    const [wishlist, setWishlist] = useState<Book[] | []>([]);
+    const [library, setLibrary] = useState<Book[] | []>([]);
+    const [genre, setGenre] = useState<Book[] | []>([]);
+    const [author, setAuthor] = useState<Book[] | []>([]);
     const [recommends, setRecommends] = useState<Book[] | []>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const hasShownExpiryToast = useRef(false);
@@ -165,13 +183,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     throw new Error("No user object in response");
                 }
                 setUser(actualUser);
-                console.log(actualUser)
+                //console.log(actualUser)
 
                 // Schedule timers only after user is set
                 const timeLeftMs = getTimeLeft(token);
 
                 if (timeLeftMs > 0) {
-                    if (timeLeftMs <= 5 * 60 * 1000) {
+                    if (timeLeftMs > 5 * 60 * 1000) {
                         //console.log('Time leftMs', timeLeftMs)
                         warningTimeout = setTimeout(() => {
                             toast.warning('Session expiring soon', {
@@ -241,7 +259,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <AuthContext.Provider value={{ user, setUser, setRecommends, recommends, isLoggedIn, logout, loading, word, quote }}>
+        <AuthContext.Provider value={{ 
+            user, setUser,
+             recommends, setRecommends, 
+             wishlist, setWishlist, 
+             library, setLibrary,
+             genre, setGenre,
+             author, setAuthor,
+             dislike, setDislike,
+             word, quote,
+             isLoggedIn, logout, 
+             loading  }}>
             {loading ? (
                 <div className='flex items-center justify-center h-screen'>
                     <Spinner loadingLabel="Please Wait" />

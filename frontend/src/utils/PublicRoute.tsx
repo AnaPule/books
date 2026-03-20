@@ -12,10 +12,11 @@ interface PublicRouteProps {
 
 export default function PublicRoute({children}: PublicRouteProps) {
     const navigate = useNavigate();
-    const { isLoggedIn, loading } = useAuth();
+    //const { isLoggedIn, loading } = useAuth();
     const token = sessionStorage.getItem('token');
     const validToken = token && isTokenvalid(token);
 
+    /*
     if (validToken){
         navigate('/profile',{replace:true})
     }
@@ -23,6 +24,6 @@ export default function PublicRoute({children}: PublicRouteProps) {
     if (isLoggedIn){
         navigate('/profile',{replace:true})
     }
-
+        */
     return <>{children}</>
 }

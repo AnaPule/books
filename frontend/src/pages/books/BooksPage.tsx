@@ -61,7 +61,7 @@ export const SmallCard: React.FC<CardProps> = ({
 
 const BooksPage = () => {
     const navigate = useNavigate();
-    const { user, recommends } = useAuth();
+    const { user, recommends, genre, author } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
 
     // Mock data (your existing mock data stays exactly the same)
@@ -75,10 +75,10 @@ const BooksPage = () => {
     };
 
     const popularNow: Book[] = [
-        { id: '1', title: 'The World of Ice and Fire', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop' },
-        { id: '2', title: 'Fantastic Beasts', author: 'J.K. Rowling', cover: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop' },
-        { id: '3', title: 'Game of Thrones', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop' },
-        { id: '4', title: "The Wise Man's Fear", author: 'Patrick Rothfuss', cover: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?w=300&h=450&fit=crop' },
+        { id: 'fa3e1102-cabc-4a95-8268-43527b730a5d', title: 'The World of Ice and Fire', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop' },
+        { id: 'e136c7a7-6ff5-4382-a1f2-37c348e67068', title: 'Fantastic Beasts', author: 'J.K. Rowling', cover: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop' },
+        { id: '2b5352a2-6fcf-42aa-b497-5d7944203f7c', title: 'Game of Thrones', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop' },
+        { id: '5c076ba9-6ef0-4ae7-91e5-e0e1c0c26cd6', title: "The Wise Man's Fear", author: 'Patrick Rothfuss', cover: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?w=300&h=450&fit=crop' },
     ];
 
     const newCollection = {
@@ -194,7 +194,10 @@ const BooksPage = () => {
                                 </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
                                     {popularNow.map((book) => (
-                                        <div key={book.id} className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+                                        <div
+                                            onClick={() => navigate(`/book/${book.id}`)}
+                                            key={book.id}
+                                            className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
                                             <div
                                                 className="w-full aspect-[2/3] bg-[#fcf9f4] rounded-lg shadow-md mb-3 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-[#e8cfc5]/30 relative overflow-hidden"
                                                 style={{
@@ -282,64 +285,82 @@ const BooksPage = () => {
                                 }
                             </section>
 
-                            {/* Fantasy Genre */}
+                            {/* User Genre */}
                             <section>
                                 <div className="flex items-center justify-between mb-4 border-b border-[#e8cfc5]/30 pb-2">
-                                    <h2 className="text-xl sm:text-2xl font-sans text-[#5a4d41] tracking-wide">EXPLORE FANTASY</h2>
-                                    <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
-                                        SEE ALL <ChevronRight size={14} className="sm:size-4" />
-                                    </button>
+                                    <h2 className="text-xl sm:text-2xl font-sans uppercase text-[#5a4d41] tracking-wide">EXPLORE more (user genre)</h2>
+                                    {genre.length > 0 &&
+                                        <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+                                            SEE ALL <ChevronRight size={14} className="sm:size-4" />
+                                        </button>
+                                    }
+
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                                    {fantasyBooks.map((book) => (
-                                        <div key={book.id} className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
-                                            <div
-                                                className="w-full aspect-[2/3] bg-[#fcf9f4] rounded-lg shadow-md mb-3 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-[#e8cfc5]/30 relative overflow-hidden"
-                                                style={{
-                                                    backgroundImage: `url(${book.cover})`,
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center'
-                                                }}
-                                            >
-                                                <div className="absolute inset-0 bg-gradient-to-t from-[#f5d6d4]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                                {genre.length > 0 ? (
+                                    <div className="grid grid-cols-2 justify-center sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+                                        {genre.map((book) => (
+                                            <div key={book.id} className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+                                                <div
+                                                    className="w-full aspect-[2/3] bg-[#fcf9f4] rounded-lg shadow-md mb-3 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-[#e8cfc5]/30 relative overflow-hidden"
+                                                    style={{
+                                                        backgroundImage: `url(${book.coverArt})`,
+                                                        backgroundSize: 'cover',
+                                                        backgroundPosition: 'center'
+                                                    }}
+                                                >
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-[#f5d6d4]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                                </div>
+                                                <h3 className="font-sans font-medium text-xs sm:text-sm text-[#5a4d41] line-clamp-2 mb-1 group-hover:text-[#c9a394] transition-colors">
+                                                    {book.name}
+                                                </h3>
+                                                <p className="text-[10px] sm:text-xs text-[#7e6957] italic">{book.author.name}</p>
                                             </div>
-                                            <h3 className="font-sans font-medium text-xs sm:text-sm text-[#5a4d41] line-clamp-2 mb-1 group-hover:text-[#c9a394] transition-colors">
-                                                {book.title}
-                                            </h3>
-                                            <p className="text-[10px] sm:text-xs text-[#7e6957] italic">{book.author}</p>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <NoResults WarningLabel="We could no find a genre for you. Sorry!" />
+                                )}
                             </section>
 
                             {/* By Favorite Author */}
                             <section>
                                 <div className="flex items-center justify-between mb-4 border-b border-[#e8cfc5]/30 pb-2">
                                     <h2 className="text-xl sm:text-2xl font-sans text-[#5a4d41] tracking-wide">MORE BY GEORGE RR MARTIN</h2>
-                                    <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
-                                        SEE ALL <ChevronRight size={14} className="sm:size-4" />
-                                    </button>
+                                    {author.length > 1 &&
+                                        <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+                                            SEE ALL <ChevronRight size={14} className="sm:size-4" />
+                                        </button>
+                                    }
+
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                                    {byFavoriteAuthor.map((book) => (
-                                        <div key={book.id} className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
-                                            <div
-                                                className="w-full aspect-[2/3] bg-[#fcf9f4] rounded-lg shadow-md mb-3 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-[#e8cfc5]/30 relative overflow-hidden"
-                                                style={{
-                                                    backgroundImage: `url(${book.cover})`,
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center'
-                                                }}
-                                            >
-                                                <div className="absolute inset-0 bg-gradient-to-t from-[#f5d6d4]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                            </div>
-                                            <h3 className="font-sans font-medium text-xs sm:text-sm text-[#5a4d41] line-clamp-2 mb-1 group-hover:text-[#c9a394] transition-colors">
-                                                {book.title}
-                                            </h3>
-                                            <p className="text-[10px] sm:text-xs text-[#7e6957] italic">{book.author}</p>
+
+                                {
+                                    author.length > 0 ? (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+                                            {author.map((book) => (
+                                                <div key={book.id} className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+                                                    <div
+                                                        className="w-full aspect-[2/3] bg-[#fcf9f4] rounded-lg shadow-md mb-3 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-[#e8cfc5]/30 relative overflow-hidden"
+                                                        style={{
+                                                            backgroundImage: `url(${book.coverArt})`,
+                                                            backgroundSize: 'cover',
+                                                            backgroundPosition: 'center'
+                                                        }}
+                                                    >
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-[#f5d6d4]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                                    </div>
+                                                    <h3 className="font-sans font-medium text-xs sm:text-sm text-[#5a4d41] line-clamp-2 mb-1 group-hover:text-[#c9a394] transition-colors">
+                                                        {book.name}
+                                                    </h3>
+                                                    <p className="text-[10px] sm:text-xs text-[#7e6957] italic">{book.author.name}</p>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
+                                    ):(
+                                        <NoResults WarningLabel="Sorry! It seems we could find no author for you." />
+                                    )
+                                }
                             </section>
 
                             {/* Bottom Banner */}

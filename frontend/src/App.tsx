@@ -14,8 +14,9 @@ import HomePage from "@pages/home/home"
 import AuthPage from "@pages/auth/auth";
 import BooksPage from "@pages/books/BooksPage";
 import ProfilePage from "@pages/profile/profile";
-import VerifyEmailPage from "@pages/auth/VerifyEmailPage";
+import BookPage from "@pages/books/individual-book";
 import ResubscribePage from "@pages/auth/Resubscribe";
+import VerifyEmailPage from "@pages/auth/VerifyEmailPage";
 import ResetPasswordPage from "@pages/auth/ResetPasswordPage";
 
 {/* =============== utils ============ */ }
@@ -55,6 +56,7 @@ function App() {
             {/* protected routes */}
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/books" element={<ProtectedRoute><BooksPage /></ProtectedRoute>} />
+            <Route path="/book/:id" element={<ProtectedRoute><BookPage /></ProtectedRoute>} />
 
             {/* error pages */}
             <Route path="*" element={<E404 />} /> {/* page not found*/}

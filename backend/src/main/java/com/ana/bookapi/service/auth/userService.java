@@ -5,17 +5,22 @@ package com.ana.bookapi.service.auth;
 import com.ana.bookapi.config.EncodeConfig;
 
 /* =================== MODELS =================== */
-import com.ana.bookapi.models.user.User;
 import com.ana.bookapi.DTO.LoginDTO;
+import com.ana.bookapi.DTO.userBookDTO;
+import com.ana.bookapi.models.book.Book;
+import com.ana.bookapi.models.user.User;
 import com.ana.bookapi.models.user.UserWord;
 import com.ana.bookapi.models.user.UserQuote;
+import com.ana.bookapi.models.book.userBook;
 
 /* =================== repo =================== */
+import com.ana.bookapi.repository.BookRepo;
+import com.ana.bookapi.repository.UserBookRepo;
 import com.ana.bookapi.repository.auth.userRepo;
+import com.ana.bookapi.repository.auth.userWordRepo;
 import com.ana.bookapi.repository.auth.UserQuoteRepo;
 
 /* =================== PACKAGES =================== */
-import com.ana.bookapi.repository.auth.userWordRepo;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +29,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service; // telling spring boot to treat this class as a service
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.ana.bookapi.repository.auth.userWordRepo.now;
@@ -35,7 +41,9 @@ public class userService implements UserDetailsService {
 
     //constructor injection
     private final userRepo ur;
+    private final BookRepo br;
     private final EncodeConfig ec;
+    private final UserBookRepo urb;
     private final userWordRepo urw;
     private final UserQuoteRepo uqr;
 
@@ -53,11 +61,15 @@ public class userService implements UserDetailsService {
     */
     public userService(
             userRepo ur,
+            BookRepo br,
             EncodeConfig ec,
+            UserBookRepo urp,
             userWordRepo urw,
             UserQuoteRepo uqr) {
         this.ec = ec;
+        this.br = br;
         this.ur = ur;
+        this.urb = urp;
         this.urw = urw;
         this.uqr = uqr;
     }
@@ -65,6 +77,67 @@ public class userService implements UserDetailsService {
     @PostConstruct // runs when spring boot starts - creates the table in the DB
     public void initDB() {
         System.out.println("=== USER TABLE CREATION ===");
+    }
+
+    // user library
+    public userBook AddBookTouserBook(String userId, String bookId, Integer type) {
+        if (urb.existsByBookIdAndUserIdAndType(userId, bookId, type)) {
+            throw new RuntimeException("Book already exists");
+        }
+
+        userBook ub = new userBook(userId, bookId, type);
+        return urb.save(ub);
+    }
+
+    //remove book from library
+    public void RemoveBookFromUserBook(String userId, String bookId, Integer type) {
+        if (!urb.existsByBookIdAndUserIdAndType(userId, bookId, type)) {
+            throw new RuntimeException("Book does not exist");
+        }
+        urb.deleteByUserIdAndBookIdAndType(userId, bookId, type);
+    }
+
+    public List<userBookDTO> getUserBooks(String userId) {
+        try {
+            List<userBook> ubs = urb.findByUserId(userId);
+
+            List<userBookDTO> books = new ArrayList<>();
+
+            for (userBook ub : ubs) {
+                //check if book exists
+                if (br.existsById(ub.getBookId())) {
+                    Book book = br.findByBookId(ub.getBookId()).orElseThrow(() -> new RuntimeException("Book not found"));
+                    userBookDTO bookDTO = new userBookDTO(book, ub.getType());
+                    books.add(bookDTO);
+                }
+            }
+            return books;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve user books: " + e);
+        }
+
+    }
+
+    public List<userBookDTO> getUserBooksByType(String userId, Integer type) {
+        try {
+            List<userBook> ubs = urb.findByUserIdAndType(userId, type);
+
+            List<userBookDTO> books = new ArrayList<>();
+            for (userBook ub : ubs) {
+                if (br.existsById(ub.getBookId())) {
+                    Book book = br.findById(ub.getBookId()).orElseThrow(() -> new RuntimeException("Book not found"));
+                    userBookDTO bookDTO = new userBookDTO(book, ub.getType());
+                    books.add(bookDTO);
+                }
+            }
+            return books;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve user books by type: " + e);
+        }
+    }
+
+    public boolean checkUserBookExists(String userId, String bookId, Integer type) {
+        return urb.existsByBookIdAndUserIdAndType(userId, bookId, type);
     }
 
     @Override
@@ -178,6 +251,7 @@ public class userService implements UserDetailsService {
         }
         return isAuthenticated;
     }
+
     public Boolean isVerified(String email) {
         User user = getUserByEmail(email);
         if (!user.getVerfied()) {
@@ -185,6 +259,7 @@ public class userService implements UserDetailsService {
         }
         return true;
     }
+
     public Boolean isActive(String email) {
         User user = getUserByEmail(email);
         if (!user.getActive()) {
@@ -197,19 +272,23 @@ public class userService implements UserDetailsService {
     public List<User> getUsers() {
         return ur.findAll();
     }
+
     public User getUserById(String id) {
         //Optional<> -> JAVA FEATURE THAT PREVENTS NullPointerException
         User user = ur.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         return user;
     }
+
     public User getUserByUsername(String username) {
         User user = ur.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found with username: " + username));
         return user;
     }
+
     public User getUserByEmail(String email) {
         User user = ur.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         return user;
     }
+
     private UserWord getUserWord(LocalDateTime date, String userId) {
         LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59);
@@ -256,10 +335,10 @@ public class userService implements UserDetailsService {
         LocalDateTime startOfDay = date.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = date.toLocalDate().atTime(23, 59, 59);
 
-        if(ur.existsById(userId)) {
+        if (ur.existsById(userId)) {
             return uqr.findByUserIdAndDate(userId, startOfDay, endOfDay)
                     .orElseThrow(() -> new RuntimeException("Quote not found for user on this date"));
-        }else{
+        } else {
             System.err.println("Fetch Quote: User not found");
             throw new RuntimeException("User not found");
         }
@@ -270,12 +349,13 @@ public class userService implements UserDetailsService {
     public void setUserQuote(String userId, String quoteText, String quoteAuthor) {
         LocalDateTime date = LocalDateTime.now();
 
-            if (quoteCheck(userId, date)) {
-                System.out.println("Quote already exists for user on this date");
-                throw new RuntimeException("Quote already exists for user on this date");
-            }
-            UserQuote quote = new UserQuote(userId, quoteText, quoteAuthor);
-            uqr.save(quote);
+        if (quoteCheck(userId, date)) {
+            System.out.println("Quote already exists for user on this date");
+            throw new RuntimeException("Quote already exists for user on this date");
         }
+        UserQuote quote = new UserQuote(userId, quoteText, quoteAuthor);
+        uqr.save(quote);
+    }
 }
+
 

@@ -4,6 +4,7 @@ package com.ana.bookapi.controller;
 
 import com.ana.bookapi.DTO.*;
 import com.ana.bookapi.models.user.User;
+import com.ana.bookapi.models.book.userBook;
 import com.ana.bookapi.models.user.UserQuote;
 
 /* =================== services =================== */
@@ -21,9 +22,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.HttpClientErrorException;
 
 @RestController
 @RequestMapping("/auth")
@@ -56,6 +57,76 @@ public class AuthController {
     private String frontendUrl;
 
     // ==================== ENDPOINTS ========================= //
+    @PostMapping("/user/books")
+    public ResponseEntity<?> addUserBook(@RequestBody userBookDTO dto) {
+        try {
+            userBook ub = us.AddBookTouserBook(dto.getUserId(), dto.getBookId(), dto.getType());
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "message", "Book added successfully",
+                    "userBook", ub,
+                    "added", true
+            ));
+        } catch (RuntimeException e) {
+            er.setMessage("400 error: " + e.getMessage());
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    @GetMapping("/{userId}/books")
+    public ResponseEntity<?> getUserBook(@PathVariable String userId) {
+        try {
+            List<userBookDTO> books = us.getUserBooks(userId);
+            return ResponseEntity.status(HttpStatus.OK).body(books);
+        } catch (RuntimeException e) {
+            er.setMessage("400 error: " + e.getMessage());
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    @GetMapping("/{userId}/books/{type}")
+    public ResponseEntity<?> getUserBooksByType(@PathVariable String userId, @PathVariable Integer type) {
+        try {
+            List<userBookDTO> books = us.getUserBooksByType(userId, type);
+            return ResponseEntity.status(HttpStatus.OK).body(books);
+        } catch (RuntimeException e) {
+            er.setMessage("400 error: " + e.getMessage());
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    @DeleteMapping("/{userId}/books/{bookId}")
+    public ResponseEntity<?> removeUserBook(@PathVariable String userId, @PathVariable String bookId, @RequestParam Integer type) {
+        try {
+            us.RemoveBookFromUserBook(userId, bookId, type);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Book removed successfully"
+            ));
+        } catch (RuntimeException e) {
+            er.setMessage("400 error: " + e.getMessage());
+            er.setStatus(HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
     @PostMapping("/word")
     public ResponseEntity<?> getWord(@RequestBody WordDTO dto) {
         LocalDateTime now = LocalDateTime.now();

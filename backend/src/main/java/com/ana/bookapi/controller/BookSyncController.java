@@ -1,7 +1,7 @@
 package com.ana.bookapi.controller;
 
 import com.ana.bookapi.DTO.errResponse;
-import com.ana.bookapi.models.Book;
+import com.ana.bookapi.models.book.Book;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

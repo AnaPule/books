@@ -1,13 +1,12 @@
 package com.ana.bookapi.service.external;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.ana.bookapi.models.Book;
+import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.models.Author;
 import com.ana.bookapi.models.Genre;
 import com.ana.bookapi.repository.BookRepo;

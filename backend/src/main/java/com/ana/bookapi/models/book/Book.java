@@ -1,7 +1,7 @@
-package com.ana.bookapi.models;
+package com.ana.bookapi.models.book;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ public class Book {
     @Column(name="genre_id", nullable = false, length = 70) private String genreId;
     @Column(name = "name", nullable = false, length = 100) private String name;
     @Column(name = "cover_art", nullable = true, length = 500) private String coverArt; // display book name and book with pretty colour instead if unavailable
-    @Column(name = "publisher", nullable = false, length = 100) private String publisher; //display publisher, but never unknown
+    @Column(name = "publisher", nullable = false, length = 100) private String publisher; //display publisher, but never unknown-
     @Column(name = "publication_date", nullable = false) private Date publicationDate;
     @Column(name = "page_count", nullable = false) private Integer pageCount;
     @Column(name = "synopsis", nullable = false, length = 10000) private String synopsis;

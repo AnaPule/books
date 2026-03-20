@@ -60,13 +60,14 @@ public class AuthController {
     @PostMapping("/user/books")
     public ResponseEntity<?> addUserBook(@RequestBody userBookDTO dto) {
         try {
-            userBook ub = us.AddBookTouserBook(dto.getUserId(), dto.getBookId(), dto.getType());
+            userBook ub = us.AddBookTouserBook(dto.getUserId(), dto.getBook().getId(), dto.getType());
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "message", "Book added successfully",
                     "userBook", ub,
                     "added", true
             ));
         } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
             er.setMessage("400 error: " + e.getMessage());
             er.setStatus(HttpStatus.BAD_REQUEST.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
@@ -117,6 +118,7 @@ public class AuthController {
                     "message", "Book removed successfully"
             ));
         } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
             er.setMessage("400 error: " + e.getMessage());
             er.setStatus(HttpStatus.BAD_REQUEST.value());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);

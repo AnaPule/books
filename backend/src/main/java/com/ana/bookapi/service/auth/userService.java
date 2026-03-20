@@ -90,6 +90,7 @@ public class userService implements UserDetailsService {
     }
 
     //remove book from library
+    @Transactional
     public void RemoveBookFromUserBook(String userId, String bookId, Integer type) {
         if (!urb.existsByBookIdAndUserIdAndType(userId, bookId, type)) {
             throw new RuntimeException("Book does not exist");

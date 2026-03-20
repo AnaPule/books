@@ -4,6 +4,7 @@ import com.ana.bookapi.models.book.Book;
 
 public class userBookDTO {
 
+    public userBookDTO() {}
     public userBookDTO(Book book, Integer type, String userId, String bookId) {
         this.book = book;
         this.type = type;

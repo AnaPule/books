@@ -1,7 +1,9 @@
 package com.ana.bookapi.controller;
 
 import com.ana.bookapi.DTO.errResponse;
+import com.ana.bookapi.models.Author;
 import com.ana.bookapi.models.book.Book;
+import com.ana.bookapi.service.AuthorService;
 import com.ana.bookapi.service.book.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +17,12 @@ import java.util.Map;
 public class BookController {
 
     private final BookService bookService;
+    private final AuthorService authorService;
     private errResponse er = new errResponse();
 
-    public BookController(BookService bookService) {
+    public BookController(BookService bookService, AuthorService authorService) {
         this.bookService = bookService;
+        this.authorService = authorService;
     }
 
     // Get all books (frontend handles pagination)
@@ -39,7 +43,8 @@ public class BookController {
     public ResponseEntity<?> getBookById(@PathVariable String id) {
         try {
             Book book = bookService.getBookById(id);
-            return ResponseEntity.ok(book);
+            Author au = authorService.getAuthorById(book.getAuthorId());
+            return ResponseEntity.ok(Map.of("book", book, "author", au));
         } catch (RuntimeException e) {
             er.setMessage("404 error: " + e.getMessage());
             er.setStatus(HttpStatus.NOT_FOUND.value());

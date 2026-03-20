@@ -55,8 +55,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorise -> authorise
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/user/books").permitAll()
                         .requestMatchers("/auth/user").permitAll()
                         .requestMatchers("/sync/**").permitAll()
+                        .requestMatchers("/books/**").permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -45,6 +45,9 @@ interface AuthContextType {
     recommends: Book[] | [],
     setRecommends: (book: Book[] | []) => void;
 
+    popular: Book[] | [],
+    //setRecommends: (book: Book[] | []) => void; 
+
     isLoggedIn: Boolean;
     logout: () => void;
     loading: boolean;
@@ -62,6 +65,7 @@ const AuthContext = createContext<AuthContextType>({
     genre: [],
     author: [],
     dislike: [],
+    popular: [],
     recommends: [],
     isLoggedIn: false,
     logout: () => { },
@@ -119,6 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const isLoggedIn = !!user;
     //const [isLoggedIn, setLoggedIn] = useState<Boolean>(false);
     const [dislike, setDislike] = useState<Book[] | []>([]);
+    const [popular, setPopular] = useState<Book[] | []>([]);
     const [wishlist, setWishlist] = useState<Book[] | []>([]);
     const [library, setLibrary] = useState<Book[] | []>([]);
     const [genre, setGenre] = useState<Book[] | []>([]);
@@ -151,14 +156,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         //skip the auth mess on every path stipulated in the follwoing
         const publicPaths = [
-        '/auth/verify',
-        '/auth/reset-password', 
-        '/auth/resubscribe',
-        '/home',
-        '/unauthorised',
-        '/not-found',
-        '/too-many-requests'
-    ];
+            '/auth/verify',
+            '/auth/reset-password',
+            '/auth/resubscribe',
+            '/home',
+            '/unauthorised',
+            '/not-found',
+            '/too-many-requests'
+        ];
         if (publicPaths.some(p => location.pathname.includes(p))) {
             setLoading(false);
             return;
@@ -248,144 +253,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         let isCurrent = true;
 
-        const loadExtras = async () => {
+        const loadAlgorithm = async () => {
             try {
-                const word = await WordOfTheDay(user.id);
-                const quote = await QuoteOfTheDay(user.id);
+                const popular = await request.get<any>(`/recs/popular`);
+                const recommends = await request.get<any>(`/recs/user/${user.id}`);
+                const genre = await request.get<any>(`/recs/user/${user.id}/genre`);
+                const author = await request.get<any>(`/recs/user/${user.id}/author`);
 
                 if (isCurrent) {
-                    setWord(word);
-                    setQuote(quote);
+                    setGenre(genre.books);
+                    setAuthor(author.books);
+                    setPopular(popular.books)
+                    setRecommends(recommends.books);
                 }
             } catch (err) {
                 console.error("Failed to load word/quote:", err);
             }
         };
 
-        loadExtras();
+        loadAlgorithm();
 
         return () => {
             isCurrent = false;
         };
-    }, [user?.id]); // only when user ID changes
-    /*
-    /// cut out some code for now
-    useEffect(() => {
-        const token = getToken();
-        const pathname = window.location.pathname;
+    }, [wishlist, dislike, library]); // only when user ID changes
 
-        // Skip auth check for these public paths
-        const publicPaths = [
-            '/auth/verify',
-            '/auth/reset-password',
-            '/auth/resubscribe',
-            '/home',
-            '/',
-            '/unauthorised',
-            '/not-found',
-            '/too-many-requests'
-        ];
-
-        //skip all the mess about sessions and such...
-        const isPublicPath = publicPaths.some(path => pathname.includes(path));
-
-        if (isPublicPath) {
-            setLoading(false);
-            return;
-        }
-
-        if (user && window.location.pathname === '/auth') {
-            console.log("User logged in, redirecting from /auth");
-            navigate("/profile", { replace: true });
-        }
-
-        let warningTimeout: ReturnType<typeof setTimeout> | null = null;
-        let expiryTimeout: ReturnType<typeof setTimeout> | null = null;
-        let intervalId: ReturnType<typeof setInterval> | null = null;
-
-        const initAuth = async () => {
-            if (!token || token === '') {
-                setLoading(false);
-                return;
-            }
-
-            // Skip full re-fetch if we just logged in (token is fresh)
-            const lastLogin = sessionStorage.getItem('lastLoginTime');
-            const now = Date.now();
-            if (lastLogin && now - Number(lastLogin) < 5000) { // 5 seconds
-                console.log("Skipping re-fetch after fresh login");
-                setLoading(false);
-                return;
-            }
-
-            // Skip if we already have user data
-            if (user) { return; }
-            setLoading(true);
-
-
-            if (!token || !isTokenvalid(token)) {
-                logout('Your session has expired. Please log in again.');
-                setLoading(false);
-                return;
-            }
-
-            try {
-                request.setAuthToken(token);
-                const res = await request.get<any>('/auth/user');
-
-                const actualUser = res.user as User;
-                if (!actualUser) {
-                    throw new Error("No user object in response");
-                }
-                setUser(actualUser);
-                //console.log(actualUser)
-
-                // Schedule timers only after user is set
-                const timeLeftMs = getTimeLeft(token);
-
-                if (timeLeftMs > 0) {
-                    if (timeLeftMs > 5 * 60 * 1000) {
-                        //console.log('Time leftMs', timeLeftMs)
-                        warningTimeout = setTimeout(() => {
-                            toast.warning('Session expiring soon', {
-                                description: 'Less than 5 minutes remaining. Save your work!',
-                                duration: 20000,
-                            });
-                        }, timeLeftMs - 5 * 60 * 1000);
-                    }
-
-                    expiryTimeout = setTimeout(() => {
-                        logout('Your session has expired.');
-                    }, timeLeftMs);
-                }
-            } catch (err) {
-                console.error('Failed to load user:', err);
-                logout('Session Error invalid. Please log in again.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        initAuth();
-
-        // Safety periodic check (every 3 minutes)
-        intervalId = setInterval(() => {
-            const token = getToken();
-            if (token && token !== '' && !isTokenvalid(token)) {
-                console.log("Periodic check: Token invalid → logging out");
-                logout('Session expired (periodic check).');
-            }
-        }, 300_000); // 5 min
-
-        return () => {
-            //console.log("AuthProvider cleanup: clearing timers");
-            if (warningTimeout) clearTimeout(warningTimeout);
-            if (expiryTimeout) clearTimeout(expiryTimeout);
-            if (intervalId) clearInterval(intervalId);
-        };
-    }, [logout]);
-
-    //for word and quote of the day
     useEffect(() => {
         if (!user?.id) return;
 
@@ -395,10 +287,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 const word = await WordOfTheDay(user.id);
                 const quote = await QuoteOfTheDay(user.id);
+                const popular = await request.get<any>(`/recs/popular`);
+                const recommends = await request.get<any>(`/recs/user/${user.id}`);
+                const genre = await request.get<any>(`/recs/user/${user.id}/genre`);
+                const author = await request.get<any>(`/recs/user/${user.id}/author`);
 
                 if (isCurrent) {
                     setWord(word);
                     setQuote(quote);
+                    setGenre(genre.books);
+                    setAuthor(author.books);
+                    setPopular(popular.books)
+                    setRecommends(recommends.books);
                 }
             } catch (err) {
                 console.error("Failed to load word/quote:", err);
@@ -410,8 +310,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => {
             isCurrent = false;
         };
-    }, [user?.id]); // only when user ID changes
-    */
+    }, [user?.id]);
+
+
     return (
         <AuthContext.Provider value={{
             user, setUser,
@@ -422,6 +323,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             author, setAuthor,
             dislike, setDislike,
             word, quote,
+            popular,
             isLoggedIn, logout,
             loading
         }}>

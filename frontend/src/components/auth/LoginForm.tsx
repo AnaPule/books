@@ -55,9 +55,9 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleForgotChange = (field: keyof ForgotFormData, value: string) => {
+    const handleForgotChange = ((field: keyof ForgotFormData, value: string) => {
         setForgotFormData((prev) => ({ ...prev, [field]: value }));
-    }
+    })
 
     const handleResendVerification = async () => {
         setLoading(true);
@@ -164,7 +164,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                     </div>
 
                     {!submitted ? (
-                        <form onSubmit={(e: FormEvent) => handleSubmitForgot(e)} className="space-y-6">
+                        <form onSubmit={(e) => handleSubmitForgot(e)} className="space-y-6">
                             {/* Email input */}
                             <div className="input-container">
                                 <button type="button">
@@ -331,6 +331,8 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
 
                     <input
                         type="email"
+                        autoComplete='on'
+                        autoFocus
                         placeholder="Email address"
                         value={formData.email}
                         onChange={(e) => handleChange("email", e.target.value)}

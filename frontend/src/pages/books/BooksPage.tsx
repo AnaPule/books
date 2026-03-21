@@ -61,7 +61,7 @@ export const SmallCard: React.FC<CardProps> = ({
 
 const BooksPage = () => {
     const navigate = useNavigate();
-    const { user, recommends, genre, author } = useAuth();
+    const { user, recommends, genre, author, popular } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
 
     // Mock data (your existing mock data stays exactly the same)
@@ -189,32 +189,52 @@ const BooksPage = () => {
                             {/* Popular Now - Mobile responsive grid */}
                             <section>
                                 <div className="flex items-center justify-between mb-4 border-b border-[#e8cfc5]/30 pb-2">
-                                    <h2 className="text-xl sm:text-2xl font-sans text-[#5a4d41] tracking-wide">POPULAR NOW</h2>
-                                    <button className="text-[#c9a394] hover:text-[#8d6c45] transition-colors text-xl leading-none">⋯</button>
+                                    <h2 className="text-xl sm:text-2xl uppercase font-sans text-[#5a4d41] tracking-wide">popular</h2>
+                                    <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+                                        SEE ALL <ChevronRight size={14} className="sm:size-4" />
+                                    </button>
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                                    {popularNow.map((book) => (
-                                        <div
-                                            onClick={() => navigate(`/book/${book.id}`)}
-                                            key={book.id}
-                                            className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
-                                            <div
-                                                className="w-full aspect-[2/3] bg-[#fcf9f4] rounded-lg shadow-md mb-3 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-[#e8cfc5]/30 relative overflow-hidden"
-                                                style={{
-                                                    backgroundImage: `url(${book.cover})`,
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center'
-                                                }}
-                                            >
-                                                <div className="absolute inset-0 bg-gradient-to-t from-[#f5d6d4]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                {
+                                    !popular || popular.length === 0 ? (
+                                        <NoResults
+                                            WarningLabel="We have no popular books! Dear me"
+                                        />
+                                    ) : (
+                                        <div className="relative">
+                                            {/* Scrollable container */}
+                                            <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 scroll-smooth hide-scrollbar">
+                                                {popular.map((book) => (
+                                                    <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
+                                                        <SmallCard
+                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            book={book}
+                                                        />
+                                                    </div>
+                                                ))}
                                             </div>
-                                            <h3 className="font-sans font-medium text-xs sm:text-sm text-[#5a4d41] line-clamp-2 mb-1 group-hover:text-[#c9a394] transition-colors">
-                                                {book.title}
-                                            </h3>
-                                            <p className="text-[10px] sm:text-xs text-[#7e6957] italic">{book.author}</p>
+
+                                            {/* Optional: Scroll buttons */}
+                                            <button
+                                                onClick={() => {
+                                                    const container = document.querySelector('.scroll-container');
+                                                    container?.scrollBy({ left: -200, behavior: 'smooth' });
+                                                }}
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
+                                            >
+                                                ←
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const container = document.querySelector('.scroll-container');
+                                                    container?.scrollBy({ left: 200, behavior: 'smooth' });
+                                                }}
+                                                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
+                                            >
+                                                →
+                                            </button>
                                         </div>
-                                    ))}
-                                </div>
+                                    )
+                                }
                             </section>
 
                             {/* New Series Collection */}
@@ -267,98 +287,146 @@ const BooksPage = () => {
                                     </button>
                                 </div>
                                 {
-                                    recommends.length === 0 ? (
+                                    !recommends || recommends.length === 0 ? (
                                         <NoResults
                                             WarningLabel="We currently have no books recommended for you. Sorry!"
                                         />
                                     ) : (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                                            {recommends.slice(0, 4).map((book) => (
-                                                <SmallCard
-                                                    key={book.id}
-                                                    action={() => navigate(`/individual-book/${book.id}`)}
-                                                    book={book}
-                                                />
-                                            ))}
+                                        <div className="relative">
+                                            {/* Scrollable container */}
+                                            <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 scroll-smooth hide-scrollbar">
+                                                {recommends.map((book) => (
+                                                    <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
+                                                        <SmallCard
+                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            book={book}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Optional: Scroll buttons */}
+                                            <button
+                                                onClick={() => {
+                                                    const container = document.querySelector('.scroll-container');
+                                                    container?.scrollBy({ left: -200, behavior: 'smooth' });
+                                                }}
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
+                                            >
+                                                ←
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const container = document.querySelector('.scroll-container');
+                                                    container?.scrollBy({ left: 200, behavior: 'smooth' });
+                                                }}
+                                                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
+                                            >
+                                                →
+                                            </button>
                                         </div>
                                     )
                                 }
                             </section>
 
-                            {/* User Genre */}
+                            {/* User Genres */}
                             <section>
                                 <div className="flex items-center justify-between mb-4 border-b border-[#e8cfc5]/30 pb-2">
-                                    <h2 className="text-xl sm:text-2xl font-sans uppercase text-[#5a4d41] tracking-wide">EXPLORE more (user genre)</h2>
-                                    {genre.length > 0 &&
-                                        <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
-                                            SEE ALL <ChevronRight size={14} className="sm:size-4" />
-                                        </button>
-                                    }
-
+                                    <h2 className="text-xl sm:text-2xl font-sans text-[#5a4d41] tracking-wide uppercase">based on your favourite genres</h2>
+                                    <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+                                        SEE ALL <ChevronRight size={14} className="sm:size-4" />
+                                    </button>
                                 </div>
-
-                                {genre.length > 0 ? (
-                                    <div className="grid grid-cols-2 justify-center sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                                        {genre.map((book) => (
-                                            <div key={book.id} className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
-                                                <div
-                                                    className="w-full aspect-[2/3] bg-[#fcf9f4] rounded-lg shadow-md mb-3 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-[#e8cfc5]/30 relative overflow-hidden"
-                                                    style={{
-                                                        backgroundImage: `url(${book.coverArt})`,
-                                                        backgroundSize: 'cover',
-                                                        backgroundPosition: 'center'
-                                                    }}
-                                                >
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-[#f5d6d4]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                                </div>
-                                                <h3 className="font-sans font-medium text-xs sm:text-sm text-[#5a4d41] line-clamp-2 mb-1 group-hover:text-[#c9a394] transition-colors">
-                                                    {book.name}
-                                                </h3>
-                                                <p className="text-[10px] sm:text-xs text-[#7e6957] italic">{book.author.name}</p>
+                                {
+                                    !genre || genre.length === 0 ? (
+                                        <NoResults
+                                            WarningLabel="We currently have no books recommended for you. Sorry!"
+                                        />
+                                    ) : (
+                                        <div className="relative">
+                                            {/* Scrollable container */}
+                                            <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 scroll-smooth hide-scrollbar">
+                                                {genre.map((book) => (
+                                                    <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
+                                                        <SmallCard
+                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            book={book}
+                                                        />
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <NoResults WarningLabel="We could no find a genre for you. Sorry!" />
-                                )}
+
+                                            {/* Optional: Scroll buttons */}
+                                            <button
+                                                onClick={() => {
+                                                    const container = document.querySelector('.scroll-container');
+                                                    container?.scrollBy({ left: -200, behavior: 'smooth' });
+                                                }}
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
+                                            >
+                                                ←
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const container = document.querySelector('.scroll-container');
+                                                    container?.scrollBy({ left: 200, behavior: 'smooth' });
+                                                }}
+                                                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
+                                            >
+                                                →
+                                            </button>
+                                        </div>
+                                    )
+                                }
                             </section>
 
                             {/* By Favorite Author */}
                             <section>
                                 <div className="flex items-center justify-between mb-4 border-b border-[#e8cfc5]/30 pb-2">
-                                    <h2 className="text-xl sm:text-2xl font-sans text-[#5a4d41] tracking-wide">MORE BY GEORGE RR MARTIN</h2>
-                                    {author.length > 1 &&
-                                        <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
-                                            SEE ALL <ChevronRight size={14} className="sm:size-4" />
-                                        </button>
-                                    }
-
+                                    <h2 className="text-xl sm:text-2xl font-sans text-[#5a4d41] tracking-wide uppercase">more by {author[0]?.author.name}</h2>
+                                    <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+                                        SEE ALL <ChevronRight size={14} className="sm:size-4" />
+                                    </button>
                                 </div>
-
                                 {
-                                    author.length > 0 ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                                            {author.map((book) => (
-                                                <div key={book.id} className="group cursor-pointer transition-all duration-300 hover:-translate-y-1">
-                                                    <div
-                                                        className="w-full aspect-[2/3] bg-[#fcf9f4] rounded-lg shadow-md mb-3 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-[#e8cfc5]/30 relative overflow-hidden"
-                                                        style={{
-                                                            backgroundImage: `url(${book.coverArt})`,
-                                                            backgroundSize: 'cover',
-                                                            backgroundPosition: 'center'
-                                                        }}
-                                                    >
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-[#f5d6d4]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    !author || author.length === 0 ? (
+                                        <NoResults
+                                            WarningLabel="We currently have no books recommended for you. Sorry!"
+                                        />
+                                    ) : (
+                                        <div className="relative">
+                                            {/* Scrollable container */}
+                                            <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 scroll-smooth hide-scrollbar">
+                                                {author.map((book) => (
+                                                    <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
+                                                        <SmallCard
+                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            book={book}
+                                                        />
                                                     </div>
-                                                    <h3 className="font-sans font-medium text-xs sm:text-sm text-[#5a4d41] line-clamp-2 mb-1 group-hover:text-[#c9a394] transition-colors">
-                                                        {book.name}
-                                                    </h3>
-                                                    <p className="text-[10px] sm:text-xs text-[#7e6957] italic">{book.author.name}</p>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
+
+                                            {/* Optional: Scroll buttons */}
+                                            <button
+                                                onClick={() => {
+                                                    const container = document.querySelector('.scroll-container');
+                                                    container?.scrollBy({ left: -200, behavior: 'smooth' });
+                                                }}
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
+                                            >
+                                                ←
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const container = document.querySelector('.scroll-container');
+                                                    container?.scrollBy({ left: 200, behavior: 'smooth' });
+                                                }}
+                                                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
+                                            >
+                                                →
+                                            </button>
                                         </div>
-                                    ):(
-                                        <NoResults WarningLabel="Sorry! It seems we could find no author for you." />
                                     )
                                 }
                             </section>

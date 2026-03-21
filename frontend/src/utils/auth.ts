@@ -37,11 +37,13 @@ export function isTokenvalid(token: string | null): boolean {
     const isValid = expiryTimeMs > Date.now();
 
     // Optional debug
+    /*
     console.log("Token validation:", {
       decodedExp: new Date(expiryTimeMs).toLocaleString(),
       now: new Date().toLocaleString(),
       isValid
     });
+    */
 
     return isValid;
   } catch (error) {

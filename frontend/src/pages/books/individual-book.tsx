@@ -27,24 +27,6 @@ interface CircleButtonProps {
     color?: string;
     action?: () => void;
 }
-
-// Mock data for shelves
-const mockSimilarBooks = [
-    { id: '1', name: 'The World of Ice and Fire', coverArt: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop', author: { name: 'George R.R. Martin' } },
-    { id: '2', name: 'Fantastic Beasts', coverArt: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop', author: { name: 'J.K. Rowling' } },
-    { id: '3', name: 'Game of Thrones', coverArt: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop', author: { name: 'George R.R. Martin' } },
-    { id: '4', name: "The Wise Man's Fear", coverArt: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?w=300&h=450&fit=crop', author: { name: 'Patrick Rothfuss' } },
-    { id: '5', name: 'The Name of the Wind', coverArt: null, author: { name: 'Patrick Rothfuss' } },
-    { id: '6', name: 'Mistborn', coverArt: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop', author: { name: 'Brandon Sanderson' } },
-];
-
-const mockAuthorBooks = [
-    { id: '7', name: 'A Storm of Swords', coverArt: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop', author: { name: 'George R.R. Martin' } },
-    { id: '8', name: 'A Feast for Crows', coverArt: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop', author: { name: 'George R.R. Martin' } },
-    { id: '9', name: 'A Dance with Dragons', coverArt: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop', author: { name: 'George R.R. Martin' } },
-    { id: '10', name: 'Fire and Blood', coverArt: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?w=300&h=450&fit=crop', author: { name: 'George R.R. Martin' } },
-];
-
 const CircleButton: React.FC<CircleButtonProps> = ({ buttonLabel: IconComponent, size = 20, Label, fill, color, action }) => {
     return (
         <div className="relative group">
@@ -72,35 +54,6 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
     const isInWishlist = Array.isArray(wishlist) && wishlist.some(wishlistBook => wishlistBook.id === book.id);
     const isInLibrary = Array.isArray(library) && library.some(LibraryBook => LibraryBook.id === book.id);
     const isInDislike = Array.isArray(dislike) && dislike.some(disbook => disbook.id === book.id);
-
-    // Add this function to generate consistent colors from book ID
-    const getBookColor = (id: string) => {
-        const colors = [
-            'from-[#f5e6d7] to-[#e8cfc5]', // soft blush
-            'from-[#f0ddd5] to-[#d9c0b5]', // dusty rose
-            'from-[#f2e0d8] to-[#dbc6bb]', // warm cream
-            'from-[#edd9d0] to-[#d6bfb4]', // soft pink
-            'from-[#e8d5cc] to-[#d1bbb0]', // muted peach
-            'from-[#f5e0d9] to-[#decbc2]', // light terra
-        ];
-
-        const index = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-        return colors[index];
-    };
-
-    const getDarkerShade = (id: string) => {
-        const darkShades = [
-            '#b58b7c', // darker dusty pink
-            '#5a4d41', // darker warm brown
-            '#c9a394', // darker light pink
-            '#4a3f38', // darker taupe
-            '#d9b6a8', // darker blush
-            '#7e6957', // darker aged gold
-        ];
-
-        const index = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % darkShades.length;
-        return darkShades[index];
-    };
 
     // Handle back navigation
     const handleGoBack = () => {
@@ -191,13 +144,13 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
             try {
                 request.delete<any>(`/auth/${user?.id}/books/${book.id}?type=${RelationshipType.LIBRARY}`)
                     .then((res: any) => {
-                            toast.promise(promise, {
-                                loading: 'Please wait...',
-                                success: () => {
-                                    return `${res.message}`;
-                                },
-                                error: 'Error',
-                            });
+                        toast.promise(promise, {
+                            loading: 'Please wait...',
+                            success: () => {
+                                return `${res.message}`;
+                            },
+                            error: 'Error',
+                        });
 
                         // updating the wish list as well
                         setLibrary(library.filter(libraryBook => libraryBook.id !== book.id));
@@ -232,26 +185,26 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
                         setDislike([...dislike, book]);
                     })
             } catch (error) {
-                toast.error(`Error adding book to your library: ${error}`)
+                toast.error(`Error adding book to your dislikes: ${error}`)
             }
         } else {
             //remove book from wishlist
             try {
                 request.delete<any>(`/auth/${user?.id}/books/${book.id}?type=${RelationshipType.DISLIKE}`)
                     .then((res: any) => {
-                            toast.promise(promise, {
-                                loading: 'Please wait...',
-                                success: () => {
-                                    return `${res.message}`;
-                                },
-                                error: 'Error',
-                            });
+                        toast.promise(promise, {
+                            loading: 'Please wait...',
+                            success: () => {
+                                return `${res.message}`;
+                            },
+                            error: 'Error',
+                        });
 
                         // updating the wish list as well
                         setDislike(dislike.filter(dbook => dbook.id !== book.id));
                     })
             } catch (error) {
-                toast.error(`Error adding book to your library: ${error}`)
+                toast.error(`Error adding book to your dislikes: ${error}`)
             }
         }
     }
@@ -335,7 +288,7 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
                             fill={isInLibrary ? "#c9a394" : "none"}
                             color={isInLibrary ? "#c9a394" : "#5a4d41"}
                         />
-            
+
                         <CircleButton
                             buttonLabel={Heart}
                             Label={"Wishlist"}
@@ -358,8 +311,8 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
     );
 }
 
-export const BookDetails: React.FC<Book> = (book) => {
-    const { wishlist, setWishlist, library, setLibrary, dislike, setDislike, user } = useAuth();
+export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book[] }> = ({ book, similar, alsoLike }) => {
+    const { wishlist, } = useAuth();
     return (
         <div className="min-h-screen bg-[#faf5ea] py-12 px-4 sm:px-6 md:px-8">
             {/* Decorative elements */}
@@ -392,7 +345,7 @@ export const BookDetails: React.FC<Book> = (book) => {
                                     See all <ChevronRight size={16} />
                                 </button>
                             </div>
-                            <Shelves shelf1Caption="" shelf1={wishlist} /> {/* // TO DO: change this up */}
+                            <Shelves shelf1Caption="" shelf1={alsoLike} /> {/* // TO DO: change this up */}
                         </section>
 
                         {/* More by Author - Using Shelves Component */}
@@ -403,7 +356,7 @@ export const BookDetails: React.FC<Book> = (book) => {
                                     See all <ChevronRight size={16} />
                                 </button>
                             </div>
-                            <Shelves shelf1Caption="" shelf1={wishlist} /> {/* // TO DO: change this up */}
+                            <Shelves shelf1Caption="" shelf1={similar} /> {/* // TO DO: change this up */}
                         </section>
                     </div>
 
@@ -422,6 +375,18 @@ export const BookDetails: React.FC<Book> = (book) => {
                                     <h4 className="text-xs font-semibold text-[#c9a394] uppercase tracking-wider mb-2">Author</h4>
                                     <p className="text-[#5a4d41] font-medium">{book.author.name}</p>
                                 </div>
+
+                                {book.genre &&
+                                    <>
+                                        <div className="h-px bg-[#e8cfc5]/30" />
+
+                                        <div>
+                                            <h4 className="text-xs font-semibold text-[#c9a394] uppercase tracking-wider mb-2">Genre</h4>
+                                            <p className="text-[#5a4d41] font-medium capitalize">{book.genre.name}</p>
+                                        </div>
+                                    </>
+
+                                }
 
                                 <div className="h-px bg-[#e8cfc5]/30" />
 
@@ -511,6 +476,8 @@ export const BookDetails: React.FC<Book> = (book) => {
 export default function BookPage() {
     const { user } = useAuth();
     const params = useParams();
+    const [moreAuthor, setMoreAuthor] = useState<Book[] | []>([]);
+    const [alsoLike, setAlsoLike] = useState<Book[] | []>([]);
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -527,7 +494,11 @@ export default function BookPage() {
         publisher: '',
         publicationDate: "",
         pageCount: 0,
-        language: ''
+        language: '',
+        genre: {
+            id: "",
+            name: ''
+        }
     });
 
     useEffect(() => {
@@ -537,40 +508,61 @@ export default function BookPage() {
         }
 
         setLoading(true);
-        //const promise = () => new Promise((resolve) => setTimeout(() => resolve({ name: 'loading book' }), 5000));
-        request.get<any>(`/books/${params.id}`)
-            .then(
-                (res: any) => {
-                    const b: Book = {
-                        id: res.book.id,
-                        name: res.book.name,
-                        coverArt: res.book.coverArt,
-                        author: {
-                            id: res.author.id,
-                            name: res.author.name
-                        },
-                        isbn: res.book.isbn,
-                        synopsis: res.book.synopsis,
-                        publisher: res.book.publisher,
-                        publicationDate: res.book.publicationDate,
-                        pageCount: res.book.pageCount,
-                        language: res.book.language
-                    };
-                    setBook(b)
-                }
-            ).catch(
-                (error) => {
-                    navigate('/not-found', { replace: true });
-                    console.error('Fetch error', error);
-                    toast.error("Pages ń Parchment", {
-                        description: error.message || "Book not found"
-                    });
-                }
-            ).finally(
-                () => {
-                    setLoading(false);
-                }
-            )
+
+        const initBook = async () => {
+            try {
+                const res = await request.get<any>(`/books/${params.id}`);
+
+                const b: Book = {
+                    id: res.book.id,
+                    name: res.book.name,
+                    coverArt: res.book.coverArt,
+                    author: {
+                        id: res.author.id,
+                        name: res.author.name
+                    },
+                    isbn: res.book.isbn,
+                    synopsis: res.book.synopsis,
+                    publisher: res.book.publisher,
+                    publicationDate: res.book.publicationDate,
+                    pageCount: res.book.pageCount,
+                    language: res.book.language,
+                    genre: {
+                        id: res.genre.id,
+                        name: res.genre.name
+                    }
+                };
+
+                setBook(b);
+
+                // Now fetch author's other books using the author ID we just got
+                const authorBooks = await request.get<any>(`/books/author/${res.author.id}`);
+                setMoreAuthor(authorBooks.books);
+
+                //now fetch what the user may aso like
+                await request.get<any>(`/recs/user/collaborative/${user?.id}`)
+                .then(
+                    (res:any) => {
+                        setAlsoLike(res.books)
+                    }
+                ).catch(
+                    (error: any) => {
+                        console.log('Also like error', error)
+                    }
+                )
+
+            } catch (error:any) {
+                navigate('/not-found', { replace: true });
+                console.error('Fetch error', error);
+                toast.error("Pages & Parchment", {
+                    description: error.message || "Book not found"
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initBook();
     }, [params.id, navigate]);
 
     return (
@@ -585,7 +577,7 @@ export default function BookPage() {
                 ) : (
                     <>
                         <BookHeader book={book} />
-                        <BookDetails {...book} />
+                        <BookDetails book={book} similar={moreAuthor} alsoLike={alsoLike} />
                     </>
                 )}
             </div>

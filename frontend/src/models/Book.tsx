@@ -9,9 +9,15 @@ export interface Book{
     pageCount: number;
     publicationDate: Date | "";
     language: String | "en";
+    genre?: Genre;
 }
 
 export interface Author{
+    id: string; 
+    name: string;
+}
+
+export interface Genre{
     id: string; 
     name: string;
 }

@@ -1,0 +1,141 @@
+/* ═══════════════════════════════════════════════════════════════
+   SHELVES MODULE — 3D book browser
+   ═══════════════════════════════════════════════════════════════ */
+
+.shelves {
+  background: transparent;
+  padding: 1rem 0.8rem;
+  border-radius: 12px;
+}
+
+.shelfSection {
+    display: flex;
+    flex-direction: column;
+}
+
+.caption {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  color: #9b7c68;
+  opacity: 0.8;
+}
+
+/* ── Scene ─────────────────────────────────────────────────── */
+
+.sceneWrap {
+    position: relative;
+    width: 100%;
+    height: 14rem;   
+    overflow: hidden;
+}
+
+.container {
+    animation: fadeIn 0.25s 0.25s linear forwards;
+    display: flex;
+    margin: auto;
+    opacity: 0;
+    position: absolute;
+    inset: 0 0 4px 0;
+    perspective: 550px;
+    perspective-origin: 57% 20%;
+    transform-style: preserve-3d;
+}
+
+.surface {
+    display: block;
+    margin: 0;
+    margin-left: 8rem; 
+    transform-style: preserve-3d;
+    transition: transform 0.25s;
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Book block ────────────────────────────────────────────── */
+
+.block {
+    position: absolute;
+    bottom: 0;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.blockInner > div {
+    border-radius: 0 !important;
+}
+
+/* Book faces - sharp corners */
+.blockInner .front, .blockInner .back, .blockInner .left, .blockInner .right {
+    border-radius: 0;
+}
+
+
+.blockInner {
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-90deg) translateZ(45px);
+    transition: transform 0.25s linear;
+}
+
+.block:not(.blockSelected):hover .blockInner {
+    transform: rotateX(-90deg) translateZ(65px);
+}
+
+/* ── Spine label ───────────────────────────────────────────── */
+
+.spineLabel {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.45);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    writing-mode: horizontal-tb;
+}
+
+.spineInverted {
+    position: relative;
+    overflow: visible;
+}
+
+.spineInverted::before,
+.spineInverted::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(90, 75, 58, 0.3);
+}
+
+.spineInverted::before {
+    top: -2px;
+    left: -2px;
+}
+
+.spineInverted::after {
+    bottom: -2px;
+    right: -2px;
+}
+
+/* ── Shelf — original pink gradient ────────────────────────── */
+
+.shelfBoard {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to bottom, #F0D9D4, #E8C0B8);
+    border-radius: 2px;
+    z-index: 10;
+}
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}

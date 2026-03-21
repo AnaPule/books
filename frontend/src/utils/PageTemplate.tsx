@@ -18,11 +18,11 @@ export const PageTemplate: React.FC<TemplateProps> = ({ children }: TemplateProp
                 isLoggedIn &&
                 <Sidebar />
             }
-            <div className="col-start-1 col-end-1">
+            <div className="col-start-1 col-end-1"> {/* line breaker for side bar */}
 
             </div>
             {/* main content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto w-screen">
                 {children}
             </div>
         </div>

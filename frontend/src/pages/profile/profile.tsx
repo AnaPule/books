@@ -15,7 +15,7 @@ import { useAuth } from "@context/AuthContext";
 
 {/* =============== components ============ */ }
 import { AccountSettings } from './AccountSettings';
-import {Shelves} from "@components/skeleton/Shelves";
+import {Shelves} from "@components/skeleton/shelves/Shelves";
 import { WordOfTheDay } from "@components/skeleton/WordofTheDay";
 import { DateTimeCard } from '@components/skeleton/DateTimeCard';
 import { Calendar } from "@components/skeleton/calendar/Calendar";

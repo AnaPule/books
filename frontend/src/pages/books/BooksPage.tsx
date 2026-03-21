@@ -9,7 +9,7 @@ import type { Book as Bk } from "@models/Book";
 import { useAuth } from "@context/AuthContext";
 
 {/* =============== components ============ */ }
-import { Shelves } from "@components/skeleton/Shelves";
+import { Shelves } from "@components/skeleton/shelves/Shelves";
 import { ReadingGoals, CurrentReads } from "@pages/profile/profile";
 import { NoResults } from "@components/skeleton/noResults";
 import { WordOfTheDay } from "@components/skeleton/WordofTheDay";
@@ -61,7 +61,7 @@ export const SmallCard: React.FC<CardProps> = ({
 
 const BooksPage = () => {
     const navigate = useNavigate();
-    const { user, recommends, genre, author, popular } = useAuth();
+    const { user, recommends, genre, author, popular, discover } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
 
     // Mock data (your existing mock data stays exactly the same)
@@ -88,27 +88,6 @@ const BooksPage = () => {
         cover1: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200&h=300&fit=crop',
         cover2: 'https://images.unsplash.com/photo-1589998059171-988d887df646?w=200&h=300&fit=crop'
     };
-
-    const recommendedForYou: Book[] = [
-        { id: '5', title: 'The Name of the Wind', author: 'Patrick Rothfuss', cover: 'https://images.unsplash.com/photo-1526243741027-444d633d7365?w=300&h=450&fit=crop', genre: 'Fantasy' },
-        { id: '6', title: 'Mistborn', author: 'Brandon Sanderson', cover: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop', genre: 'Fantasy' },
-        { id: '7', title: 'The Way of Kings', author: 'Brandon Sanderson', cover: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop', genre: 'Fantasy' },
-        { id: '8', title: 'Blood Song', author: 'Anthony Ryan', cover: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop', genre: 'Fantasy' },
-    ];
-
-    const fantasyBooks: Book[] = [
-        { id: '9', title: 'The Blade Itself', author: 'Joe Abercrombie', cover: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?w=300&h=450&fit=crop' },
-        { id: '10', title: 'The Fifth Season', author: 'N.K. Jemisin', cover: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=450&fit=crop' },
-        { id: '11', title: 'The Lies of Locke Lamora', author: 'Scott Lynch', cover: 'https://images.unsplash.com/photo-1589998059171-988d887df646?w=300&h=450&fit=crop' },
-        { id: '12', title: 'Gardens of the Moon', author: 'Steven Erikson', cover: 'https://images.unsplash.com/photo-1526243741027-444d633d7365?w=300&h=450&fit=crop' },
-    ];
-
-    const byFavoriteAuthor: Book[] = [
-        { id: '13', title: 'A Storm of Swords', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop' },
-        { id: '14', title: 'A Feast for Crows', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop' },
-        { id: '15', title: 'A Dance with Dragons', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop' },
-        { id: '16', title: 'Fire and Blood', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?w=300&h=450&fit=crop' },
-    ];
 
     const readerFriends = [
         {
@@ -174,10 +153,10 @@ const BooksPage = () => {
             {/* Main Content */}
             <div className="relative z-10 flex-1 overflow-y-auto">
                 {/* Content Grid */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-10">
+                <div className="max-w-12xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-10">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
                         {/* Left Column - Main Content */}
-                        <div className="lg:col-span-8 space-y-8 md:space-y-12">
+                        <div className="lg:col-span-6 space-y-8 md:space-y-12">
                             {/* Welcome Header */}
                             <div className="relative">
                                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-2 text-[#5a4d41] tracking-wide">
@@ -442,8 +421,100 @@ const BooksPage = () => {
                             </div>
                         </div>
 
+
+                        {/* middle column - discover */}
+                        {
+                            discover && discover.length > 0 &&
+                            <>
+                                <div className="lg:col-span-3 space-y-2">
+                                    {/* heading */}
+                                    <div className="flex items-center justify-between mb-4 border-b border-[#e8cfc5]/30 pb-2">
+                                        <h2 className="text-xl sm:text-2xl uppercase font-sans text-[#5a4d41] tracking-wide">Discover</h2>
+                                        <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+                                            SEE ALL <ChevronRight size={14} className="sm:size-4" />
+                                        </button>
+                                    </div>
+
+                                    {/* content */}
+                                    <section>
+                                        {/* Desktop view - vertical scroll */}
+                                        <div className="hidden lg:block h-[calc(100vh-200px)] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-[#c9a394]/30 scrollbar-track-[#e8cfc5]/10">
+                                            {discover.map((book) => (
+                                                <div
+                                                    key={book.id}
+                                                    onClick={() => navigate(`/book/${book.id}`)}
+                                                    className="group cursor-pointer transition-all duration-300 hover:-translate-x-1"
+                                                >
+                                                    <div className="flex gap-3 items-center bg-[#fcf9f4] rounded-lg p-3 border border-[#e8cfc5]/30 hover:border-[#c9a394]/50 shadow-sm hover:shadow-md transition-all duration-300">
+                                                        {/* Book cover thumbnail */}
+                                                        <div
+                                                            className="w-12 h-16 rounded-md shadow-sm flex-shrink-0 bg-cover bg-center border border-[#e8cfc5]/30"
+                                                            style={{
+                                                                backgroundImage: `url(${book.coverArt})`,
+                                                                backgroundSize: 'cover',
+                                                                backgroundPosition: 'center'
+                                                            }}
+                                                        />
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="font-medium text-sm text-[#5a4d41] line-clamp-1 group-hover:text-[#c9a394] transition-colors">
+                                                                {book.name}
+                                                            </h4>
+                                                            <p className="text-xs text-[#7e6957] mt-1">{book.author.name}</p>
+                                                        </div>
+                                                        <ChevronRight size={16} className="text-[#c9a394] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Mobile view - horizontal scroll like popular section */}
+                                        <div className="lg:hidden relative">
+                                            <div className="flex overflow-x-auto gap-4 pb-4 scroll-smooth hide-scrollbar">
+                                                {discover.map((book) => (
+                                                    <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px]">
+                                                        <SmallCard
+                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            book={book}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Scroll buttons for mobile */}
+                                            {discover.length > 3 && (
+                                                <>
+                                                    <button
+                                                        onClick={() => {
+                                                            const container = document.querySelector('#discover-scroll');
+                                                            if (container) {
+                                                                container.scrollBy({ left: -200, behavior: 'smooth' });
+                                                            }
+                                                        }}
+                                                        className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1.5 shadow-md hover:bg-white transition lg:hidden"
+                                                    >
+                                                        ←
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            const container = document.querySelector('#discover-scroll');
+                                                            if (container) {
+                                                                container.scrollBy({ left: 200, behavior: 'smooth' });
+                                                            }
+                                                        }}
+                                                        className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1.5 shadow-md hover:bg-white transition lg:hidden"
+                                                    >
+                                                        →
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </section>
+                                </div>
+                            </>
+                        }
+
                         {/* Right Sidebar - Profile Components */}
-                        <div className="lg:col-span-4 space-y-4 md:space-y-6">
+                        <div className="lg:col-span-3 space-y-4 md:space-y-6">
                             {/* Current Reading Card - Updated colors */}
                             <CurrentReads />
 

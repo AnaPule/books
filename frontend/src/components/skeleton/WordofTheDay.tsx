@@ -31,7 +31,7 @@ export const WordOfTheDay: React.FC = () => {
             setPreviousImageIndex(activeImageIndex);
             setActiveImageIndex((prev) => (prev + 1) % flowerImages.length);
             setTimeout(() => setIsTransitioning(false), 1000);
-        }, 5000);
+        }, 600000);
         return () => clearInterval(interval);
     }, [activeImageIndex]);
 

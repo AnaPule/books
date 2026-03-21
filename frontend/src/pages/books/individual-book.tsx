@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 //components
 import { toast } from "sonner";
-import { Shelves } from "@components/skeleton/Shelves";
+import { Shelves } from "@components/skeleton/shelves/Shelves";
 import { LoadingCards } from "@components/skeleton/LoadingCard";
 
 //models
@@ -540,7 +540,7 @@ export default function BookPage() {
                 setMoreAuthor(authorBooks.books);
 
                 //now fetch what the user may aso like
-                await request.get<any>(`/recs/user/collaborative/${user?.id}`)
+                await request.get<any>(`/recs/user/${user?.id}/collaborative`)
                 .then(
                     (res:any) => {
                         setAlsoLike(res.books)

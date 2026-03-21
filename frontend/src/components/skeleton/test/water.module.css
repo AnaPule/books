@@ -1,0 +1,26 @@
+.container {
+  animation: fadeIn 0.25s 0.25s linear forwards;
+  display: flex;
+  perspective: 700px;
+  perspective-origin: 57% 20%;
+  transform-style: preserve-3d;
+  inset: 0 0 4px 0;
+  overflow: hidden;
+}
+
+.book {
+  position: relative;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.book:hover {
+    transform: rotateX(2deg) translateZ(80px);
+}
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}

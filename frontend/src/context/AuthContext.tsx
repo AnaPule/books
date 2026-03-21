@@ -46,6 +46,7 @@ interface AuthContextType {
     setRecommends: (book: Book[] | []) => void;
 
     popular: Book[] | [],
+    discover: Book[] | [],
     //setRecommends: (book: Book[] | []) => void; 
 
     isLoggedIn: Boolean;
@@ -66,6 +67,7 @@ const AuthContext = createContext<AuthContextType>({
     author: [],
     dislike: [],
     popular: [],
+    discover: [],
     recommends: [],
     isLoggedIn: false,
     logout: () => { },
@@ -123,6 +125,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const isLoggedIn = !!user;
     //const [isLoggedIn, setLoggedIn] = useState<Boolean>(false);
     const [dislike, setDislike] = useState<Book[] | []>([]);
+    const [discover, setDiscover] = useState<Book[] | []>([]);
     const [popular, setPopular] = useState<Book[] | []>([]);
     const [wishlist, setWishlist] = useState<Book[] | []>([]);
     const [library, setLibrary] = useState<Book[] | []>([]);
@@ -256,6 +259,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const loadAlgorithm = async () => {
             try {
                 const popular = await request.get<any>(`/recs/popular`);
+                const discover = await request.get<any>(`/recs/random`);
                 const recommends = await request.get<any>(`/recs/user/${user.id}`);
                 const genre = await request.get<any>(`/recs/user/${user.id}/genre`);
                 const author = await request.get<any>(`/recs/user/${user.id}/author`);
@@ -264,6 +268,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setGenre(genre.books);
                     setAuthor(author.books);
                     setPopular(popular.books)
+                    setDiscover(discover.books);
                     setRecommends(recommends.books);
                 }
             } catch (err) {
@@ -287,7 +292,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 const word = await WordOfTheDay(user.id);
                 const quote = await QuoteOfTheDay(user.id);
-                const popular = await request.get<any>(`/recs/popular`);
+                const discover = await request.get<any>(`/recs/random`);
+                const popular = await request.get<any>(`/recs/user/${user.id}/popular`);
                 const recommends = await request.get<any>(`/recs/user/${user.id}`);
                 const genre = await request.get<any>(`/recs/user/${user.id}/genre`);
                 const author = await request.get<any>(`/recs/user/${user.id}/author`);
@@ -298,6 +304,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setGenre(genre.books);
                     setAuthor(author.books);
                     setPopular(popular.books)
+                    setDiscover(discover.books);
                     setRecommends(recommends.books);
                 }
             } catch (err) {
@@ -323,7 +330,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             author, setAuthor,
             dislike, setDislike,
             word, quote,
-            popular,
+            popular, discover,
             isLoggedIn, logout,
             loading
         }}>

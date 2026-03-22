@@ -311,8 +311,7 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
     );
 }
 
-export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book[] }> = ({ book, similar, alsoLike }) => {
-    const {trending} = useAuth();
+export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book[], moreBy: Book[] }> = ({ book, similar, alsoLike, moreBy }) => {
     return (
         <div className=" bg-[#faf5ea] py-12 px-4 sm:px-6 md:px-8">
             {/* Decorative elements */}
@@ -343,11 +342,11 @@ export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book
                                 shelf1Caption="Readers also Like"
                                 shelf1={alsoLike.filter(b => b.id != book.id)}
 
-                                shelf2Caption={`More by ${book.author.name}`}
+                                shelf2Caption={"More like this"}
                                 shelf2={similar.filter(b => b.id != book.id)}
 
-                                shelf3Caption="You may be intersted"
-                                shelf3={trending}
+                                shelf3Caption={`More by ${book.author.name}`}
+                                shelf3={moreBy.filter(mb => mb.id != book.id)}
                             />
                         </section>
                     </div>
@@ -374,7 +373,9 @@ export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book
 
                                         <div>
                                             <h4 className="text-xs font-semibold text-[#c9a394] uppercase tracking-wider mb-2">Genre</h4>
-                                            <p className="text-[#5a4d41] font-medium capitalize">{book.genre.name}</p>
+                                            <p className="text-[#5a4d41] font-medium capitalize">
+                                                {book.genre.name.includes('+') ? `${book.genre.name.split('+')[0]}, ${book.genre.name.split('+')[1]}` : book.genre.name}
+                                            </p>
                                         </div>
                                     </>
 
@@ -468,8 +469,9 @@ export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book
 export default function BookPage() {
     const { user } = useAuth();
     const params = useParams();
-    const [moreAuthor, setMoreAuthor] = useState<Book[] | []>([]);
+    const [similar, setSimilar] = useState<Book[] | []>([]);
     const [alsoLike, setAlsoLike] = useState<Book[] | []>([]);
+    const [moreAuthor, setMoreAuthor] = useState<Book[] | []>([]);
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -543,6 +545,18 @@ export default function BookPage() {
                         }
                     )
 
+                //similar to this
+                await request.get<any>(`/recs/book/${book?.id}/similar`)
+                    .then(
+                        (res: any) => {
+                            setSimilar(res.similar)
+                        }
+                    ).catch(
+                        (error: any) => {
+                            console.log('Also like error', error)
+                        }
+                    )
+
             } catch (error: any) {
                 navigate('/not-found', { replace: true });
                 console.error('Fetch error', error);
@@ -569,7 +583,7 @@ export default function BookPage() {
                 ) : (
                     <>
                         <BookHeader book={book} />
-                        <BookDetails book={book} similar={moreAuthor} alsoLike={alsoLike} />
+                        <BookDetails book={book} similar={similar} alsoLike={alsoLike} moreBy={moreAuthor} />
                     </>
                 )}
             </div>

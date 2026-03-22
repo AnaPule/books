@@ -263,6 +263,52 @@ public class RecommendationService {
         return br.findByGenreIdsOrAuthorIds(new ArrayList<>(genres), new ArrayList<>(authors));
     }
 
+    //more like this
+    public List<Book> getSimilarBooks(Book sourceBook, String userId) {
+        Set<Book> candidates = new HashSet<>();
+
+        // 1. Same author (highest weight)
+        candidates.addAll(br.findByAuthorId(sourceBook.getAuthorId()));
+
+        // 2. Same genre
+        candidates.addAll(br.findByGenreId(sourceBook.getGenreId()));
+
+        // Remove the source book itself
+        candidates.remove(sourceBook);
+
+        // If userId provided, filter out disliked books
+        if (userId != null) {
+            // Get all disliked book IDs for this user (type 5 = DISLIKE)
+            List<userBook> disliked = ur.findByUserIdAndType(userId, 5);
+            Set<String> dislikedIds = disliked.stream()
+                    .map(userBook::getBookId)
+                    .collect(Collectors.toSet());
+
+            // Remove disliked books from candidates
+            candidates.removeIf(book -> dislikedIds.contains(book.getId()));
+        }
+
+        // Score and sort
+        List<Book> scored = new ArrayList<>(candidates);
+        scored.sort((a, b) -> {
+            int scoreA = 0, scoreB = 0;
+
+            // Same author = +2 points
+            if (a.getAuthorId().equals(sourceBook.getAuthorId())) scoreA += 2;
+            if (b.getAuthorId().equals(sourceBook.getAuthorId())) scoreB += 2;
+
+            // Same genre = +1 point
+            if (a.getGenreId().equals(sourceBook.getGenreId())) scoreA += 1;
+            if (b.getGenreId().equals(sourceBook.getGenreId())) scoreB += 1;
+
+            return Integer.compare(scoreB, scoreA);
+        });
+
+        return scored.stream()
+                .limit(20)  // Hard limit
+                .collect(Collectors.toList());
+    }
+
     //AI recommendations
 
     public List<Book> getAIRecommendations(String userId, String triggeredBookId) {

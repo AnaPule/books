@@ -1,14 +1,20 @@
 package com.ana.bookapi.service.book;
 
 import com.ana.bookapi.models.book.Book;
+import com.ana.bookapi.models.book.userBook;
 import com.ana.bookapi.repository.BookRepo;
 import com.ana.bookapi.models.Author;
 import com.ana.bookapi.repository.AuthorRepo;
 import com.ana.bookapi.models.Genre;
 import com.ana.bookapi.repository.GenreRepo;
+import com.ana.bookapi.repository.UserBookRepo;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
@@ -16,11 +22,13 @@ public class BookService {
     private final BookRepo bookRepo;
     private final AuthorRepo authorRepo;
     private final GenreRepo genreRepo;
+    private final UserBookRepo userBookRepo;
 
-    public BookService(BookRepo bookRepo, AuthorRepo authorRepo, GenreRepo genreRepo) {
+    public BookService(BookRepo bookRepo, AuthorRepo authorRepo, GenreRepo genreRepo, UserBookRepo userBookRepo) {
         this.bookRepo = bookRepo;
         this.authorRepo = authorRepo;
         this.genreRepo = genreRepo;
+        this.userBookRepo = userBookRepo;
     }
 
     // Get individual book by ID

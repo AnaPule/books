@@ -31,7 +31,7 @@ public interface BookRepo extends JpaRepository<Book, String> {
     @Query("SELECT b FROM Book b WHERE b.language = :language")
     List<Book> findByLanguage(@Param("language") String language);
 
-    @Query(value = "SELECT * FROM book ORDER BY RANDOM()", nativeQuery = true)
+    @Query(value = "SELECT * FROM book ORDER BY RANDOM() LIMIT 15", nativeQuery = true)
     List<Book> findRandomBooks();
 
     @Query("SELECT b FROM Book b WHERE b.authorId = :authorId AND b.genreId = :genreId")

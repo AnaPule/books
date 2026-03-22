@@ -1,6 +1,7 @@
 package com.ana.bookapi.config.external;
 
 //====================== packages ====================//
+
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,8 @@ import java.util.List;
 
 @Component
 public class GoogleBooks {
-    @Value("${google.api.key}")private String googleApiKey;
+    @Value("${google.api.key}")
+    private String googleApiKey;
     private final MongoTemplate mongoTemplate;
 
     //default constructor
@@ -29,10 +31,60 @@ public class GoogleBooks {
         int TotalBooksRetrievedForMongo = 0;
 
         String[] subjects = {
-                "fiction", "science", "history", "biography", "romance",
-                "mystery", "horror", "fantasy", "computers", "art", "cooking",
-                "travel", "philosophy", "science-fiction", "horror",
-                "young-adult", "children", "business", "economics"
+                // Classic Literature
+                "classic+literature", "victorian+literature", "english+literature", "american+literature",
+                "russian+literature", "french+literature", "gothic+fiction", "romanticism",
+
+                // Fantasy & Sci-Fi
+                "fantasy", "high+fantasy", "epic+fantasy", "dark+fantasy", "urban+fantasy",
+                "science+fiction", "cyberpunk", "space+opera", "dystopian", "steampunk",
+                "paranormal+fantasy", "magical+realism", "mythology", "fairy+tales",
+
+                // Romance
+                "romance", "contemporary+romance", "historical+romance", "paranormal+romance",
+                "dark+romance", "mafia+romance", "romantic+comedy", "erotica", "new+adult+romance",
+
+                // Mystery & Thriller
+                "mystery", "thriller", "psychological+thriller", "crime+fiction", "suspense",
+                "detective+fiction", "noir", "cozy+mystery", "legal+thriller", "spy+fiction",
+
+                // Horror
+                "horror", "psychological+horror", "supernatural+horror", "cosmic+horror",
+                "ghost+stories", "vampire+fiction", "werewolf+fiction", "zombie+fiction",
+
+                // Young Adult & Children
+                "young+adult", "ya+fantasy", "ya+romance", "ya+contemporary", "ya+dystopian",
+                "childrens+books", "middle+grade", "picture+books", "early+readers",
+
+                // Manga & Comics
+                "manga", "shonen", "shojo", "seinen", "josei", "webtoons", "manhwa", "manhua",
+                "graphic+novels", "comics", "superhero+comics", "indie+comics",
+
+                // Poetry & Drama
+                "poetry", "modern+poetry", "classic+poetry", "epic+poetry", "sonnets",
+                "drama", "plays", "shakespeare", "screenplays", "theatre",
+
+                // Non-Fiction
+                "biography", "autobiography", "memoir", "history", "world+history",
+                "philosophy", "psychology", "self+help", "business", "economics",
+                "science", "physics", "biology", "astronomy", "technology", "computers",
+                "cooking", "travel", "art", "music", "photography", "architecture",
+
+                // Religious & Spiritual
+                "christian+fiction", "christian+romance", "christian+living", "bible+studies",
+                "spirituality", "religion", "inspirational", "faith", "theology", "bible",
+
+                // Contemporary & Literary
+                "literary+fiction", "contemporary+fiction", "womens+fiction", "lgbtq+fiction",
+                "diverse+voices", "bipoc+literature", "translated+fiction", "short+stories",
+
+                // Adventure & Action
+                "adventure", "action", "swashbuckler", "western", "historical+adventure",
+                "survival+fiction", "sea+adventure", "exploration", "quest",
+
+                // Special Interests
+                "lgbtq+romance", "disability+literature", "mental+health+fiction",
+                "climate+fiction", "afrofuturism", "indigenous+literature", "asian+literature"
         };
 
         HttpClient client = HttpClient.newHttpClient();
@@ -40,7 +92,7 @@ public class GoogleBooks {
 
         for (String subject : subjects) {
             try {
-                String url = "https://www.googleapis.com/books/v1/volumes?q=subject:" + subject + "&maxResults=40&key=" + googleApiKey;
+                String url = "https://www.googleapis.com/books/v1/volumes?q=subject:" + subject + "&orderBy=newest&key=" + googleApiKey;
                 //String url = "https://www.googleapis.com/books/v1/volumes/key=" + apiKey;
                 //System.out.println("Google books fetch URL: " + url);
                 HttpRequest request = HttpRequest.newBuilder()
@@ -52,7 +104,7 @@ public class GoogleBooks {
                 if (response.statusCode() == 200) {
                     TotalBooksRetrievedForMongo += extractAndSaveGoogleBook(response.body(), subject);
                     //System.out.println("Processed subject: " + response.body());
-                    Thread.sleep(500);// Small delay to avoid rate limiting
+                    Thread.sleep(5000);// Small delay to avoid rate limiting
                 } else {
                     System.out.println("API Call Failed for " + subject + " with Status Code: " + response.statusCode());
                 }
@@ -71,7 +123,8 @@ public class GoogleBooks {
         int totalSavedBooks = 0;
 
         if (items == null || items.isEmpty()) {
-            System.out.println("Null value returned for items: " + items.size() + " response size.");
+            System.out.println("No items found for subject: " + subject);
+            return 0; // Early return
         }
 
         // loop through each book in the items array

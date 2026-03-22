@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.ana.bookapi.DTO.BookDTO;
+import com.ana.bookapi.DTO.errResponse;
 import com.ana.bookapi.DTO.userBookDTO;
 import com.ana.bookapi.models.Author;
 import com.ana.bookapi.models.book.Book;
@@ -15,8 +16,13 @@ import com.ana.bookapi.repository.AuthorRepo;
 import com.ana.bookapi.repository.GenreRepo;
 import com.ana.bookapi.repository.UserBookRepo;
 import com.ana.bookapi.service.auth.userService;
+import com.ana.bookapi.service.book.BookService;
 import com.ana.bookapi.service.book.userBookService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import com.ana.bookapi.service.book.RecommendationService;
 
@@ -30,6 +36,9 @@ public class RecommendationController {
     private final AuthorRepo authorRepo;
     private final GenreRepo genreRepo;
     private final BookRepo bookRepo;
+    private final BookService bookService;
+
+    private errResponse er = new errResponse();
 
     public RecommendationController(
             RecommendationService recommendationService,
@@ -37,13 +46,15 @@ public class RecommendationController {
             BookRepo bookRepo,
             GenreRepo genreRepo,
             UserBookRepo userBookRepo,
-            userService us) {
+            userService us,
+            BookService bookService) {
         this.recommendationService = recommendationService;
         this.authorRepo = authorRepo;
         this.bookRepo = bookRepo;
         this.genreRepo = genreRepo;
         this.userBookRepo = userBookRepo;
         this.us = us;
+        this.bookService = bookService;
     }
 
     @GetMapping("/user/{userId}")
@@ -248,6 +259,31 @@ public class RecommendationController {
             // error handling
             System.out.println("Failed for AI recommends"+e.getMessage());
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/book/{bookId}/similar")
+    public ResponseEntity<?> getSimilarBooks(@PathVariable String bookId, @RequestParam(required = false) String userId) {
+        try {
+            Book book = bookService.getBookById(bookId);
+            List<Book> similar = recommendationService.getSimilarBooks(book, userId);
+
+            List<BookDTO> dtos = similar.stream()
+                    .limit(20)  // Limit to 20
+                    .map(b -> {
+                        Author author = authorRepo.findById(b.getAuthorId()).orElse(null);
+                        return new BookDTO(b, author);
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(Map.of(
+                    "book", new BookDTO(book, authorRepo.findById(book.getAuthorId()).orElse(null)),
+                    "similar", dtos
+            ));
+        } catch (RuntimeException e) {
+            er.setMessage("404 error: " + e.getMessage());
+            er.setStatus(HttpStatus.NOT_FOUND.value());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(er);
         }
     }
 }

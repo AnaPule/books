@@ -32,19 +32,18 @@
 .container {
     animation: fadeIn 0.25s 0.25s linear forwards;
     display: flex;
-    margin: auto;
     opacity: 0;
     position: absolute;
     inset: 0 0 4px 0;
     perspective: 550px;
-    perspective-origin: 57% 20%;
+    perspective-origin: 35% 20%;
     transform-style: preserve-3d;
 }
 
 .surface {
     display: block;
     margin: 0;
-    margin-left: 8rem; 
+    margin-left: 6.5rem; 
     transform-style: preserve-3d;
     transition: transform 0.25s;
     position: relative;

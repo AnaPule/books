@@ -565,6 +565,15 @@ export default function BookPage() {
         initBook();
     }, [params.id, navigate]);
 
+    const handleBookClick = async (book: Book) => {
+        await request.post('/user/books/interact',{
+            userId: user?.id,
+            bookId: book.id,
+            type: RelationshipType.INTERACTION
+        })
+        navigate(`/book/${user?.id}`)
+    }
+
     return (
         <div className="min-h-screen bg-[#faf5ea]">
             {/* Decorative background elements */}

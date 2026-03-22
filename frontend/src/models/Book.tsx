@@ -29,7 +29,8 @@ export const RelationshipType = {
     COMPLETED: 4,
     DISLIKE: 5,
     RECOMMEND: 6,
-    FAVORITE: 7
+    FAVORITE: 7,
+    INTERACTION: 8
 } as const;
 
 export type RelationshipType = typeof RelationshipType[keyof typeof RelationshipType];

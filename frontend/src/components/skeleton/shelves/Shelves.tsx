@@ -1,6 +1,7 @@
 import type { Book as Bk } from "@models/Book";
 import { useState, useMemo } from "react";
 import styles from "./shelves.module.css";
+import { useNavigate } from "react-router-dom";
 
 interface ShelvesProps {
     shelf1: Bk[];
@@ -62,7 +63,8 @@ interface BookProps {
     onSelect: () => void;
 }
 
-const Book: React.FC<BookProps> = ({ book, slotIndex, colorIndex, isSelected, onSelect }) => {
+const Book: React.FC<BookProps> = ({ book, slotIndex, colorIndex, isSelected }) => {
+    const navigate = useNavigate();
     const [hovered, setHovered] = useState(false);
     const { d, h } = useMemo(() => bookDims(colorIndex), [colorIndex]);
     const colors = BOOK_COLORS[colorIndex % BOOK_COLORS.length];
@@ -88,7 +90,7 @@ const Book: React.FC<BookProps> = ({ book, slotIndex, colorIndex, isSelected, on
         <div
             className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
             style={{ transform: `translate3d(${xPos}px, ${-(d - 1) * SQ}px, ${(h + 8) * SQ}px)` }}
-            onClick={onSelect}
+            onClick={() => navigate(`/book/${book.id}`)}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
@@ -109,6 +111,7 @@ const Book: React.FC<BookProps> = ({ book, slotIndex, colorIndex, isSelected, on
 
                 {/* Top — aged paper */}
                 <div style={{
+                    top: '-2px',
                     position: 'absolute', width: bookW, height: bookD,
                     background: pageGradient, backgroundColor: pageColor,
                     transformOrigin: 'top center',

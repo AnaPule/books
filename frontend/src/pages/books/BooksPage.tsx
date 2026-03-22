@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 {/* =============== models ============ */ }
 import type { Book as Bk } from "@models/Book";
+import { RelationshipType } from "@models/Book";
 
 {/* =============== services ============ */ }
 import { useAuth } from "@context/AuthContext";
+import { request } from "@utils/ApiRequest";
 
 {/* =============== components ============ */ }
 import { Shelves } from "@components/skeleton/shelves/Shelves";
@@ -17,13 +19,6 @@ import { DateTimeCard } from '@components/skeleton/DateTimeCard';
 import { Calendar } from "@components/skeleton/calendar/Calendar";
 import { Search, Bell, ChevronLeft, ChevronRight, Clock, Bookmark, Menu, Book, Sparkles, Feather, Target } from "lucide-react";
 
-interface Book {
-    id: string;
-    title: string;
-    author: string;
-    cover: string;
-    genre?: string;
-}
 
 interface CardProps {
     book: Bk;
@@ -64,23 +59,6 @@ const BooksPage = () => {
     const { user, recommends, genre, author, popular, discover } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Mock data (your existing mock data stays exactly the same)
-    const continueReading = {
-        title: "The Cambers of Secrets",
-        author: "JK Rowlings",
-        progress: 154,
-        total: 300,
-        cover: "https://images.unsplash.com/photo-1621351183012-e2f9972dd9bf?w=400&h=600&fit=crop",
-        preview: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop"
-    };
-
-    const popularNow: Book[] = [
-        { id: 'fa3e1102-cabc-4a95-8268-43527b730a5d', title: 'The World of Ice and Fire', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop' },
-        { id: 'e136c7a7-6ff5-4382-a1f2-37c348e67068', title: 'Fantastic Beasts', author: 'J.K. Rowling', cover: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop' },
-        { id: '2b5352a2-6fcf-42aa-b497-5d7944203f7c', title: 'Game of Thrones', author: 'George R.R. Martin', cover: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop' },
-        { id: '5c076ba9-6ef0-4ae7-91e5-e0e1c0c26cd6', title: "The Wise Man's Fear", author: 'Patrick Rothfuss', cover: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?w=300&h=450&fit=crop' },
-    ];
-
     const newCollection = {
         title: "A Legend of Ice and Fire: The Ice Horse",
         volumes: 2,
@@ -105,6 +83,19 @@ const BooksPage = () => {
             time: "5 min ago"
         }
     ];
+
+    const handleBookClick = async (book: Bk) => {
+        if (!recommends.find(rb => rb.id == book.id)) {
+            //only if the book doesnt have a recorded interaction and no recorded recommendation
+            const res = await request.post('/recs/user/books/interact', {
+                userId: user?.id,
+                bookId: book.id,
+                type: RelationshipType.INTERACTION
+            })
+            console.log('recommends full output', res)
+        }
+        navigate(`/book/${book?.id}`)
+    }
 
     return (
         <div className="min-h-screen bg-[#faf5ea] text-[#5a4d41] font-sans relative pt-20 md:pt-20 sm:pt-20">
@@ -185,7 +176,7 @@ const BooksPage = () => {
                                                 {popular.map((book) => (
                                                     <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
                                                         <SmallCard
-                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            action={() => handleBookClick(book)}
                                                             book={book}
                                                         />
                                                     </div>
@@ -277,7 +268,7 @@ const BooksPage = () => {
                                                 {recommends.map((book) => (
                                                     <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
                                                         <SmallCard
-                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            action={() => handleBookClick(book)}
                                                             book={book}
                                                         />
                                                     </div>
@@ -328,7 +319,7 @@ const BooksPage = () => {
                                                 {genre.map((book) => (
                                                     <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
                                                         <SmallCard
-                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            action={() => handleBookClick(book)}
                                                             book={book}
                                                         />
                                                     </div>
@@ -379,7 +370,7 @@ const BooksPage = () => {
                                                 {author.map((book) => (
                                                     <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
                                                         <SmallCard
-                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            action={() => handleBookClick(book)}
                                                             book={book}
                                                         />
                                                     </div>
@@ -442,7 +433,7 @@ const BooksPage = () => {
                                             {discover.map((book) => (
                                                 <div
                                                     key={book.id}
-                                                    onClick={() => navigate(`/book/${book.id}`)}
+                                                    onClick={() => handleBookClick(book)}
                                                     className="group cursor-pointer transition-all duration-300 hover:-translate-x-1"
                                                 >
                                                     <div className="flex gap-3 items-center bg-[#fcf9f4] rounded-lg p-3 border border-[#e8cfc5]/30 hover:border-[#c9a394]/50 shadow-sm hover:shadow-md transition-all duration-300">
@@ -473,7 +464,7 @@ const BooksPage = () => {
                                                 {discover.map((book) => (
                                                     <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px]">
                                                         <SmallCard
-                                                            action={() => navigate(`/book/${book.id}`)}
+                                                            action={() => handleBookClick(book)}
                                                             book={book}
                                                         />
                                                     </div>

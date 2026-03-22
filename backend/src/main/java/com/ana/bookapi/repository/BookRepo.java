@@ -11,42 +11,46 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepo extends JpaRepository<Book, String> {
+    @Query("SELECT b FROM Book b WHERE b.name = :name")
+    Optional<Book> findByName(@Param("name") String name);
 
-    // Get by ID
     @Query("SELECT b FROM Book b WHERE b.id = :bookId")
     Optional<Book> findByBookId(@Param("bookId") String bookId);
 
-    // Get by ISBN
     Book findByIsbn(String isbn);
 
-    // Get by Author ID
     @Query("SELECT b FROM Book b WHERE b.authorId = :authorId")
     List<Book> findByAuthorId(@Param("authorId") String authorId);
 
-    // Get by Genre ID
     @Query("SELECT b FROM Book b WHERE b.genreId = :genreId")
     List<Book> findByGenreId(@Param("genreId") String genreId);
 
-    // Search by title (case insensitive)
     @Query("SELECT b FROM Book b WHERE LOWER(b.name) LIKE LOWER(CONCAT('%', :title, '%'))")
     List<Book> findByNameContainingIgnoreCase(@Param("title") String title);
 
-    // Get by language
     @Query("SELECT b FROM Book b WHERE b.language = :language")
     List<Book> findByLanguage(@Param("language") String language);
 
-    // Get random books (PostgreSQL)
     @Query(value = "SELECT * FROM book ORDER BY RANDOM()", nativeQuery = true)
     List<Book> findRandomBooks();
 
-    // Get by Author AND Genre
     @Query("SELECT b FROM Book b WHERE b.authorId = :authorId AND b.genreId = :genreId")
     List<Book> findByAuthorIdAndGenreId(@Param("authorId") String authorId, @Param("genreId") String genreId);
 
-    // Get by ISBN and Author
     Book findByIsbnAndAuthorId(String isbn, String authorId);
 
-    // Existence checks
+    @Query("SELECT b FROM Book b WHERE b.genreId IN :genreIds")
+    List<Book> findByGenreIds(@Param("genreIds") List<String> genreIds);
+
+    @Query("SELECT b FROM Book b WHERE b.authorId IN :authorIds")
+    List<Book> findByAuthorIds(@Param("authorIds") List<String> authorIds);
+
+    @Query("SELECT b FROM Book b WHERE b.genreId IN :genreIds OR b.authorId IN :authorIds")
+    List<Book> findByGenreIdsOrAuthorIds(@Param("genreIds") List<String> genreIds, @Param("authorIds") List<String> authorIds);
+
+    @Query("SELECT b FROM Book b ORDER BY b.publicationDate DESC")
+    List<Book> findTopByOrderByPublicationDateDesc();
+
     boolean existsByIsbn(String isbn);
     boolean existsByAuthorId(String authorId);
     boolean existsByName(String name);

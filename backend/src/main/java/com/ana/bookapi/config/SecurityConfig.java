@@ -40,8 +40,9 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
             JwtService jwtService,
-            UserDetailsService userDetailsService,
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+            UserDetailsService userDetailsService
+            //@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    ){
 
         return new JwtAuthenticationFilter(jwtService, usd);
     }
@@ -59,6 +60,9 @@ public class SecurityConfig {
                         .requestMatchers("/auth/user").permitAll()
                         .requestMatchers("/sync/**").permitAll()
                         .requestMatchers("/books/**").permitAll()
+                        .requestMatchers("/books/author/**").permitAll()
+                        .requestMatchers("/recs/**").permitAll()
+                        .requestMatchers("/recs/user/collaborative/**").permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

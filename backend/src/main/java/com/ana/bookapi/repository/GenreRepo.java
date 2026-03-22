@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface GenreRepo extends JpaRepository<Genre, String> {
     Optional<Genre> findByName(String name);
+    Optional<Genre> findById(String id);
     boolean existsByName(String name);
+    boolean existsById(String genreId);
 }

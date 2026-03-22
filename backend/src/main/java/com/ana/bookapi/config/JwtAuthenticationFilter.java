@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) {
         this.jwt = Jwt;
         this.usd = usd;
-        //this.her = her;
+        this.her = her;
     }
 
     @Override

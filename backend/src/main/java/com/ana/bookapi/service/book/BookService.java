@@ -78,6 +78,11 @@ public class BookService {
         return bookRepo.findByNameContainingIgnoreCase(title);
     }
 
+    //get book by title
+    public Book searchBookByTitle(String title) {
+        return bookRepo.findByName(title).orElseThrow(() -> new RuntimeException("Book not found"));
+    }
+
     // Get books by language
     public List<Book> getBooksByLanguage(String language) {
         return bookRepo.findByLanguage(language);

@@ -1,14 +1,18 @@
 package com.ana.bookapi.controller;
 
+import com.ana.bookapi.DTO.BookDTO;
 import com.ana.bookapi.DTO.errResponse;
 import com.ana.bookapi.models.Author;
+import com.ana.bookapi.models.Genre;
 import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.service.AuthorService;
 import com.ana.bookapi.service.book.BookService;
+import com.ana.bookapi.service.book.GenreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,11 +21,13 @@ import java.util.Map;
 public class BookController {
 
     private final BookService bookService;
+    private final GenreService genreService;
     private final AuthorService authorService;
     private errResponse er = new errResponse();
 
-    public BookController(BookService bookService, AuthorService authorService) {
+    public BookController(BookService bookService, AuthorService authorService,  GenreService genreService) {
         this.bookService = bookService;
+        this.genreService = genreService;
         this.authorService = authorService;
     }
 
@@ -44,7 +50,8 @@ public class BookController {
         try {
             Book book = bookService.getBookById(id);
             Author au = authorService.getAuthorById(book.getAuthorId());
-            return ResponseEntity.ok(Map.of("book", book, "author", au));
+            Genre genre = genreService.getGenre(book.getGenreId());
+            return ResponseEntity.ok(Map.of("book", book, "author", au, "genre", genre));
         } catch (RuntimeException e) {
             er.setMessage("404 error: " + e.getMessage());
             er.setStatus(HttpStatus.NOT_FOUND.value());
@@ -78,7 +85,14 @@ public class BookController {
     public ResponseEntity<?> getBooksByAuthorId(@PathVariable String authorId) {
         try {
             List<Book> books = bookService.getBooksByAuthorId(authorId);
-            return ResponseEntity.ok(books);
+            List<BookDTO> bdtos = new ArrayList<>();
+
+            for (Book book : books) {
+                Author author = authorService.getAuthorById(authorId);
+                BookDTO bookDTO = new BookDTO(book, author);
+                bdtos.add(bookDTO);
+            }
+            return ResponseEntity.ok(Map.of("books",bdtos));
         } catch (RuntimeException e) {
             er.setMessage("404 error: " + e.getMessage());
             er.setStatus(HttpStatus.NOT_FOUND.value());

@@ -6,7 +6,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { useEffect, useState, useRef, createContext, useContext, useCallback, type ReactNode } from 'react';
 
 {/* =============== components ============ */ }
-import Spinner from '@components/skeleton/spinner';
+import Spinner from '@components/skeleton/spinner/spinner';
 
 {/* =============== services ============ */ }
 //import { useAuth } from '@context/AuthContext';
@@ -47,6 +47,7 @@ interface AuthContextType {
 
     popular: Book[] | [],
     discover: Book[] | [],
+    trending: Book[] |[],
     //setRecommends: (book: Book[] | []) => void; 
 
     isLoggedIn: Boolean;
@@ -68,6 +69,7 @@ const AuthContext = createContext<AuthContextType>({
     dislike: [],
     popular: [],
     discover: [],
+    trending: [],
     recommends: [],
     isLoggedIn: false,
     logout: () => { },
@@ -131,6 +133,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [library, setLibrary] = useState<Book[] | []>([]);
     const [genre, setGenre] = useState<Book[] | []>([]);
     const [author, setAuthor] = useState<Book[] | []>([]);
+    const [trending, setTrending] = useState<Book[] | []>([]);
     const [recommends, setRecommends] = useState<Book[] | []>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const hasShownExpiryToast = useRef(false);
@@ -260,6 +263,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 const popular = await request.get<any>(`/recs/popular`);
                 const discover = await request.get<any>(`/recs/random`);
+                const trends = await request.get<any>(`/recs/user/${user.id}/trending`);
                 const recommends = await request.get<any>(`/recs/user/${user.id}`);
                 const genre = await request.get<any>(`/recs/user/${user.id}/genre`);
                 const author = await request.get<any>(`/recs/user/${user.id}/author`);
@@ -267,6 +271,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (isCurrent) {
                     setGenre(genre.books);
                     setAuthor(author.books);
+                    setTrending(trends.books);
                     setPopular(popular.books)
                     setDiscover(discover.books);
                     setRecommends(recommends.books);
@@ -293,6 +298,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const word = await WordOfTheDay(user.id);
                 const quote = await QuoteOfTheDay(user.id);
                 const discover = await request.get<any>(`/recs/random`);
+                const trends = await request.get<any>(`/recs/user/${user.id}/trending`);
                 const popular = await request.get<any>(`/recs/user/${user.id}/popular`);
                 const recommends = await request.get<any>(`/recs/user/${user.id}`);
                 const genre = await request.get<any>(`/recs/user/${user.id}/genre`);
@@ -303,6 +309,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setQuote(quote);
                     setGenre(genre.books);
                     setAuthor(author.books);
+                    setTrending(trends.books);
                     setPopular(popular.books)
                     setDiscover(discover.books);
                     setRecommends(recommends.books);
@@ -331,6 +338,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             dislike, setDislike,
             word, quote,
             popular, discover,
+            trending,
             isLoggedIn, logout,
             loading
         }}>

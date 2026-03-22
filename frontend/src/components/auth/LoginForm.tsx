@@ -12,7 +12,7 @@ import { type tokenResponse, type loginResponse, type User } from '@models/User'
 import { request } from '@utils/ApiRequest';
 
 {/* =============== components ============ */ }
-import Spinner from '@components/skeleton/spinner';
+import Spinner from '@components/skeleton/spinner/spinner';
 import { Modal } from '@components/skeleton/modal';
 import { Resubscribe } from '@pages/profile/Subscription';
 import ForgotPasswordPage from '@pages/auth/ResetPasswordPage';

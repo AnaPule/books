@@ -2,6 +2,7 @@
 {/* =============== components ============ */ }
 import Sidebar from "@components/nav/bar";
 import { Topnav } from "@pages/home/home";
+import { Footer } from "@components/Footer";
 
 {/* =============== services ============ */ }
 import { useAuth } from "@context/AuthContext";
@@ -24,6 +25,7 @@ export const PageTemplate: React.FC<TemplateProps> = ({ children }: TemplateProp
             {/* main content */}
             <div className="flex-1 overflow-y-auto w-screen">
                 {children}
+                <Footer />
             </div>
         </div>
     );

@@ -1,140 +1,123 @@
-/* ═══════════════════════════════════════════════════════════════
-   SHELVES MODULE — 3D book browser
-   ═══════════════════════════════════════════════════════════════ */
+/* Direct translation of the SCSS resource — no changes */
 
 .shelves {
-  background: transparent;
-  padding: 1rem 0.8rem;
-  border-radius: 12px;
-}
-
-.shelfSection {
     display: flex;
     flex-direction: column;
+    gap: 3rem;
+    padding: 1rem;
+    box-sizing: border-box;
 }
 
 .caption {
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  color: #9b7c68;
-  opacity: 0.8;
-}
-
-/* ── Scene ─────────────────────────────────────────────────── */
-
-.sceneWrap {
-    position: relative;
-    width: 100%;
-    height: 14rem;   
-    overflow: hidden;
-}
-
-.container {
-    animation: fadeIn 0.25s 0.25s linear forwards;
-    display: flex;
-    opacity: 0;
-    position: absolute;
-    inset: 0 0 4px 0;
-    perspective: 550px;
-    perspective-origin: 35% 20%;
-    transform-style: preserve-3d;
-}
-
-.surface {
+    font-size: 0.98rem;
+    letter-spacing: 0.18em;
+    color: #9b7c68;
+    opacity: 0.8;
+    text-transform: uppercase;
     display: block;
-    margin: 0;
-    margin-left: 6.5rem; 
-    transform-style: preserve-3d;
-    transition: transform 0.25s;
+    margin-bottom: 0.95rem;
+    font-weight: 700;
+}
+
+.bookshelf {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    z-index: -1;
     position: relative;
+    height: 0px;
+    box-sizing: border-box;
+    border-bottom: 16px solid #f3f3f3;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    pointer-events: all;
+}
+
+.bookshelf::before {
+    content: "";
+    position: absolute;
+    top: 16px;
+    background: linear-gradient(90deg, #fafafa 0%, #ffffff 100%);
+    height: 16px;
+    width: calc(100% + 40px);
+    left: -20px;
+    box-shadow: 0px -1px 6px rgba(0, 0, 0, 0.05),
+        0px 4px 16px rgba(0, 0, 0, 0.25);
     z-index: 1;
 }
 
-/* ── Book block ────────────────────────────────────────────── */
-
-.block {
+.bookshelf::after {
+    content: "";
+    height: 80px;
+    width: calc(100% + 40px);
+    left: -20px;
     position: absolute;
-    bottom: 0;
-    transform-style: preserve-3d;
+    top: 42px;
+    display: block;
+    clip-path: polygon(0% 0%, 100% 0%, 97% 100%, 3% 100%);
+    z-index: -1;
+}
+
+.books {
+    display: flex;
+    gap: 16px;
+    padding: 0 0 2px;
+    position: relative;
+    overflow-x: auto;
+    margin: 0px 0 -10px 30px;
+    overflow-y: scroll;
+}
+
+.book {
+    flex: 0 0 100px;   /* fixed width, won't grow or shrink */
+    aspect-ratio: 115 / 190;
+    border-radius: 3px 0.5px 0.5px 3px;
+    position: relative;
     cursor: pointer;
 }
 
-.blockInner > div {
-    border-radius: 0 !important;
+@media (max-width: 640px) {
+    .books{
+        margin: -10px 30px;
+    }
+    .book {
+        flex: 0 0 70px;
+    }
 }
 
-/* Book faces - sharp corners */
-.blockInner .front, .blockInner .back, .blockInner .left, .blockInner .right {
-    border-radius: 0;
-}
-
-
-.blockInner {
-    position: relative;
-    transform-style: preserve-3d;
-    transform: rotateX(-90deg) translateZ(45px);
-    transition: transform 0.25s linear;
-}
-
-.block:not(.blockSelected):hover .blockInner {
-    transform: rotateX(-90deg) translateZ(65px);
-}
-
-/* ── Spine label ───────────────────────────────────────────── */
-
-.spineLabel {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.45);
-    letter-spacing: 0.1em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    writing-mode: horizontal-tb;
-}
-
-.spineInverted {
-    position: relative;
-    overflow: visible;
-}
-
-.spineInverted::before,
-.spineInverted::after {
-    content: '';
+.book::before,
+.book::after {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: rgba(90, 75, 58, 0.3);
+    width: 100%;
+    display: block;
+    content: " ";
+    transition: all 300ms ease-out;
+    background: var(--bg-image) center center / cover no-repeat, #f3f3f3;
 }
 
-.spineInverted::before {
-    top: -2px;
-    left: -2px;
+.book::before {
+    height: 100%;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25),
+        inset 2px 0px 2px 1px rgba(29, 27, 27, 0.2);
 }
 
-.spineInverted::after {
-    bottom: -2px;
-    right: -2px;
+.book::after {
+    height: 102%;
+    filter: blur(10px);
+    z-index: -1;
+    opacity: 1;
 }
 
-/* ── Shelf — original pink gradient ────────────────────────── */
-
-.shelfBoard {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(to bottom, #F0D9D4, #E8C0B8);
-    border-radius: 2px;
-    z-index: 10;
+.book:hover::before {
+    transform: translateY(-8px);
+    transition: transform 300ms ease;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15),
+                inset 2px 0px 2px 1px rgba(29, 27, 27, 0.2);
 }
 
-/* ── Keyframes ─────────────────────────────────────────────── */
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+.book:hover::after {
+    transform: translateY(-4px);
+    transition: transform 300ms ease;
+    opacity: 0.6;
 }

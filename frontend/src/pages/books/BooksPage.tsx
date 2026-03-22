@@ -92,7 +92,7 @@ const BooksPage = () => {
                 bookId: book.id,
                 type: RelationshipType.INTERACTION
             })
-            console.log('recommends full output', res)
+            //console.log('recommends full output', res)
         }
         navigate(`/book/${book?.id}`)
     }
@@ -349,67 +349,6 @@ const BooksPage = () => {
                                     )
                                 }
                             </section>
-
-                            {/* By Favorite Author */}
-                            <section>
-                                <div className="flex items-center justify-between mb-4 border-b border-[#e8cfc5]/30 pb-2">
-                                    <h2 className="text-xl sm:text-2xl font-sans text-[#5a4d41] tracking-wide uppercase">more by {author[0]?.author.name}</h2>
-                                    <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 transition-colors text-xs sm:text-sm">
-                                        SEE ALL <ChevronRight size={14} className="sm:size-4" />
-                                    </button>
-                                </div>
-                                {
-                                    !author || author.length === 0 ? (
-                                        <NoResults
-                                            WarningLabel="We currently have no books recommended for you. Sorry!"
-                                        />
-                                    ) : (
-                                        <div className="relative">
-                                            {/* Scrollable container */}
-                                            <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 scroll-smooth hide-scrollbar">
-                                                {author.map((book) => (
-                                                    <div key={book.id} className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]">
-                                                        <SmallCard
-                                                            action={() => handleBookClick(book)}
-                                                            book={book}
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            {/* Optional: Scroll buttons */}
-                                            <button
-                                                onClick={() => {
-                                                    const container = document.querySelector('.scroll-container');
-                                                    container?.scrollBy({ left: -200, behavior: 'smooth' });
-                                                }}
-                                                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
-                                            >
-                                                ←
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    const container = document.querySelector('.scroll-container');
-                                                    container?.scrollBy({ left: 200, behavior: 'smooth' });
-                                                }}
-                                                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition"
-                                            >
-                                                →
-                                            </button>
-                                        </div>
-                                    )
-                                }
-                            </section>
-
-                            {/* Bottom Banner */}
-                            <div className="bg-[#fcf9f4] p-4 sm:p-5 rounded-xl border border-[#e8cfc5]/50 shadow-md flex flex-col sm:flex-row items-center gap-3 sm:gap-0 sm:justify-between relative group hover:border-[#c9a394]/50 transition-all duration-300">
-                                <div className="absolute top-0 left-0 w-8 h-8 sm:w-12 sm:h-12 border-l-2 border-t-2 border-[#c9a394]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-[#7e6957]">
-                                    <span className="text-[#c9a394] text-base sm:text-lg">✧</span>
-                                    <span>Got chance to check out the <span className="text-[#c9a394] font-medium">new collection</span> of Harry Potter? It's a must-read for any fan of the series, don't miss out!</span>
-                                </div>
-                                <span className="text-[#c9a394] font-sans text-base sm:text-lg">04 <span className="text-[#7e6957] text-xs sm:text-sm">/ 60 books</span></span>
-                            </div>
                         </div>
 
 

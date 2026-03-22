@@ -11,7 +11,7 @@ import type { SignUpForm } from '@models/User';
 import { request } from '@utils/ApiRequest';
 
 {/* =============== components ============ */ }
-import Spinner from '@components/skeleton/spinner';
+import Spinner from '@components/skeleton/spinner/spinner';
 
 interface SignUpFormProps {
     OnChangePage: () => void;

@@ -312,14 +312,14 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
 }
 
 export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book[] }> = ({ book, similar, alsoLike }) => {
-    const { wishlist, } = useAuth();
+    const {trending} = useAuth();
     return (
-        <div className="min-h-screen bg-[#faf5ea] py-12 px-4 sm:px-6 md:px-8">
+        <div className=" bg-[#faf5ea] py-12 px-4 sm:px-6 md:px-8">
             {/* Decorative elements */}
             <div className="fixed top-0 left-0 w-64 h-64 bg-[#f5d6d4]/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
             <div className="fixed bottom-0 right-0 w-96 h-96 bg-[#e8cfc5]/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none" />
 
-            <div className="max-w-7xl mx-auto relative z-10">
+            <div className="max-w-10xl mx-auto relative z-10">
                 {/* Main content grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
                     {/* Left Column - Main Content */}
@@ -339,24 +339,16 @@ export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book
 
                         {/* More Like This - Using Shelves Component */}
                         <section className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-2xl md:text-3xl font-serif text-[#5a4d41]">Readers Also Loved</h2>
-                                <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 text-sm transition-colors">
-                                    See all <ChevronRight size={16} />
-                                </button>
-                            </div>
-                            <Shelves shelf1Caption="" shelf1={alsoLike} /> {/* // TO DO: change this up */}
-                        </section>
+                            <Shelves
+                                shelf1Caption="Readers also Like"
+                                shelf1={alsoLike.filter(b => b.id != book.id)}
 
-                        {/* More by Author - Using Shelves Component */}
-                        <section className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-2xl md:text-3xl font-serif text-[#5a4d41]">More by {book.author.name}</h2>
-                                <button className="text-[#c9a394] hover:text-[#8d6c45] flex items-center gap-2 text-sm transition-colors">
-                                    See all <ChevronRight size={16} />
-                                </button>
-                            </div>
-                            <Shelves shelf1Caption="" shelf1={similar} /> {/* // TO DO: change this up */}
+                                shelf2Caption={`More by ${book.author.name}`}
+                                shelf2={similar.filter(b => b.id != book.id)}
+
+                                shelf3Caption="You may be intersted"
+                                shelf3={trending}
+                            />
                         </section>
                     </div>
 
@@ -541,17 +533,17 @@ export default function BookPage() {
 
                 //now fetch what the user may aso like
                 await request.get<any>(`/recs/user/${user?.id}/collaborative`)
-                .then(
-                    (res:any) => {
-                        setAlsoLike(res.books)
-                    }
-                ).catch(
-                    (error: any) => {
-                        console.log('Also like error', error)
-                    }
-                )
+                    .then(
+                        (res: any) => {
+                            setAlsoLike(res.books)
+                        }
+                    ).catch(
+                        (error: any) => {
+                            console.log('Also like error', error)
+                        }
+                    )
 
-            } catch (error:any) {
+            } catch (error: any) {
                 navigate('/not-found', { replace: true });
                 console.error('Fetch error', error);
                 toast.error("Pages & Parchment", {
@@ -564,15 +556,6 @@ export default function BookPage() {
 
         initBook();
     }, [params.id, navigate]);
-
-    const handleBookClick = async (book: Book) => {
-        await request.post('/user/books/interact',{
-            userId: user?.id,
-            bookId: book.id,
-            type: RelationshipType.INTERACTION
-        })
-        navigate(`/book/${user?.id}`)
-    }
 
     return (
         <div className="min-h-screen bg-[#faf5ea]">

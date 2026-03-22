@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 //components
 import { toast } from "sonner";
-import Spinner from "./spinner";
+import Spinner from "./spinner/spinner";
 import { NoResults } from "./noResults";
 import { LoadingCards } from "@components/skeleton/LoadingCard";
 

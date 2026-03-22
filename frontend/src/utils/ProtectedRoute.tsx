@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 {/* =============== components ============ */ }
-import Spinner from '@components/skeleton/spinner';
+import Spinner from '@components/skeleton/spinner/spinner';
 
 {/* =============== services ============ */ }
 import { isTokenvalid } from '@utils/auth';

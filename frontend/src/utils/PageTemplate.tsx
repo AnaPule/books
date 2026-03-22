@@ -13,7 +13,7 @@ interface TemplateProps {
 export const PageTemplate: React.FC<TemplateProps> = ({ children }: TemplateProps) => {
     const { isLoggedIn } = useAuth();
     return (
-        <div className="flex h-screen w-full overflow-hidden">
+        <div className="flex h-screen w-full overflow-hidden bg-[#FAFAFA]/90">
             <Topnav />
             {
                 isLoggedIn &&

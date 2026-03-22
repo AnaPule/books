@@ -36,7 +36,7 @@ export const WordOfTheDay: React.FC = () => {
     }, [activeImageIndex]);
 
     return (
-        <div className=" rounded-2xl border border-[#e8bfb0] p-4 md:p-5 relative overflow-hidden min-h-[180px] md:min-h-[220px]">
+        <div className=" rounded-2xl border border-[#e8bfb0] p-4 md:p-5 relative overflow-hidden min-h-[180px] w-full md:min-h-[220px]">
             {/* Background Images - Reduced opacity significantly */}
             <img
                 src={flowerImages[previousImageIndex]}

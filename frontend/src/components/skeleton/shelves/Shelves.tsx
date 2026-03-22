@@ -1,7 +1,7 @@
 import type { Book as Bk } from "@models/Book";
 import styles from "./shelves.module.css";
 import { useNavigate } from "react-router-dom";
-
+import { ChevronRight } from "lucide-react";
 interface ShelvesProps {
     shelf1: Bk[];
     shelf1Caption: string;
@@ -18,7 +18,7 @@ interface BookProps {
 
 const Book: React.FC<BookProps> = ({ book, index }) => {
     const navigate = useNavigate();
-    const isEven   = index % 2 === 0;
+    const isEven = index % 2 === 0;
 
     return (
         <div
@@ -37,14 +37,20 @@ interface ShelfRowProps {
 
 const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption }) => (
     <div>
-        <span className={styles.caption}>{caption}</span>
+        <div className="flex items-center justify-between mb-4 border-b border-[#E2E9DC] pb-2">
+            <span className={styles.caption}>{caption}</span>
+            <button className="text-[#9FB89F] hover:text-[#8AA88A] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+                SEE ALL <ChevronRight size={14} className="sm:size-4" />
+            </button>
+        </div>
+        
         <div className={styles.books}>
-                {books.slice(0, 6).map((book, i) => (
-                    <Book key={i} book={book} index={i} />
-                ))}
-            </div>
+            {books.slice(0, 6).map((book, i) => (
+                <Book key={i} book={book} index={i} />
+            ))}
+        </div>
         <div className={styles.bookshelf}>
-            
+
         </div>
     </div>
 );

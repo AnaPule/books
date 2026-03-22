@@ -16,6 +16,7 @@ import BooksPage from "@pages/books/BooksPage";
 import ProfilePage from "@pages/profile/profile";
 import BookPage from "@pages/books/individual-book";
 import ResubscribePage from "@pages/auth/Resubscribe";
+import DiscoveryPage from "@pages/books/discover/DiscoveryPage";
 import VerifyEmailPage from "@pages/auth/VerifyEmailPage";
 import ResetPasswordPage from "@pages/auth/ResetPasswordPage";
 
@@ -47,23 +48,24 @@ function App() {
       <AuthProvider>
         <PageTemplate>
           <Routes>
-            <Route path='/home' element={<PublicRoute><HomePage /> </PublicRoute>} />
-            <Route path='/auth/verify' element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
-            <Route path='/auth/reset-password' element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
-            <Route path='/auth/resubscribe' element={<PublicRoute><ResubscribePage /></PublicRoute>}></Route>
-            <Route path='/auth' element={<PublicRoute><AuthPage /></PublicRoute>} />
+            <Route path='/home'                 element={<PublicRoute><HomePage /> </PublicRoute>} />
+            <Route path='/auth/verify'          element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
+            <Route path='/auth/reset-password'  element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
+            <Route path='/auth/resubscribe'     element={<PublicRoute><ResubscribePage /></PublicRoute>}></Route>
+            <Route path='/auth'                 element={<PublicRoute><AuthPage /></PublicRoute>} />
 
             {/* protected routes */}
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path="/books" element={<ProtectedRoute><BooksPage /></ProtectedRoute>} />
-            <Route path="/book/:id" element={<ProtectedRoute><BookPage /></ProtectedRoute>} />
+            <Route path="/profile"    element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/books"      element={<ProtectedRoute><BooksPage /></ProtectedRoute>} />
+            <Route path="/book/:id"   element={<ProtectedRoute><BookPage /></ProtectedRoute>} />
+            <Route path="/discovery"   element={<ProtectedRoute><DiscoveryPage /></ProtectedRoute>}/>
 
             {/* error pages */}
-            <Route path="*" element={<E404 />} /> {/* page not found*/}
-            <Route path='/unauthorised' element={<E403 />} />
-            <Route path='/not-found' element={<E404 />} />
-            <Route path="/unauthorised" element={<E401 />} />
-            <Route path="/too-many-requests" element={<E429 />} />
+            <Route path="*"                   element={<E404 />} /> {/* page not found*/}
+            <Route path='/unauthorised'       element={<E403 />} />
+            <Route path='/not-found'          element={<E404 />} />
+            <Route path="/unauthorised"       element={<E401 />} />
+            <Route path="/too-many-requests"  element={<E429 />} />
 
           </Routes>
         </PageTemplate>

@@ -1,8 +1,8 @@
 
 {/* =============== components ============ */ }
 import Sidebar from "@components/nav/bar";
-import { Topnav } from "@pages/home/home";
 import { Footer } from "@components/Footer";
+import { Topnav } from "@components/nav/Topnav";
 
 {/* =============== services ============ */ }
 import { useAuth } from "@context/AuthContext";

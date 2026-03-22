@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 
 // =============== images ============
 import Orange1 from "@assets/Orange_1.jpeg";
-// =============== components ============
-import { Topnav } from "@pages/home/home";
 
 // =============== pages/components ============
 import LoginForm from "@components/auth/LoginForm";
@@ -32,7 +30,6 @@ export default function AuthPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <Topnav />
 
       {/* light academia parchment overlay */}
       <div

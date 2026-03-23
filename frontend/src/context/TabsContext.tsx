@@ -7,6 +7,7 @@ import Spinner from '@components/skeleton/spinner/spinner';
 interface TabsContextType {
     DiscoverTab: number;
     setDiscoverTab: (idx: number) => void;
+    
     loading: boolean;
 }
 

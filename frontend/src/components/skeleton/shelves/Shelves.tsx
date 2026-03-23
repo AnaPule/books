@@ -3,12 +3,20 @@ import styles from "./shelves.module.css";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 interface ShelvesProps {
-    shelf1: Bk[];
+    shelf1: Bk[] | null;
     shelf1Caption: string;
+
     shelf2?: Bk[] | null;
     shelf2Caption?: string;
+
     shelf3?: Bk[] | null;
     shelf3Caption?: string;
+
+    shelf4?: Bk[] | null;
+    shelf4Caption?: string;
+
+    shelf5?: Bk[] | null;
+    shelf5Caption?: string;
 }
 
 interface BookProps {
@@ -16,14 +24,177 @@ interface BookProps {
     index: number;
 }
 
+interface SingleBookShelfProps {
+    book: Bk;
+    rank?: number;
+}
+
+interface TopThreeShelvesProps {
+    books: Bk[];
+}
+
+const SingleBookShelf: React.FC<SingleBookShelfProps> = ({ book, rank }) => {
+    const navigate = useNavigate();
+    const randomColour = () => {
+        const covers = [
+            'https://i.pinimg.com/736x/fb/b4/16/fbb4165024c90d2538d2c7d598fdc069.jpg',
+            'https://i.pinimg.com/736x/45/07/43/4507430cfd7e455131ce77abba0f02aa.jpg',
+            'https://i.pinimg.com/736x/ab/e6/ac/abe6ac1b2891e7b7ac0257599346308f.jpg',
+            'https://i.pinimg.com/736x/ab/e6/ac/abe6ac1b2891e7b7ac0257599346308f.jpg',
+            'https://i.pinimg.com/1200x/29/4e/1c/294e1cb5414f85cb187e4b066829ac05.jpg'
+        ];
+
+        return covers[Math.floor(Math.random() * covers.length)];
+    }
+
+    return (
+        <div className="w-full mb-[clamp(0.5rem,2vh,1rem)] md:mt-[clamp(1rem,4vh,2rem)]">
+            {/* Book + rank container */}
+            <div
+                className="
+                    flex items-end gap-2 sm:gap-3 md:gap-4 
+                    pl-3 sm:pl-4 md:pl-6 
+                    pb-[2px] 
+                    cursor-pointer
+                "
+                onClick={() => navigate(`/book/${book.id}`)}
+            >
+                {/* Rank number */}
+                {rank && (
+                    <span className="
+                        font-serif text-[clamp(1.2rem,4vw,2.5rem)] 
+                        font-bold text-[#C9B27C] opacity-50 
+                        leading-none mb-1 min-w-[clamp(1.2rem,4vw,2rem)]
+                        select-none
+                    ">
+                        {rank}
+                    </span>
+                )}
+
+                {/* 3D Book */}
+                <div className="
+                    relative 
+                    w-[clamp(45px,12vw,70px)] h-[clamp(65px,18vw,100px)]
+                    transform-style-preserve-3d
+                    transition-transform duration-300 ease-out
+                    drop-shadow-[4px_6px_10px_rgba(0,0,0,0.25)]
+                    mx-0 mb-[-10px] ml-[clamp(0px,3vw,30px)]
+                    z-10 shrink-0
+                    hover:translate-y-[-4px] hover:rotate-y-[-10deg]
+                "
+                    style={{
+                        transform: 'perspective(400px) rotateY(-18deg)',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.transform = 'perspective(400px) rotateY(-10deg) translateY(-4px)')}
+                    onMouseLeave={e => (e.currentTarget.style.transform = 'perspective(400px) rotateY(-18deg)')}
+                >
+                    {/* Spine — left dark strip */}
+                    <div className="
+                        absolute left-0 top-0 
+                        w-[clamp(5px,1.5vw,10px)] h-full 
+                        bg-[#3D2E1A] rounded-l-[2px]
+                        origin-left
+                        bg-gradient-to-r from-[#2a1f10] to-[#3D2E1A]
+                    " style={{ transform: 'rotateY(90deg)' }} />
+
+                    {/* Cover face */}
+                    <div className="
+                        absolute inset-0 
+                        rounded-[2px_3px_3px_2px]
+                        bg-cover bg-center
+                        shadow-[inset_-3px_0_6px_rgba(0,0,0,0.2),inset_3px_0_4px_rgba(255,255,255,0.08)]
+                        overflow-hidden
+                    " style={{
+                            backgroundImage: book.coverArt ? `url(${book.coverArt})` : `url(${randomColour()})`,
+                            backgroundColor: book.coverArt ? 'transparent' : '#6B5E4E',
+                        }}>
+                        {!book.coverArt && (
+                            <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                                <span className="
+                                    text-black text-[clamp(5px,1.8vw,8px)]
+                                    text-center leading-tight
+                                    tracking-wide uppercase
+                                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
+                                ">
+                                    {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Book pages (right side) */}
+                    <div style={{
+                        position: 'absolute',
+                        right: '-6px',
+                        top: '2px',
+                        bottom: '2px',
+                        width: '5px',
+                        background: 'repeating-linear-gradient(90deg, #F5F0E8 0px, #F5F0E8 2px,#E8DFD4 2px, #E8DFD4 4px,#F5F0E8 4px )',
+                        borderRadius: '0 2px 2px 0',
+                        boxShadow: 'inset -1px 0 1px rgba(0,0,0,0.03), 1px 0 3px rgba(0,0,0,0.08)',
+                        zIndex: 1,
+                    }} />
+
+
+                    {/* Top page edge */}
+                    <div className="
+                        absolute -top-[3px] left-1 right-0 h-[3px] 
+                        bg-[#F5F0E8]
+                        bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,rgba(180,170,155,0.4)_2px,rgba(180,170,155,0.4)_3px)]
+                        rounded-t-[1px]
+                        origin-top
+                    " style={{ transform: 'rotateX(90deg)' }} />
+                </div>
+
+                {/* Book info */}
+                <div className="pb-1 mx-2 flex-1 min-w-0">
+                    <p className="
+                        font-serif text-[clamp(0.65rem,2.8vw,0.85rem)] font-semibold 
+                        text-[#5A4D3E] leading-tight mb-0.5
+                        truncate
+                    ">
+                        {book.name.length > 35 ? book.name.slice(0, 32) + '…' : book.name}
+                    </p>
+                    <p className="
+                        font-serif text-[clamp(0.55rem,2.2vw,0.72rem)] 
+                        text-[#9b7c68] italic
+                        truncate
+                    ">
+                        {book.author?.name}
+                    </p>
+                </div>
+            </div>
+
+            <div className={styles.smallBookshelf} />
+        </div>
+    );
+};
+
+export const TopBooksShelves: React.FC<TopThreeShelvesProps> = ({ books }) => {
+    return (
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem',
+            width: '100%',
+        }}>
+            {books.map((book, i) =>
+                book ? (
+                    <SingleBookShelf key={book.id} book={book} rank={i + 1} />
+                ) : null
+            )}
+        </div>
+    );
+};
+
 const Book: React.FC<BookProps> = ({ book, index }) => {
     const navigate = useNavigate();
     const isEven = index % 2 === 0;
 
     return (
         <div
-            className={`${styles.book} ${isEven ? styles.bookEven : styles.bookOdd}`}
-            style={{ '--bg-image': `url(${book.coverArt})` } as React.CSSProperties}
+            className={`${styles.book}`}
+            style={{ '--bg-image': `url(${book.coverArt})`, zIndex: '5' } as React.CSSProperties}
             onClick={() => navigate(`/book/${book.id}`)}
             title={book.name}
         />
@@ -43,7 +214,7 @@ const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption }) => (
                 SEE ALL <ChevronRight size={14} className="sm:size-4" />
             </button>
         </div>
-        
+
         <div className={styles.books}>
             {books.slice(0, 10).map((book, i) => (
                 <Book key={i} book={book} index={i} />
@@ -59,10 +230,14 @@ export const Shelves: React.FC<ShelvesProps> = ({
     shelf1, shelf1Caption,
     shelf2 = null, shelf2Caption = "Next Up",
     shelf3 = null, shelf3Caption = "Finished",
+    shelf4 = null, shelf4Caption = "Finished",
+    shelf5 = null, shelf5Caption = "Finished",
 }) => (
     <div className={styles.shelves}>
         {shelf1 && shelf1.length > 0 && <ShelfRow books={shelf1} caption={shelf1Caption} />}
         {shelf2 && shelf2.length > 0 && <ShelfRow books={shelf2} caption={shelf2Caption} />}
         {shelf3 && shelf3.length > 0 && <ShelfRow books={shelf3} caption={shelf3Caption} />}
+        {shelf4 && shelf4.length > 0 && <ShelfRow books={shelf4} caption={shelf4Caption} />}
+        {shelf5 && shelf5.length > 0 && <ShelfRow books={shelf5} caption={shelf5Caption} />}
     </div>
 );

@@ -304,3 +304,19 @@ input::placeholder {
 .highlight{
   color: #8098A8;
 }
+
+/* For Genres - Purple to Sage */
+.genres-gradient {
+    background: linear-gradient(135deg, #C0B9DD, #9FB89F);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* For Authors - Rose to Honey */
+.authors-gradient {
+    background: linear-gradient(135deg, #DEA8A3, #ECD0A5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}

@@ -1,4 +1,5 @@
 {/* =============== react ============ */ }
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 
@@ -14,6 +15,8 @@ import { NoResults } from "@components/skeleton/noResults";
 
 {/* =============== components ============ */ }
 import Tabs from "@components/Tabs";
+import Spinner from "@components/skeleton/spinner/spinner";
+import { Shelves } from "@components/skeleton/shelves/Shelves";
 import { Search, BookMarked, Sparkles, BookOpen, Users, Clock, Star, Filter } from "lucide-react";
 
 {/* =============== utils ============ */ }
@@ -21,13 +24,8 @@ import { highlightMatch } from "@utils/highlightMatch";
 
 interface searchForm {
     search: string;
+    searchResult: Book[] | [];
 }
-const handleSearchChange = (field: keyof searchForm, value: string) => {
-        setSearchForm((prev) => ({ ...prev, [field]: value }));
-    };
-const [searchQuery, setSearchForm] = useState<searchForm>({
-        search: ''
-    });
 interface Genre {
     id: string;
     name: string;
@@ -91,7 +89,6 @@ export const Trending: React.FC = () => {
         fetchDiscovery();
     }, []);
 
-    //const search = useMemo(() => {console.log(searchQuery) }, [searchQuery])
     return (
         <>
             {/* Featured Books Carousel */}
@@ -124,7 +121,7 @@ export const Trending: React.FC = () => {
                                 >
                                     <div className="flex justify-between items-center">
                                         <span className="text-[#5A4D41] group-hover:text-[#9FB89F] transition-colors">
-                                            {highlightMatch(genre.name,searchQuery.search)}
+                                            {genre.name}
                                         </span>
                                         <span className="text-xs text-[#C3BDB8]">{genre.count}</span>
                                     </div>
@@ -238,40 +235,123 @@ export const StaffPicks: React.FC = () => {
     );
 }
 
-export const Discover: React.FC = () => {
+export const Discover: React.FC<{ recommends: Book[] }> = ({ recommends }) => {
+    const [books, setBooks] = useState<Book[] | []>([]);
+    const [loading, setLoading] = useState<Boolean>(false);
+    const [searchQuery, setSearchForm] = useState<searchForm>({
+        search: '',
+        searchResult: []
+    });
+
+    const handleSearchChange = (field: keyof searchForm, value: string) => {
+        setSearchForm((prev) => ({ ...prev, [field]: value }));
+    };
+
+    useEffect(() => {
+        setLoading(true);
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+        const initDiscovery = async () => {
+            delay(2000);
+            await request.get<any>(`/books`)
+                .then(
+                    (res: any) => {
+                        setBooks(res.books)
+                    }
+                ).catch(
+                    (error) => {
+                        toast.error('Pages ń Parchments', { description: error.message })
+                    }
+                ).finally(
+                    () => {
+                        setLoading(false);
+                    }
+                )
+        };
+        initDiscovery();
+    }, []);
+
+    const searchBooks = useMemo(() => {
+    if (!searchQuery.search) return null;
+
+    const query = searchQuery.search.toLowerCase();
+    const booksBySearch = books.filter(book => {
+        // Check each field with console logs
+        const matches = 
+            book.isbn?.toLowerCase().includes(query) ||
+            book.name?.toLowerCase().includes(query) ||
+            book.author?.name?.toLowerCase().includes(query) ||
+            book.genre?.name?.toLowerCase().includes(query);
+        
+        return matches;
+    });
+    return booksBySearch.length > 0 ? booksBySearch : [];
+}, [searchQuery.search, books]);
+
+
     return (
-        <>hi im discovery</>
+        <>
+            {/* search bar */}
+            <div className="relative my-4">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9FB89F]" size={20} />
+                <input
+                    type="text"
+                    value={searchQuery.search}
+                    placeholder="Search by ISBN, title, author, genre..."
+                    onChange={(e) => handleSearchChange("search", e.target.value)}
+                    maxLength={40}
+                    className="w-full h-[3rem] pl-12 pr-4 py-4 bg-[#FFFCF7] text-[#5A4D41] placeholder-[#C3BDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#9FB89F]/30 border border-[#E2E9DC] shadow-sm"
+                />
+            </div>
+
+            {/* the actial component */}
+            {
+                loading ? (
+                    <>
+                        <Spinner colour="#C0D4E0" loadingLabel="Summoning books from the shelves" />
+                    </>
+
+                ) : (
+                    <>
+                        <Shelves
+                            shelf1Caption="Recommended for you"
+                            shelf1={recommends}
+                        />
+                        {
+                            searchBooks &&
+                            <>
+                            <Shelves
+                                shelf1Caption={`Search Resilts for ${searchQuery.search}`}
+                                shelf1={searchBooks}
+                            />
+                            </>
+                            
+                        }
+                    </>
+                )
+            }
+        </>
     );
 }
 
-const tabContent = [
-    { label: "Discover", icon: <BookMarked size={16} />, content: <Discover /> },
-    { label: "Trending", icon: <Sparkles size={16} />, content: <Trending /> },
-    { label: "New Releases", icon: <BookOpen size={16} />, content: <NewRelease /> },
-    { label: "Classics", icon: <Clock size={16} />, content: <Classics /> },
-    { label: "Staff Picks", icon: <Users size={16} />, content: <StaffPicks /> },
-];
 
 export default function DiscoveryPage() {
+    const { recommends } = useAuth();
+    const tabContent = [
+        { label: "Discover", icon: <BookMarked size={16} />, content: <Discover recommends={recommends} /> },
+        { label: "Trending", icon: <Sparkles size={16} />, content: <Trending /> },
+        { label: "New Releases", icon: <BookOpen size={16} />, content: <NewRelease /> },
+        { label: "Classics", icon: <Clock size={16} />, content: <Classics /> },
+        { label: "Staff Picks", icon: <Users size={16} />, content: <StaffPicks /> },
+    ];
     return (
         <TabProvider>
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto mb-12">
             </div>
             <div className="container mx-auto mt-8 px-4 py-8">
-                <h1 className="text-3xl font-serif text-[#5A4D41] mb-8 text-center">Discover Books</h1>
-                {/* search bar */}
-                <div className="relative my-4">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9FB89F]" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Search by title, author, genre..."
-                        value={searchQuery.search}
-                        maxLength={40}
-                        onChange={(e) => handleSearchChange("search",e.target.value)}
-                        className="w-full h-[3rem] pl-12 pr-4 py-4 bg-[#FFFCF7] text-[#5A4D41] placeholder-[#C3BDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#9FB89F]/30 border border-[#E2E9DC] shadow-sm"
-                    />
-                </div>
+                <h1 className="text-3xl text-[#5A4D41] mb-8 text-center">Discover Books</h1>
+
                 <Tabs tabs={tabContent} />
             </div>
         </TabProvider>

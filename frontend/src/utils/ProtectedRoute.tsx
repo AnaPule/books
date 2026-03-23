@@ -24,7 +24,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setRouteReady(true);
-    }, 800)
+    }, 1000)
     return () => clearTimeout(timer);
   }, [])
 

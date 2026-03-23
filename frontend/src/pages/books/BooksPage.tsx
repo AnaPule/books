@@ -1,5 +1,4 @@
 {/* =============== packages ============ */ }
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 {/* =============== models ============ */ }
@@ -11,13 +10,10 @@ import { useAuth } from "@context/AuthContext";
 import { request } from "@utils/ApiRequest";
 
 {/* =============== components ============ */ }
-import { NoResults } from "@components/skeleton/noResults";
 import { Shelves } from "@components/skeleton/shelves/Shelves";
-import { WordOfTheDay } from "@components/skeleton/WordofTheDay";
 import { DateTimeCard } from '@components/skeleton/DateTimeCard';
-import { Calendar } from "@components/skeleton/calendar/Calendar";
-import { ReadingGoals, CurrentReads, JournalMenu } from "@pages/profile/profile";
-import { Search, Bell, ChevronRight, Menu, Sparkles } from "lucide-react";
+import { ReadingGoals, JournalMenu } from "@pages/profile/profile";
+import { ChevronRight} from "lucide-react";
 
 
 interface CardProps {
@@ -55,32 +51,7 @@ export const SmallCard: React.FC<CardProps> = ({
 
 const BooksPage = () => {
     const navigate = useNavigate();
-    const { user, recommends, genre, author, popular, discover } = useAuth();
-
-    const newCollection = {
-        title: "A Legend of Ice and Fire: The Ice Horse",
-        volumes: 2,
-        chaptersPerVol: 8,
-        cover1: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200&h=300&fit=crop',
-        cover2: 'https://images.unsplash.com/photo-1589998059171-988d887df646?w=200&h=300&fit=crop'
-    };
-
-    const readerFriends = [
-        {
-            name: "Roberto Jordan",
-            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-            activity: "What a delightful and magical chapter it is! It indeed transports readers to the wizarding world.",
-            chapter: "Chapter Five: Diagon Alley",
-            time: "2 min ago"
-        },
-        {
-            name: "Anna Henry",
-            avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-            activity: "I finished reading the chapter last night and",
-            chapter: "",
-            time: "5 min ago"
-        }
-    ];
+    const { user, recommends,setRecommends, genre, popular, discover } = useAuth();
 
     const handleBookClick = async (book: Bk) => {
         if (!recommends.find(rb => rb.id == book.id)) {
@@ -90,7 +61,7 @@ const BooksPage = () => {
                 type: RelationshipType.INTERACTION
             }).then(
                 (res:any) =>{
-                    res.booksrecommends(res.books)
+                    setRecommends(res.books);
                 }
             )
         }

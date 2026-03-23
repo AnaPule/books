@@ -45,7 +45,7 @@ const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption }) => (
         </div>
         
         <div className={styles.books}>
-            {books.slice(0, 6).map((book, i) => (
+            {books.slice(0, 10).map((book, i) => (
                 <Book key={i} book={book} index={i} />
             ))}
         </div>

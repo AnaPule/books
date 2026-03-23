@@ -572,7 +572,7 @@ export default function BookPage() {
     }, [params.id, navigate]);
 
     return (
-        <div className="min-h-screen bg-[#faf5ea]">
+        <div className="min-h-screen mt-8 bg-[#faf5ea]">
             {/* Decorative background elements */}
             <div className="fixed top-0 left-0 w-64 h-64 bg-[#f5d6d4]/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" />
             <div className="fixed bottom-0 right-0 w-96 h-96 bg-[#e8cfc5]/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none z-0" />

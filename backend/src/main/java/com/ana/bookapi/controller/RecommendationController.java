@@ -3,28 +3,34 @@ package com.ana.bookapi.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.stream.Collectors;
+import java.time.format.DateTimeFormatter;
 
-import com.ana.bookapi.DTO.BookDTO;
-import com.ana.bookapi.DTO.errResponse;
-import com.ana.bookapi.DTO.userBookDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+// models
 import com.ana.bookapi.models.Author;
 import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.models.book.userBook;
+
+// repo
 import com.ana.bookapi.repository.BookRepo;
-import com.ana.bookapi.repository.AuthorRepo;
 import com.ana.bookapi.repository.GenreRepo;
+import com.ana.bookapi.repository.AuthorRepo;
 import com.ana.bookapi.repository.UserBookRepo;
+
+// service
 import com.ana.bookapi.service.auth.userService;
 import com.ana.bookapi.service.book.BookService;
-import com.ana.bookapi.service.book.userBookService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.*;
 import com.ana.bookapi.service.book.RecommendationService;
+
+//DTO
+import com.ana.bookapi.DTO.BookDTO;
+import com.ana.bookapi.DTO.errResponse;
+import com.ana.bookapi.DTO.userBookDTO;
 
 @RestController
 @RequestMapping("/recs")
@@ -69,6 +75,35 @@ public class RecommendationController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(Map.of("books", dtos));
+    }
+
+    @GetMapping("/featured/week")
+    public ResponseEntity<?> getFeaturedThisWeek() {
+        try {
+            List<Book> weeklyBooks = recommendationService.getFeaturedThisWeek();
+
+            // Get current week range (Monday - Sunday)
+            LocalDate now = LocalDate.now();
+            LocalDate monday = now.with(DayOfWeek.MONDAY);
+            LocalDate sunday = now.with(DayOfWeek.SUNDAY);
+
+            List<BookDTO> dtos = weeklyBooks.stream()
+                    .map(book -> {
+                        Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
+                        return new BookDTO(book, author);
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(Map.of(
+                    "featured", dtos,
+                    "week", monday.format(DateTimeFormatter.ofPattern("MMM dd")) + " - " +
+                            sunday.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+            ));
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
     }
 
     @GetMapping("/user/{userId}/collaborative")
@@ -134,6 +169,28 @@ public class RecommendationController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(Map.of("books", dtos));
+    }
+
+    @GetMapping("/trending/topics")
+    public ResponseEntity<?> getTrendingTopics() {
+        try {
+            List<Map<String, Object>> trendingTopics = recommendationService.getTrendingTopics();
+
+            // Get current week range
+            LocalDate now = LocalDate.now();
+            LocalDate monday = now.with(DayOfWeek.MONDAY);
+            LocalDate sunday = now.with(DayOfWeek.SUNDAY);
+
+            return ResponseEntity.ok(Map.of(
+                    "topics", trendingTopics,
+                    "week", monday.format(DateTimeFormatter.ofPattern("MMM dd")) + " - " +
+                            sunday.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+            ));
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
     }
 
     // Popular - filtered for user
@@ -227,7 +284,6 @@ public class RecommendationController {
     }
 
     // AI discovery type shiii
-    // Add to existing UserBookController.java
     @PostMapping("/user/books/interact")
     public ResponseEntity<?> interactWithBook(@RequestBody userBookDTO dto) {
         try {
@@ -257,7 +313,7 @@ public class RecommendationController {
             ));
         } catch (RuntimeException e) {
             // error handling
-            System.out.println("Failed for AI recommends"+e.getMessage());
+            System.out.println("Failed for AI recommends" + e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }

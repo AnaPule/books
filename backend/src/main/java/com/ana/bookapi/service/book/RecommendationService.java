@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.ana.bookapi.models.Genre;
 import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.repository.BookRepo;
 import com.ana.bookapi.repository.GenreRepo;
@@ -158,6 +159,48 @@ public class RecommendationService {
                 .map(Optional::get)
                 .filter(book -> !isBookDislikedByUser(userId, book.getId()))
                 .collect(Collectors.toList());
+    }
+
+    public List<Book> getFeaturedThisWeek() {
+        List<Object[]> weeklyPopular = ur.findWeeklyPopularBooks();
+
+        return weeklyPopular.stream()
+                .map(result -> br.findById((String) result[0]))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .limit(12)
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getTrendingTopics() {
+        List<Object[]> results = ur.findTrendingTopics();
+
+        List<Map<String, Object>> topics = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> topic = new HashMap<>();
+            topic.put("genreId", row[0]);
+            topic.put("name", row[1]);
+            topic.put("count", row[2]);
+            topics.add(topic);
+        }
+        return topics;
+    }
+
+    public List<Map<String, Object>> getTrendingGenres() {
+        List<Object[]> results = ur.findTrendingGenres();
+
+        List<Map<String, Object>> genres = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> genre = new HashMap<>();
+            genre.put("genreId", row[0]);
+
+            // Get genre name
+            Genre g = gr.findById((String) row[0]).orElse(null);
+            genre.put("name", g != null ? g.getName() : "Unknown");
+            genre.put("count", row[1]);
+            genres.add(genre);
+        }
+        return genres;
     }
 
     // Get trending books filtered by user's favorite genres
@@ -345,7 +388,7 @@ public class RecommendationService {
             // Build prompt
             String prompt = buildGroqPrompt(likedBooks, triggeredBook, candidates);
 
-            // Call Gemini
+            // Call groq
             List<String> recommendedIds = callGroq(prompt);
 
             // Return actual books

@@ -56,6 +56,37 @@ public interface UserBookRepo extends JpaRepository<userBook, String> {
             "GROUP BY ub.book_id ORDER BY count DESC", nativeQuery = true)
     List<Object[]> findTrendingBooksByGenres(@Param("userId") String userId, @Param("genreIds") List<String> genreIds);
 
+    @Query(value = "SELECT ub.book_id, COUNT(*) as count FROM user_book ub " +
+            "WHERE ub.created_at >= DATE_TRUNC('week', CURRENT_DATE) " +
+            "AND ub.created_at < DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days' " +
+            "GROUP BY ub.book_id ORDER BY count DESC LIMIT 20", nativeQuery = true)
+    List<Object[]> findWeeklyPopularBooks();
+
+    @Query(value = "SELECT b.genre_id, COUNT(*) as count FROM user_book ub " +
+            "JOIN book b ON ub.book_id = b.id " +
+            "WHERE ub.created_at >= DATE_TRUNC('week', CURRENT_DATE) " +
+            "GROUP BY b.genre_id " +
+            "ORDER BY count DESC LIMIT 10", nativeQuery = true)
+    List<Object[]> findTrendingGenres();
+
+    // For trending authors
+    @Query(value = "SELECT b.author_id, COUNT(*) as count FROM user_book ub " +
+            "JOIN book b ON ub.book_id = b.id " +
+            "WHERE ub.created_at >= DATE_TRUNC('week', CURRENT_DATE) " +
+            "GROUP BY b.author_id " +
+            "ORDER BY count DESC LIMIT 10", nativeQuery = true)
+    List<Object[]> findTrendingAuthors();
+
+    // For trending topics (from book categories/genres)
+    @Query(value = "SELECT b.genre_id, g.name, COUNT(*) as count FROM user_book ub " +
+            "JOIN book b ON ub.book_id = b.id " +
+            "JOIN genre g ON b.genre_id = g.id " +
+            "WHERE ub.created_at >= DATE_TRUNC('week', CURRENT_DATE) " +
+            "GROUP BY b.genre_id, g.name " +
+            "ORDER BY count DESC LIMIT 15", nativeQuery = true)
+    List<Object[]> findTrendingTopics();
+
+
     @Query("SELECT CASE WHEN COUNT(ub) > 0 THEN true ELSE false END FROM userBook ub WHERE ub.userId = :userId AND ub.bookId = :bookId AND ub.type = :type")
     boolean existsByBookIdAndUserIdAndType(@Param("userId") String userId, @Param("bookId") String bookId, @Param("type") Integer type);
 

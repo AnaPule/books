@@ -1,16 +1,16 @@
 package com.ana.bookapi.DTO;
 
-import com.ana.bookapi.models.Author;
+import com.ana.bookapi.models.Genre;
 
-public class AuthorDTO {
+public class GenreDTO {
     private String id;
     private String name;
 
-    public AuthorDTO() {}
+    public GenreDTO() {}
 
-    public AuthorDTO(Author author) {
-        this.id = author.getId();
-        this.name = author.getName();
+    public GenreDTO(Genre genre) {
+        this.id = genre.getId();
+        this.name = genre.getName();
     }
 
     public String getId() { return id; }

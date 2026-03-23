@@ -21,7 +21,7 @@ public interface UserBookRepo extends JpaRepository<userBook, String> {
     @Query("SELECT ub FROM userBook ub WHERE ub.userId = :userId AND ub.type IN :types")
     List<userBook> findByUserIdAndTypes(@Param("userId") String userId, @Param("types") List<Integer> types);
 
-    @Query(value = "SELECT ub.book_id, COUNT(*) as count FROM user_book ub GROUP BY ub.book_id ORDER BY count DESC", nativeQuery = true)
+    @Query(value = "SELECT ub.book_id, COUNT(*) as count FROM user_book ub GROUP BY ub.book_id ORDER BY count ASC", nativeQuery = true)
     List<Object[]> findMostPopularBooks();
 
     @Query(value = "SELECT ub.book_id, COUNT(*) as count FROM user_book ub WHERE ub.created_at >= NOW() - INTERVAL '7 days' GROUP BY ub.book_id ORDER BY count DESC", nativeQuery = true)
@@ -86,9 +86,23 @@ public interface UserBookRepo extends JpaRepository<userBook, String> {
             "ORDER BY count DESC LIMIT 15", nativeQuery = true)
     List<Object[]> findTrendingTopics();
 
+    // Trending today (last 24 hours)
+    @Query(value = "SELECT ub.book_id, COUNT(*) as count FROM user_book ub " +
+            "WHERE ub.created_at >= NOW() - INTERVAL '1 day' " +
+            "GROUP BY ub.book_id ORDER BY count DESC", nativeQuery = true)
+    List<Object[]> findTrendingToday();
+
+    // Trending this month (last 30 days)
+    @Query(value = "SELECT ub.book_id, COUNT(*) as count FROM user_book ub " +
+            "WHERE ub.created_at >= NOW() - INTERVAL '30 days' " +
+            "GROUP BY ub.book_id ORDER BY count DESC", nativeQuery = true)
+    List<Object[]> findTrendingMonth();
 
     @Query("SELECT CASE WHEN COUNT(ub) > 0 THEN true ELSE false END FROM userBook ub WHERE ub.userId = :userId AND ub.bookId = :bookId AND ub.type = :type")
     boolean existsByBookIdAndUserIdAndType(@Param("userId") String userId, @Param("bookId") String bookId, @Param("type") Integer type);
+
+    @Override
+    boolean existsById(String s);
 
     void deleteByUserIdAndBookIdAndType(String userId, String bookId, Integer type);
 }

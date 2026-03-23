@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/books")
@@ -31,12 +32,19 @@ public class BookController {
         this.authorService = authorService;
     }
 
-    // Get all books (frontend handles pagination)
-    @GetMapping
+    // Get all books
+    @GetMapping("/all")
     public ResponseEntity<?> getAllBooks() {
         try {
             List<Book> books = bookService.getAllBooks();
-            return ResponseEntity.ok(books);
+            List<BookDTO> dtos = books.stream()
+                    .map(book -> {
+                        Author author = authorService.getAuthorById(book.getAuthorId());
+                        Genre genre = genreService.getGenre(book.getGenreId());
+                        return new BookDTO(book, author,genre);
+                    })
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(Map.of("books", dtos));
         } catch (Exception e) {
             er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());

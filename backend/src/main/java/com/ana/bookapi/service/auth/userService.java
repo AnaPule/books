@@ -81,10 +81,10 @@ public class userService implements UserDetailsService {
 
     // user library
     public userBook AddBookTouserBook(String userId, String bookId, Integer type) {
-        if (urb.existsByBookIdAndUserIdAndType(userId, bookId, type)) {
-            throw new RuntimeException("Book already exists");
-        }
+        if (!br.existsById(bookId) || urb.existsByBookIdAndUserIdAndType(userId, bookId, type)) {
+            throw new RuntimeException("Book already exists in user's collection or book no exist");
 
+        }
         userBook ub = new userBook(userId, bookId, type);
         return urb.save(ub);
     }

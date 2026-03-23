@@ -1,6 +1,5 @@
 package com.ana.bookapi.config;
 
-import jakarta.servlet.Filter;
 import com.ana.bookapi.service.auth.JwtService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -25,72 +24,60 @@ import java.util.List;
 public class SecurityConfig {
     private final EncodeConfig ec;
     private final UserDetailsService usd;
-    //private final JwtAuthenticationFilter jwt;
+    private final HandlerExceptionResolver her;
 
     public SecurityConfig(
             EncodeConfig ec,
-            //JwtAuthenticationFilter jwtAuthenticationFilter,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver her,
             UserDetailsService userDetailsService
     ) {
         this.ec = ec;
+        this.her = her;
         this.usd = userDetailsService;
-        //this.jwt = jwtAuthenticationFilter;
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtService jwtService,
-            UserDetailsService userDetailsService
-            //@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
-    ){
-
-        return new JwtAuthenticationFilter(jwtService, usd);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService) {
+        return new JwtAuthenticationFilter(jwtService, usd, her);
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            JwtAuthenticationFilter jwt
-    ) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        JwtAuthenticationFilter jwtFilter = jwtAuthenticationFilter(new JwtService());
+
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorise -> authorise
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/auth/user/books").permitAll()
-                        .requestMatchers("/auth/user").permitAll()
-                        .requestMatchers("/sync/**").permitAll()
-                        .requestMatchers("/books/**").permitAll()
-                        .requestMatchers("/books/author/**").permitAll()
-                        .requestMatchers("/recs/**").permitAll()
-                        .requestMatchers("/recs/user/collaborative/**").permitAll()
                         .anyRequest().authenticated()
-                ).sessionManagement(session -> session
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                ).authenticationProvider(authenticationProvider())
-                .addFilterBefore((Filter) jwt, UsernamePasswordAuthenticationFilter.class)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())); //enables cors in security config
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
         return http.build();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider ap = new DaoAuthenticationProvider();
-
         ap.setUserDetailsService(usd);
         ap.setPasswordEncoder(ec.passwordEncoder());
         return ap;
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(){
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "https://app-backend.com", // production url
+                "https://app-backend.com",
                 "http://localhost:8080",
-                "http://localhost:5173", //local react port
-                "http://localhost:3000"//common react port
-        )); //TODO: update backend url
-        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE"));
+                "http://localhost:5173",
+                "http://localhost:3000"
+        ));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
@@ -99,9 +86,8 @@ public class SecurityConfig {
                 "Access-Control-Request-Method",
                 "Access-Control-Request-Headers"
         ));
-        configuration.setAllowCredentials(true); //for jwt/auth cookies
-        ///** Note: cache preflight - stores and reuses the results of a CORS preflight request
-        configuration.setMaxAge(3600L); //cache preflight (1H) to improve performance
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

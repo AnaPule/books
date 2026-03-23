@@ -77,35 +77,6 @@ public class RecommendationController {
         return ResponseEntity.ok(Map.of("books", dtos));
     }
 
-    @GetMapping("/featured/week")
-    public ResponseEntity<?> getFeaturedThisWeek() {
-        try {
-            List<Book> weeklyBooks = recommendationService.getFeaturedThisWeek();
-
-            // Get current week range (Monday - Sunday)
-            LocalDate now = LocalDate.now();
-            LocalDate monday = now.with(DayOfWeek.MONDAY);
-            LocalDate sunday = now.with(DayOfWeek.SUNDAY);
-
-            List<BookDTO> dtos = weeklyBooks.stream()
-                    .map(book -> {
-                        Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
-                        return new BookDTO(book, author);
-                    })
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(Map.of(
-                    "featured", dtos,
-                    "week", monday.format(DateTimeFormatter.ofPattern("MMM dd")) + " - " +
-                            sunday.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
-            ));
-        } catch (Exception e) {
-            er.setMessage("500 error: " + e.getMessage());
-            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
-        }
-    }
-
     @GetMapping("/user/{userId}/collaborative")
     public ResponseEntity<?> getCollaborativeRecommendations(@PathVariable String userId) {
         List<Book> books = recommendationService.getCollaborativeRecommendations(userId);
@@ -191,6 +162,73 @@ public class RecommendationController {
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
         }
+    }
+
+    // Today's top books (last 24 hours)
+    @GetMapping("/trending/today")
+    public ResponseEntity<?> getTrendingToday() {
+        List<Object[]> trending = userBookRepo.findTrendingToday();
+
+        List<BookDTO> books = trending.stream()
+                .map(result -> bookRepo.findById((String) result[0]))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(book -> {
+                    Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
+                    return new BookDTO(book, author);
+                })
+                .limit(5)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of("books", books));
+    }
+
+    @GetMapping("/trending/week")
+    public ResponseEntity<?> getFeaturedThisWeek() {
+        try {
+            List<Book> weeklyBooks = recommendationService.getFeaturedThisWeek();
+
+            // Get current week range (Monday - Sunday)
+            LocalDate now = LocalDate.now();
+            LocalDate monday = now.with(DayOfWeek.MONDAY);
+            LocalDate sunday = now.with(DayOfWeek.SUNDAY);
+
+            List<BookDTO> dtos = weeklyBooks.stream()
+                    .map(book -> {
+                        Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
+                        return new BookDTO(book, author);
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(Map.of(
+                    "featured", dtos,
+                    "week", monday.format(DateTimeFormatter.ofPattern("MMM dd")) + " - " +
+                            sunday.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+            ));
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    // This month's top books (last 30 days)
+    @GetMapping("/trending/month")
+    public ResponseEntity<?> getTrendingMonth() {
+        List<Object[]> trending = userBookRepo.findTrendingMonth();
+
+        List<BookDTO> books = trending.stream()
+                .map(result -> bookRepo.findById((String) result[0]))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(book -> {
+                    Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
+                    return new BookDTO(book, author);
+                })
+                .limit(5)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of("books", books));
     }
 
     // Popular - filtered for user

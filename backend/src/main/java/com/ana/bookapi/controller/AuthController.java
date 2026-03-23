@@ -98,7 +98,7 @@ public class AuthController {
     public ResponseEntity<?> getUserBooksByType(@PathVariable String userId, @PathVariable Integer type) {
         try {
             List<userBookDTO> books = us.getUserBooksByType(userId, type);
-            return ResponseEntity.status(HttpStatus.OK).body(books);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("books",books));
         } catch (RuntimeException e) {
             er.setMessage("400 error: " + e.getMessage());
             er.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -113,6 +113,11 @@ public class AuthController {
     @DeleteMapping("/{userId}/books/{bookId}")
     public ResponseEntity<?> removeUserBook(@PathVariable String userId, @PathVariable String bookId, @RequestParam Integer type) {
         try {
+            if (!us.checkUserBookExists(userId, bookId, type)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                        "message", "Book not found in user's collection"
+                ));
+            }
             us.RemoveBookFromUserBook(userId, bookId, type);
             return ResponseEntity.ok(Map.of(
                     "message", "Book removed successfully"

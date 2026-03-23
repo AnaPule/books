@@ -234,7 +234,7 @@ export const Discover: React.FC<{ recommends: Book[], user: User | null }> = ({ 
         setLoading(true);
         const initDiscovery = async () => {
             try {
-                const res = await request.get<any>(`/books`);
+                const res = await request.get<any>(`/books/all`);
                 setBooks(res.books);
                 const genreList: string[] = [];
                 const authorList: string[] = [];

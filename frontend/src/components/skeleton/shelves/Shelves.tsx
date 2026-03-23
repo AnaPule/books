@@ -33,19 +33,19 @@ interface TopThreeShelvesProps {
     books: Bk[];
 }
 
-const SingleBookShelf: React.FC<SingleBookShelfProps> = ({ book, rank }) => {
-    const navigate = useNavigate();
-    const randomColour = () => {
+const randomColour = () => {
         const covers = [
-            'https://i.pinimg.com/736x/fb/b4/16/fbb4165024c90d2538d2c7d598fdc069.jpg',
-            'https://i.pinimg.com/736x/45/07/43/4507430cfd7e455131ce77abba0f02aa.jpg',
-            'https://i.pinimg.com/736x/ab/e6/ac/abe6ac1b2891e7b7ac0257599346308f.jpg',
-            'https://i.pinimg.com/736x/ab/e6/ac/abe6ac1b2891e7b7ac0257599346308f.jpg',
-            'https://i.pinimg.com/1200x/29/4e/1c/294e1cb5414f85cb187e4b066829ac05.jpg'
+            'https://i.pinimg.com/736x/1c/5a/f9/1c5af9ef684d12f67e679022b6c9e7c3.jpg',
+            'https://i.pinimg.com/1200x/06/b8/6d/06b86da97b7c0358944941a1d536ae5f.jpg',
+            'https://i.pinimg.com/736x/9e/86/04/9e8604207b5dceca484d00ae011f2250.jpg',
+            'https://i.pinimg.com/736x/68/a2/48/68a248e7e17174e28e6a2bca70b63ff0.jpg'
         ];
 
         return covers[Math.floor(Math.random() * covers.length)];
     }
+
+const SingleBookShelf: React.FC<SingleBookShelfProps> = ({ book, rank }) => {
+    const navigate = useNavigate();
 
     return (
         <div className="w-full mb-[clamp(0.5rem,2vh,1rem)] md:mt-[clamp(1rem,4vh,2rem)]">
@@ -194,7 +194,7 @@ const Book: React.FC<BookProps> = ({ book, index }) => {
     return (
         <div
             className={`${styles.book}`}
-            style={{ '--bg-image': `url(${book.coverArt})`, zIndex: '5' } as React.CSSProperties}
+            style={{ '--bg-image': `url(${book.coverArt}})`, '--alternative': `url(${randomColour()})`, zIndex: '5',} as React.CSSProperties}
             onClick={() => navigate(`/book/${book.id}`)}
             title={book.name}
         />

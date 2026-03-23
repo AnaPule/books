@@ -70,6 +70,13 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
             book: book,
             type: RelationshipType.WISHLIST
         }
+
+        // Check if library exists before trying to find
+        if (!wishlist || !Array.isArray(wishlist)) {
+            console.error('Wishlist is undefined or not an array');
+            return;
+        }
+
         if (!wishlist.find(wl => wl.id === book.id)) {
             try {
                 request.post<any>(`/auth/user/books`, dto)
@@ -108,7 +115,15 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
             book: book,
             type: RelationshipType.LIBRARY
         }
-        if (!library.find(ll => ll.id === book.id)) {
+
+        // Check if library exists before trying to find
+        if (!library || !Array.isArray(library)) {
+            console.error('Library is undefined or not an array');
+            return;
+        }
+
+        if (!library.find(ll => ll?.id === book?.id)) {
+            // Add book to library
             try {
                 request.post<any>(`/auth/user/books`, dto)
                     .then((res: any) => {
@@ -119,22 +134,30 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
                         });
                         setLibrary([...library, book]);
                     })
+                    .catch((error) => {
+                        toast.error(`Error adding book to your library: ${error?.message || error}`);
+                    });
             } catch (error) {
-                toast.error(`Error adding book to your library: ${error}`)
+                toast.error(`Error adding book to your library: ${error}`);
             }
         } else {
+            // Remove book from library
             try {
-                request.delete<any>(`/auth/${user?.id}/books/${book.id}?type=${RelationshipType.LIBRARY}`)
+                request.delete<any>(`/auth/${user?.id}/books/${book?.id}?type=${RelationshipType.LIBRARY}`)
                     .then((res: any) => {
                         toast.promise(promise, {
                             loading: 'Please wait...',
                             success: () => `${res.message}`,
                             error: 'Error',
                         });
-                        setLibrary(library.filter(libraryBook => libraryBook.id !== book.id));
+                        // Safely filter
+                        setLibrary(library.filter(libraryBook => libraryBook?.id !== book?.id));
                     })
+                    .catch((error) => {
+                        toast.error(`Error removing book from library: ${error?.message || error}`);
+                    });
             } catch (error) {
-                toast.error(`Error removing book from library: ${error}`)
+                toast.error(`Error removing book from library: ${error}`);
             }
         }
     }
@@ -145,6 +168,12 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
             userId: user?.id,
             book: book,
             type: RelationshipType.DISLIKE
+        }
+
+        // Check if dislikes exists before trying to find
+        if (!dislike || !Array.isArray(dislike)) {
+            console.error('Dislikes is undefined or not an array');
+            return;
         }
         if (!dislike.find(dl => dl.id === book.id)) {
             try {

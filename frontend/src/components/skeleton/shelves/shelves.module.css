@@ -158,7 +158,7 @@
     display: block;
     content: " ";
     transition: all 300ms ease-out;
-    background: var(--bg-image) center center / cover no-repeat, #f3f3f3;
+    background: var(--bg-image) center center / cover no-repeat, var(--alternative);
 }
 
 .book::before {

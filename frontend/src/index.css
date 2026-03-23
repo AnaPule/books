@@ -300,3 +300,7 @@ input::placeholder {
 .btn-group>* {
   flex: 1;
 }
+
+.highlight{
+  color: #8098A8;
+}

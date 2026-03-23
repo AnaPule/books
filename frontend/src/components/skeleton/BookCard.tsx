@@ -20,6 +20,14 @@ interface CardProps {
     action?: () => void;
 }
 
+interface BookGridProps {
+    title: string;
+    books: Book[];
+    onSeeAll?: () => void;
+    cardType?: 'small' | 'medium' | 'large';
+    itemWidth?: string;  // add this
+}
+
 export const Card: React.FC<CardProps> = ({
     book
 }: CardProps) => {
@@ -48,24 +56,94 @@ export const SmallCard: React.FC<CardProps> = ({
     action
 }: CardProps) => {
     return (
-        <div 
-        onClick={action}
-        key={book.id} className="group cursor-pointer">
+        <div
+            onClick={action}
+            key={book.id}
+            className="group cursor-pointer w-full"
+        >
             <div
-                className="w-full aspect-[2/3] bg-gray-800 rounded-lg shadow-xl mb-3 group-hover:shadow-2xl group-hover:scale-105 transition-all duration-300 border border-gray-800"
+                className="w-full aspect-[2/3] rounded-lg shadow-sm mb-2 group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-300 bg-[#F5F0E8]"
                 style={{
                     backgroundImage: `url(${book.coverArt})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                 }}
             />
-            <h3 className="font-semibold text-sm text-white line-clamp-2 mb-1">{book.name}</h3>
-            <p className="text-xs text-gray-500 italic">{book.author.name}</p>
-
+            <h3 className="font-sans font-medium text-sm text-[#5A4D41] line-clamp-2 mb-1 group-hover:text-[#9FB89F] transition-colors">
+                {book.name}
+            </h3>
+            <p className="text-xs text-[#7E6957] italic">{book.author.name}</p>
         </div>
     );
-}
+};
 
+export const MediumCard: React.FC<CardProps> = ({ book, action }) => (
+    <div onClick={action} className="group cursor-pointer w-full">
+        <div
+            className="w-full aspect-[2/3] rounded-xl shadow-md mb-3 group-hover:shadow-lg group-hover:-translate-y-1.5 transition-all duration-300 bg-[#F5F0E8]"
+            style={{ backgroundImage: `url(${book.coverArt})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        />
+        <h3 className="font-sans font-medium text-sm text-[#5A4D41] line-clamp-2 mb-1">{book.name}</h3>
+        <p className="text-xs text-[#7E6957] italic">{book.author.name}</p>
+    </div>
+);
+
+export const LargeCard: React.FC<CardProps> = ({
+    book,
+    action
+}: CardProps) => {
+    return (
+        <div
+            onClick={action}
+            key={book.id}
+            className="group cursor-pointer w-full"
+        >
+            <div
+                className="w-full aspect-[2/3] rounded-xl shadow-md mb-4 group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-300 bg-[var(--sage-mist)]/90"
+                style={{
+                    backgroundImage: `url(${book.coverArt})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}
+            />
+            <h3 className="font-sans font-medium text-base md:text-lg text-[#5A4D41] line-clamp-2 mb-1.5 group-hover:text-[#9FB89F] transition-colors">
+                {book.name}
+            </h3>
+            <p className="text-sm text-[#7E6957] italic">{book.author.name}</p>
+        </div>
+    );
+};
+
+export const BookGrid: React.FC<BookGridProps> = ({
+    title,
+    books,
+    onSeeAll,
+    cardType = 'small',
+    itemWidth = 'w-36',   // sensible default
+}) => {
+    const navigate = useNavigate();
+    const CardComponent = cardType === 'large' ? LargeCard : cardType === 'medium' ? MediumCard : SmallCard;
+
+    return (
+        <div>
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-[#7E6957] text-sm tracking-[0.18em] uppercase font-bold opacity-80">{title}</h2>
+                {onSeeAll && (
+                    <button onClick={onSeeAll} className="text-[#9FB89F] hover:text-[#8AA88A] text-sm transition-colors">
+                        See all
+                    </button>
+                )}
+            </div>
+            <div className="flex flex-row gap-4 overflow-x-auto pb-2">
+                {books.map((book) => (
+                    <div key={book.id} className={`flex-shrink-0 ${itemWidth}`}>
+                        <CardComponent book={book} action={() => navigate(`/book/${book.id}`)} />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 export const BookCard: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();

@@ -1,6 +1,6 @@
 {/* =============== react ============ */ }
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 
 {/* =============== services ============ */ }
 import { request } from "@utils/ApiRequest";
@@ -8,13 +8,26 @@ import { useAuth } from "@context/AuthContext";
 import { TabProvider } from "@context/TabsContext";
 
 {/* =============== model ============ */ }
-import { SmallCard } from "@components/skeleton/BookCard";
+import type { Book } from "@models/Book";
+import { BookGrid } from "@components/skeleton/BookCard";
 import { NoResults } from "@components/skeleton/noResults";
 
 {/* =============== components ============ */ }
-import Tabs from "@components/tabs";
-import { Search, ChevronRight, Sparkles, BookOpen, Users, Clock, Star, Filter } from "lucide-react";
+import Tabs from "@components/Tabs";
+import { Search, BookMarked, Sparkles, BookOpen, Users, Clock, Star, Filter } from "lucide-react";
 
+{/* =============== utils ============ */ }
+import { highlightMatch } from "@utils/highlightMatch";
+
+interface searchForm {
+    search: string;
+}
+const handleSearchChange = (field: keyof searchForm, value: string) => {
+        setSearchForm((prev) => ({ ...prev, [field]: value }));
+    };
+const [searchQuery, setSearchForm] = useState<searchForm>({
+        search: ''
+    });
 interface Genre {
     id: string;
     name: string;
@@ -37,15 +50,6 @@ const genres: Genre[] = [
     { id: "6", name: "Biography", description: "Lives that inspire", count: 143 },
 ];
 
-const trendingTopics: TrendingTopic[] = [
-    { id: "1", name: "Victorian Literature", category: "Era" },
-    { id: "2", name: "Japanese Fiction", category: "Region" },
-    { id: "3", name: "Modern Poetry", category: "Genre" },
-    { id: "4", name: "Dark Academia", category: "Aesthetic" },
-    { id: "5", name: "BookTok Favorites", category: "Trending" },
-    { id: "6", name: "Women in History", category: "Theme" },
-];
-
 const readingChallenges = [
     { title: "The Classics Challenge", books: 12, progress: 45, color: "from-[#9FB89F] to-[#8AA88A]" },
     { title: "Around the World in 80 Books", books: 80, progress: 12, color: "from-[#B0C4D0] to-[#9CB0C0]" },
@@ -58,15 +62,15 @@ const staffPicks = [
     { name: "Circe", author: "Madeline Miller", reason: "A spellbinding retelling of Greek mythology" },
 ];
 
-
 export const Trending: React.FC = () => {
     // variables
-    const { user } = useAuth();
+    const { user, recommends } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState<Boolean>(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [featuredBooks, setFeaturedBooks] = useState<any[]>([]);
-    const [recommendedBooks, setRecommendedBooks] = useState<any[]>([]);
+
+    const [featuredBooks, setFeaturedBooks] = useState<Book[] | []>([]);
+    const [trendTopic, setTrendTopic] = useState<any[]>([]);
+
     useEffect(() => {
         // Mock API call - replace with real endpoint
         const fetchDiscovery = async () => {
@@ -74,41 +78,33 @@ export const Trending: React.FC = () => {
             try {
                 // Simulate API delay
                 await new Promise(resolve => setTimeout(resolve, 500));
-                setFeaturedBooks([
-                    { id: "1", name: "The Secret History", coverArt: "", author: { name: "Donna Tartt" } },
-                    { id: "2", name: "If We Were Villains", coverArt: "", author: { name: "M.L. Rio" } },
-                    { id: "3", name: "The Picture of Dorian Gray", coverArt: "", author: { name: "Oscar Wilde" } },
-                    { id: "4", name: "The Starless Sea", coverArt: "", author: { name: "Erin Morgenstern" } },
-                ]);
-                setRecommendedBooks([
-                    { id: "5", name: "The Night Circus", coverArt: "", author: { name: "Erin Morgenstern" } },
-                    { id: "6", name: "Piranesi", coverArt: "", author: { name: "Susanna Clarke" } },
-                    { id: "7", name: "Jonathan Strange & Mr Norrell", coverArt: "", author: { name: "Susanna Clarke" } },
-                ]);
+
+                const featured = await request.get<any>(`/recs/featured/week`);
+                const trendingGenre = await request.get<any>(`/recs/trending/topics`);
+                setFeaturedBooks(featured.featured);
+                setTrendTopic(trendingGenre.topics);
+
             } finally {
                 setLoading(false);
             }
         };
         fetchDiscovery();
     }, []);
+
+    //const search = useMemo(() => {console.log(searchQuery) }, [searchQuery])
     return (
         <>
             {/* Featured Books Carousel */}
             <section className="mb-16">
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-serif text-[#5A4D41]">Featured This Week</h2>
-                    <button className="text-[#9FB89F] hover:text-[#8AA88A] flex items-center gap-1 text-sm transition-colors">
-                        View all <ChevronRight size={16} />
-                    </button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {featuredBooks.map((book) => (
-                        <SmallCard
-                            key={book.id}
-                            book={book}
-                            action={() => navigate(`/book/${book.id}`)}
-                        />
-                    ))}
+                <div className="flex overflow-y-scroll gap-6">
+                    <BookGrid
+                        title="Featured This Week"
+                        books={featuredBooks}
+                        onSeeAll={() => navigate('/books/recommended')}
+                        cardType="small"
+                        itemWidth="w-40" />
                 </div>
             </section>
 
@@ -128,7 +124,7 @@ export const Trending: React.FC = () => {
                                 >
                                     <div className="flex justify-between items-center">
                                         <span className="text-[#5A4D41] group-hover:text-[#9FB89F] transition-colors">
-                                            {genre.name}
+                                            {highlightMatch(genre.name,searchQuery.search)}
                                         </span>
                                         <span className="text-xs text-[#C3BDB8]">{genre.count}</span>
                                     </div>
@@ -171,15 +167,19 @@ export const Trending: React.FC = () => {
                 <div className="lg:col-span-2 space-y-8">
                     {/* Trending Topics */}
                     <div className="bg-[#FFFCF7] rounded-xl p-6 border border-[#E2E9DC] shadow-sm">
-                        <h3 className="text-lg font-serif text-[#5A4D41] mb-4">Trending Topics</h3>
+                        <h3 className="text-lg text-[#5A4D41] mb-4">Trending Topics</h3>
                         <div className="flex flex-wrap gap-2">
-                            {trendingTopics.map((topic) => (
+                            {trendTopic.map((topic) => (
                                 <button
                                     key={topic.id}
-                                    className="px-4 py-2 bg-[#F5F0E8] rounded-full text-sm text-[#5A4D41] hover:bg-[#E2E9DC] transition-colors"
+                                    className="
+                                    px-4 py-2 bg-[#F5F0E8] rounded-full 
+                                    text-sm text-[#5A4D41] hover:bg-[#E2E9DC] 
+                                    transition-colors uppercase
+                                    "
                                 >
-                                    {topic.name}
-                                    <span className="text-xs text-[#9FB89F] ml-1">· {topic.category}</span>
+                                    {topic.name.includes('+') ? topic.name.split('+')[0] : topic.name}
+                                    <span className="text-xs font-bold text-[#9FB89F] ml-1">· Trending</span>
                                 </button>
                             ))}
                         </div>
@@ -188,20 +188,14 @@ export const Trending: React.FC = () => {
                     {/* Recommended for You */}
                     <div>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-serif text-[#5A4D41]">Recommended for You</h2>
-                            <button className="text-[#9FB89F] hover:text-[#8AA88A] text-sm transition-colors">
-                                See all
-                            </button>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {recommendedBooks.map((book) => (
-                                <SmallCard
-                                    key={book.id}
-                                    book={book}
-                                    action={() => navigate(`/book/${book.id}`)}
-                                />
-                            ))}
-                        </div>
+                        <BookGrid
+                            title="Recommended for You"
+                            books={recommends}
+                            onSeeAll={() => navigate('/books/recommended')}
+                            cardType="large"
+                            itemWidth="w-80"
+                        />
                     </div>
 
                     {/* Staff Picks */}
@@ -243,7 +237,15 @@ export const StaffPicks: React.FC = () => {
         <>hi im trending</>
     );
 }
+
+export const Discover: React.FC = () => {
+    return (
+        <>hi im discovery</>
+    );
+}
+
 const tabContent = [
+    { label: "Discover", icon: <BookMarked size={16} />, content: <Discover /> },
     { label: "Trending", icon: <Sparkles size={16} />, content: <Trending /> },
     { label: "New Releases", icon: <BookOpen size={16} />, content: <NewRelease /> },
     { label: "Classics", icon: <Clock size={16} />, content: <Classics /> },
@@ -253,8 +255,23 @@ const tabContent = [
 export default function DiscoveryPage() {
     return (
         <TabProvider>
-            <div className="container mx-auto px-4 py-8">
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto mb-12">
+            </div>
+            <div className="container mx-auto mt-8 px-4 py-8">
                 <h1 className="text-3xl font-serif text-[#5A4D41] mb-8 text-center">Discover Books</h1>
+                {/* search bar */}
+                <div className="relative my-4">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9FB89F]" size={20} />
+                    <input
+                        type="text"
+                        placeholder="Search by title, author, genre..."
+                        value={searchQuery.search}
+                        maxLength={40}
+                        onChange={(e) => handleSearchChange("search",e.target.value)}
+                        className="w-full h-[3rem] pl-12 pr-4 py-4 bg-[#FFFCF7] text-[#5A4D41] placeholder-[#C3BDB8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#9FB89F]/30 border border-[#E2E9DC] shadow-sm"
+                    />
+                </div>
                 <Tabs tabs={tabContent} />
             </div>
         </TabProvider>

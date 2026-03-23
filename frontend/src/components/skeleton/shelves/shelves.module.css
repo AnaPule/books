@@ -65,7 +65,7 @@
     position: relative;
     overflow-x: auto;
     margin: 0px 0 -10px 30px;
-    overflow-y: scroll;
+    overflow: scroll;
 }
 
 .book {

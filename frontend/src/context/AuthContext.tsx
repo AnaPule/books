@@ -264,7 +264,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const popular = await request.get<any>(`/recs/popular`);
                 const discover = await request.get<any>(`/recs/random`);
                 const trends = await request.get<any>(`/recs/user/${user.id}/trending`);
-                const recommends = await request.get<any>(`/recs/user/${user.id}`);
+                //const recommends = await request.get<any>(`/recs/user/${user.id}`);
                 const genre = await request.get<any>(`/recs/user/${user.id}/genre`);
                 const author = await request.get<any>(`/recs/user/${user.id}/author`);
 
@@ -274,7 +274,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setTrending(trends.books);
                     setPopular(popular.books)
                     setDiscover(discover.books);
-                    setRecommends(recommends.books);
+                    //setRecommends(recommends.books);
                 }
             } catch (err) {
                 console.error("Failed to load word/quote:", err);

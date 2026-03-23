@@ -88,7 +88,11 @@ const BooksPage = () => {
                 userId: user?.id,
                 bookId: book.id,
                 type: RelationshipType.INTERACTION
-            })
+            }).then(
+                (res:any) =>{
+                    res.booksrecommends(res.books)
+                }
+            )
         }
         navigate(`/book/${book?.id}`)
     }

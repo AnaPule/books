@@ -192,7 +192,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (expiryTimeout) clearTimeout(expiryTimeout);
             if (intervalId) clearInterval(intervalId);
         };
-    }, [logout, navigate, user]);
+    }, [logout, navigate]);
 
     // Single effect to load ALL user data when user changes
 useEffect(() => {

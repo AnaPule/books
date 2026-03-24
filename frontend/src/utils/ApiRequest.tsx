@@ -1,3 +1,5 @@
+
+import { isTokenvalid } from '@utils/auth';
 import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -50,8 +52,27 @@ class ApiService {
         }
     }
 
+    private handleAuthFailure(message: string) {
+        // Clear token
+        this.setAuthToken(null);
+        sessionStorage.removeItem('token');
+
+        // Call logout callback - AuthContext will handle navigation
+        if (this.logoutCallback) {
+            this.logoutCallback(message);
+        }
+    }
+
     // GENERIC request
     private async request<T>(endpoint: String, options: RequestInit = {}): Promise<T> {
+
+        const token = sessionStorage.getItem('token');
+        if (token && !isTokenvalid(token)) {
+            console.log('Api Request token expired - clearing session');
+            this.handleAuthFailure('Your session has expired. Please log in again.');
+            throw new Error("Token expired")
+        }
+
         const url = `${this.baseUrl}${endpoint}`;
 
         const config: ResponseInit = {
@@ -61,6 +82,20 @@ class ApiService {
 
         try {
             const response = await fetch(url, config);
+
+            // 401 - unauthorised type shiii - lets see if deep was right
+            if (response.status === 401) {
+                // Clear token and redirect to login
+                sessionStorage.removeItem('token');
+                this.setAuthToken(null);
+
+                // Call logout callback if exists
+                if (this.logoutCallback) {
+                    this.logoutCallback('401 Type shiii: Session expired. Please log in again.');
+                }
+
+                throw new Error('Unauthorized: Please log in again');
+            }
 
             // redirect to login - unauthorised
             if (response.status === 403) {

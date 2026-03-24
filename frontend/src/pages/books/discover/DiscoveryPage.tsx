@@ -61,8 +61,85 @@ export const NewRelease: React.FC = () => {
     return <>hi im new release</>;
 }
 
-export const Classics: React.FC = () => {
-    return <>hi im classics</>;
+export const Classics: React.FC<{navigateM:(page: string) => void}> = ({
+    navigateM
+}) => {
+    const { user } = useAuth();
+    const [loading, setLoading] = useState<Boolean>(false);
+    const [classics, setClassics] = useState<Book[]>([]);
+    const [newReleases, setNewReleases] = useState<Book[]>([]);
+    const [genreClassics, setUserClassics] = useState<Book[]>([]);
+
+    useEffect(() => {
+        setLoading(true)
+        const initClassics = async () => {
+            try {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                const [
+                    classRes,
+                    newRes,
+                    genreClassRes,
+                ] = await Promise.all([
+                    request.get<any>(`/recs/classics`),
+                    request.get<any>(`/recs/new-releases`),
+                    request.get<any>(`/recs/classics/user/${user?.id}`),
+                ]);
+
+                setClassics(classRes.books);
+                setNewReleases(newRes.books);
+                setUserClassics(genreClassRes.books);
+            } finally {
+                setLoading(false)
+            }
+        }
+        initClassics();
+    }, [user?.id]);
+
+    return (
+        <>
+            {
+                loading && (
+                    <div className="flex flex-col gap-6 mx-6">
+                        <LoadingCards
+                            LoadingSelection="shelves"
+                            shelfCount={2}
+                            booksPerShelf={5}
+                        />
+
+                        <LoadingCards
+                            LoadingSelection="books"
+                            primaryBg="#D4E3D4"
+                            secondaryBg="#E2E9DC"
+                            cardBg="#E2E9DC"
+                            count={4}
+                        />
+                    </div>
+                )
+            }
+
+            <div className="flex flex-col gap-4 mx-6">
+                <Shelves
+                    shelf1Caption="Timeless Pieces"
+                    shelf1={classics}
+
+                    shelf2Caption={`Classics in your favorite genre: ${genreClassics[0] ? genreClassics[0].genre?.name : " chaai"}`}
+                    shelf2={genreClassics}
+                />
+
+                <section className="my-8 md:mb-16">
+                    <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4">
+                        <BookGrid
+                            title="New Releases"
+                            books={newReleases.splice(0,6)}
+                            onSeeAll={() => navigateM('/books/recommended')}
+                            cardType="small"
+                            itemWidth="w-32 md:w-40"
+                        />
+                    </div>
+                </section>
+            </div>
+        </>
+    );
 }
 
 export const StaffPicks: React.FC = () => {
@@ -116,7 +193,7 @@ export const Trending: React.FC<{ genres: string[] }> = ({ genres }) => {
 
     const filterRecommends = useMemo(() => {
         if (filters.length == 0) return recommends;
-        
+
         return recommends.filter((f) => {
             const bookGenres = f.genre?.name.toLowerCase().split('+');
             return filters.some(filter =>
@@ -468,6 +545,7 @@ export const Discover: React.FC<{
     }
 
 export default function DiscoveryPage() {
+    const navigate = useNavigate();
     const { user, recommends } = useAuth();
     const [mainTab, setMainTab] = useState(0);
     const [top5Tab, setTop5Tab] = useState(0);
@@ -482,11 +560,15 @@ export default function DiscoveryPage() {
     const [weekPopular, setWeekPopular] = useState<Book[]>([]);
     const [monthPopular, setMonthPopular] = useState<Book[]>([]);
 
+    const NavMethod = (page: string) => {
+        navigate(page)
+    }
+
     const tabContent = [
         { label: "Discover", icon: <BookMarked size={16} />, content: <Discover recommends={recommends} user={user} loading={loading} books={books} genres={genres} authors={authors} /> },
         { label: "Trending", icon: <Sparkles size={16} />, content: <Trending genres={genres} /> },
         { label: "New Releases", icon: <BookOpen size={16} />, content: <NewRelease /> },
-        { label: "Classics", icon: <Clock size={16} />, content: <Classics /> },
+        { label: "Classics", icon: <Clock size={16} />, content: <Classics navigateM={NavMethod}/> },
         { label: "Staff Picks", icon: <Users size={16} />, content: <StaffPicks /> },
     ];
 

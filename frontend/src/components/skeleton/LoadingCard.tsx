@@ -10,6 +10,10 @@ interface LoadingProps {
     textColor?: string;      // Text placeholder color
     borderColor?: string;    // Border color
     cardBg?: string;         // Book card background
+
+    captionColor?: string;
+    shelfCount?: number;
+    booksPerShelf?: number;
 }
 
 // Book card placeholder
@@ -143,7 +147,7 @@ export const GenreLoadingState: React.FC<{
     cardBg?: string;
     borderColor?: string;
 }> = ({
-    primaryBg = "#D4E3D4", secondaryBg = "#E2E9DC", cardBg = "#FFFCF7", borderColor = "#E2E9DC" 
+    primaryBg = "#D4E3D4", secondaryBg = "#E2E9DC", cardBg = "#FFFCF7", borderColor = "#E2E9DC"
 }) => {
         return (
             <div className="space-y-6">
@@ -168,6 +172,98 @@ export const GenreLoadingState: React.FC<{
         );
     };
 
+
+// shelves loading 
+export const ShelvesLoadingState: React.FC<{
+    primaryBg?: string;
+    secondaryBg?: string;
+    cardBg?: string;
+    borderColor?: string;
+    captionColor?: string;
+    shelfCount?: number;
+    booksPerShelf?: number;
+}> = ({
+    primaryBg = "#D4E3D4",
+    secondaryBg = "#E2E9DC",
+    cardBg = "#E2E9DC",
+    borderColor = "#E2E9DC",
+    captionColor = "#D4E3D4",
+    shelfCount = 3,
+    booksPerShelf = 5
+}) => {
+        const renderShelfRow = (key: number) => (
+            <div key={key} className="mb-8">
+                {/* Caption */}
+                <div className="flex items-center justify-between mb-4 border-b border-[#E2E9DC] pb-2">
+                    <div className="h-5 w-32 rounded animate-pulse" style={{ backgroundColor: captionColor, opacity: 0.5 }} />
+                    <div className="h-4 w-16 rounded animate-pulse" style={{ backgroundColor: primaryBg }} />
+                </div>
+
+                {/* Books row */}
+                <div className="flex gap-4">
+                    {Array(booksPerShelf).fill(null).map((_, idx) => (
+                        <div key={idx} className="flex flex-col">
+                            <div className={`w-24 h-36 rounded-lg animate-pulse`} style={{ backgroundColor: cardBg }} />
+                            <div className="mt-2 space-y-1">
+                                <div className="h-3 rounded animate-pulse w-20" style={{ backgroundColor: primaryBg }} />
+                                <div className="h-2 rounded animate-pulse w-14" style={{ backgroundColor: secondaryBg }} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Shelf board */}
+                <div className="mt-4 w-full h-4 rounded animate-pulse" style={{ backgroundColor: borderColor, opacity: 0.5 }} />
+            </div>
+        );
+
+        return (
+            <div className="space-y-6">
+                {Array(shelfCount).fill(null).map((_, i) => renderShelfRow(i))}
+            </div>
+        );
+    };
+
+//vertical shelves loading
+export const TopBooksShelvesLoadingState: React.FC<{
+    primaryBg?: string;
+    secondaryBg?: string;
+    cardBg?: string;
+    borderColor?: string;
+    rankColor?: string;
+    count?: number;
+}> = ({
+    primaryBg = "#D4E3D4",
+    secondaryBg = "#E2E9DC",
+    cardBg = "#E2E9DC",
+    borderColor = "#E2E9DC",
+    rankColor = "#C9B27C",
+    count = 5
+}) => {
+        return (
+            <div className="space-y-6">
+                {Array(count).fill(null).map((_, idx) => (
+                    <div key={idx} className="flex items-end gap-3 pl-4">
+                        {/* Rank number */}
+                        <div className="h-8 w-6 rounded animate-pulse" style={{ backgroundColor: rankColor, opacity: 0.5 }} />
+
+                        {/* Book cover */}
+                        <div className={`w-16 h-24 rounded-lg animate-pulse`} style={{ backgroundColor: cardBg }} />
+
+                        {/* Book info */}
+                        <div className="flex-1 space-y-2 pb-1">
+                            <div className="h-4 w-32 rounded animate-pulse" style={{ backgroundColor: primaryBg }} />
+                            <div className="h-3 w-24 rounded animate-pulse" style={{ backgroundColor: secondaryBg }} />
+                        </div>
+                    </div>
+                ))}
+
+                {/* Shelf board */}
+                <div className="mt-2 w-full h-4 rounded animate-pulse" style={{ backgroundColor: borderColor, opacity: 0.5 }} />
+            </div>
+        );
+    };
+
 export const LoadingCards: React.FC<LoadingProps> = ({
     LoadingSelection = "books",
     cardWidth = "w-40",
@@ -176,9 +272,12 @@ export const LoadingCards: React.FC<LoadingProps> = ({
     primaryBg = "#D4E3D4",
     secondaryBg = "#E2E9DC",
     accentBg = "#C9A394",
-    textColor = "#5A4D41",
+    textColor = "#D4E3D4",
     borderColor = "#E2E9DC",
-    cardBg = "#E2E9DC"
+    cardBg = "#E2E9DC",
+
+    shelfCount = 2,
+    booksPerShelf = 3,
 }) => {
     const renderBooks = () => {
         return Array(count).fill(null).map((_, i) => (
@@ -202,8 +301,26 @@ export const LoadingCards: React.FC<LoadingProps> = ({
             return <TrendingTopicsCard primaryBg={primaryBg} secondaryBg={secondaryBg} cardBg={cardBg} borderColor={borderColor} />;
         case "genres":
             return <GenreLoadingState primaryBg={primaryBg} secondaryBg={secondaryBg} cardBg={cardBg} borderColor={borderColor} />;
-            case "info":
+        case "info":
             return <InfoCard primaryBg={primaryBg} secondaryBg={secondaryBg} cardBg={cardBg} borderColor={borderColor} />;
+        case "shelves":
+            return <ShelvesLoadingState
+                primaryBg={primaryBg}
+                secondaryBg={secondaryBg}
+                cardBg={cardBg}
+                captionColor={textColor}
+                borderColor={borderColor}
+                shelfCount={shelfCount}
+                booksPerShelf={booksPerShelf}
+            />;
+        case "topBooksShelves":
+            return <TopBooksShelvesLoadingState
+                primaryBg={primaryBg}
+                secondaryBg={secondaryBg}
+                cardBg={cardBg}
+                borderColor={borderColor}
+                count={5}
+            />;
         case "content":
             return (
                 <div className="space-y-4">

@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 
+import com.ana.bookapi.models.Genre;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -70,7 +71,8 @@ public class RecommendationController {
         List<BookDTO> dtos = books.stream()
                 .map(book -> {
                     Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
-                    return new BookDTO(book, author);
+                    Genre genre = genreRepo.findById(book.getGenreId()).orElse(null);
+                    return new BookDTO(book, author,  genre);
                 })
                 .collect(Collectors.toList());
 
@@ -196,7 +198,8 @@ public class RecommendationController {
             List<BookDTO> dtos = weeklyBooks.stream()
                     .map(book -> {
                         Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
-                        return new BookDTO(book, author);
+                        Genre genre = genreRepo.findById(book.getGenreId()).orElse(null);
+                        return new BookDTO(book, author, genre);
                     })
                     .collect(Collectors.toList());
 

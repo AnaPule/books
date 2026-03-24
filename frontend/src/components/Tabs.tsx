@@ -32,7 +32,7 @@ export default function Tabs({ tabs, activeTab: externalActiveTab, onTabChange }
 
     return (
         <>
-            <div className="flex flex-wrap justify-center gap-2 mb-12">
+            <div className="flex flex-wrap justify-center gap-2 mb-9">
                 {tabs.map((tab, idx) => (
                     <button
                         key={idx}

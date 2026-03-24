@@ -2,6 +2,7 @@ import type { Book as Bk } from "@models/Book";
 import styles from "./shelves.module.css";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import Tooltip from "@components/skeleton/ToolTip";
 interface ShelvesProps {
     shelf1: Bk[] | null;
     shelf1Caption: string;
@@ -20,8 +21,7 @@ interface ShelvesProps {
 }
 
 interface BookProps {
-    book: Bk;
-    index: number;
+    books: Bk[];
 }
 
 interface SingleBookShelfProps {
@@ -34,15 +34,15 @@ interface TopThreeShelvesProps {
 }
 
 const randomColour = () => {
-        const covers = [
-            'https://i.pinimg.com/736x/1c/5a/f9/1c5af9ef684d12f67e679022b6c9e7c3.jpg',
-            'https://i.pinimg.com/1200x/06/b8/6d/06b86da97b7c0358944941a1d536ae5f.jpg',
-            'https://i.pinimg.com/736x/9e/86/04/9e8604207b5dceca484d00ae011f2250.jpg',
-            'https://i.pinimg.com/736x/68/a2/48/68a248e7e17174e28e6a2bca70b63ff0.jpg'
-        ];
+    const covers = [
+        'https://i.pinimg.com/736x/1c/5a/f9/1c5af9ef684d12f67e679022b6c9e7c3.jpg',
+        'https://i.pinimg.com/1200x/06/b8/6d/06b86da97b7c0358944941a1d536ae5f.jpg',
+        'https://i.pinimg.com/736x/9e/86/04/9e8604207b5dceca484d00ae011f2250.jpg',
+        'https://i.pinimg.com/736x/68/a2/48/68a248e7e17174e28e6a2bca70b63ff0.jpg'
+    ];
 
-        return covers[Math.floor(Math.random() * covers.length)];
-    }
+    return covers[Math.floor(Math.random() * covers.length)];
+}
 
 const SingleBookShelf: React.FC<SingleBookShelfProps> = ({ book, rank }) => {
     const navigate = useNavigate();
@@ -52,7 +52,7 @@ const SingleBookShelf: React.FC<SingleBookShelfProps> = ({ book, rank }) => {
             {/* Book + rank container */}
             <div
                 className="
-                    flex items-end gap-2 sm:gap-3 md:gap-4 
+                    flex items-end gap-2 lg:gap-0 sm:gap-3 md:gap-4 
                     pl-3 sm:pl-4 md:pl-6 
                     pb-[2px] 
                     cursor-pointer
@@ -78,7 +78,8 @@ const SingleBookShelf: React.FC<SingleBookShelfProps> = ({ book, rank }) => {
                     transform-style-preserve-3d
                     transition-transform duration-300 ease-out
                     drop-shadow-[4px_6px_10px_rgba(0,0,0,0.25)]
-                    mx-0 mb-[-10px] ml-[clamp(0px,3vw,30px)]
+                    mx-0 mb-[-10px] md ml-0 :ml-[clamp(0px,3vw,30px)]
+                    mr-3
                     z-10 shrink-0
                     hover:translate-y-[-4px] hover:rotate-y-[-10deg]
                 "
@@ -187,17 +188,89 @@ export const TopBooksShelves: React.FC<TopThreeShelvesProps> = ({ books }) => {
     );
 };
 
-const Book: React.FC<BookProps> = ({ book, index }) => {
+const Book: React.FC<BookProps> = ({ books }) => {
     const navigate = useNavigate();
-    const isEven = index % 2 === 0;
-
+    /*
     return (
         <div
-            className={`${styles.book}`}
-            style={{ '--bg-image': `url(${book.coverArt}})`, '--alternative': `url(${randomColour()})`, zIndex: '5',} as React.CSSProperties}
+            className={`${styles.book} group cursor-pointer transition-all duration-300 hover:-translate-y-1`}
             onClick={() => navigate(`/book/${book.id}`)}
             title={book.name}
-        />
+        >
+            {/* 3D Book Container *
+            <div className="
+            relative w-full h-full transform-style-preserve-3d 
+            transition-transform duration-300 
+            group-hover:translate-y-[-4px] group-hover:rotate-y-[-5deg]">
+                {/* Spine — left dark strip *
+                <div className="absolute left-0 top-0 w-[6px] h-full bg-[#3D2E1A] rounded-l-[2px] origin-left bg-gradient-to-r from-[#2a1f10] to-[#3D2E1A]"
+                    style={{ transform: 'rotateY(90deg)' }} />
+
+                {/* Cover face *
+                <div className="absolute inset-0 rounded-[2px_3px_3px_2px] overflow-hidden shadow-[inset_-2px_0_4px_rgba(0,0,0,0.15),inset_1px_0_2px_rgba(255,255,245,0.3)]">
+                    {book.coverArt ? (
+                        <div
+                            className="w-full h-full bg-cover bg-center"
+                            style={{ backgroundImage: `url(${book.coverArt})` }}
+                        />
+                    ) : (
+                        <div className={`w-full h-full ${getBookColor()} flex items-center justify-center p-1`}>
+                            <span className="text-[#5A4D41] text-[8px] font-serif text-center leading-tight line-clamp-3">
+                                {book.name}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Book pages (right side) *
+                <div className="absolute right-[-4px] top-1 bottom-1 w-[3px] bg-[repeating-linear-gradient(90deg,#F5F0E8_0px,#F5F0E8_1px,#E8DFD4_1px,#E8DFD4_2px,#F5F0E8_2px)] rounded-r-sm shadow-[inset_-1px_0_1px_rgba(0,0,0,0.03),1px_0_2px_rgba(0,0,0,0.05)] z-1" />
+
+                {/* Top page edge *
+                <div className="absolute -top-[2px] left-1 right-0 h-[2px] bg-[#F5F0E8] bg-[repeating-linear-gradient(90deg,transparent,transparent_1px,rgba(180,170,155,0.3)_1px,rgba(180,170,155,0.3)_2px)] rounded-t-[1px] origin-top"
+                    style={{ transform: 'rotateX(90deg)' }} />
+            </div>
+        </div>
+    );
+    */
+
+    return (
+        <div className={styles.booksContainer}>
+            {books.slice(0, 10).map((book, i) => (
+                <div
+                    onClick={() => navigate(`/book/${book.id}`)}
+                    className={`${styles.bookCard}
+                        relative 
+                        w-[clamp(100px,70vw,130px)] h-[clamp(95px,64vw,140px)]
+                        transform-style-preserve-3d
+                        transition-transform duration-300 ease-out
+                        drop-shadow-[4px_6px_10px_rgba(0,0,0,0.25)]
+                        mx-0 mb-[-10px] ml-[clamp(0px,3vw,30px)]
+                        z-10 shrink-0 bottom-[-18px]
+                        hover:translate-y-[-4px] hover:rotate-z-[70deg]
+                        `}>
+                    <Tooltip content={`${book.name}`} />
+                    <div
+                        className={`${styles.bookCover} 
+                        
+                        `}
+                        style={{
+                            transform: 'perspective(400px) rotateY(-20deg)',
+                            '--bg-image': book.coverArt ? `url(${book.coverArt})` : `url(${randomColour()})`
+                        } as React.CSSProperties}
+                    >
+                        {
+                            !book.coverArt ?
+                                (<span className="text-black font-medium">{book.name}</span>) : null
+                        }
+                    </div>
+                    <div className={styles.bookSpine} />
+                    <div className={styles.bookPages} />
+                    <div className={styles.bookTopEdge} />
+                    <div className={styles.bookShadow} />
+
+                </div>
+            ))}
+        </div>
     );
 };
 
@@ -207,22 +280,16 @@ interface ShelfRowProps {
 }
 
 const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption }) => (
-    <div>
+    // In your ShelfRow component:
+    <div className={styles.shelfRow}>
         <div className="flex items-center justify-between mb-4 border-b border-[#E2E9DC] pb-2">
-            <span className={styles.caption}>{caption}</span>
+            <span className={styles.shelvesCaption}>{caption}</span>
             <button className="text-[#9FB89F] hover:text-[#8AA88A] flex items-center gap-2 transition-colors text-xs sm:text-sm">
-                SEE ALL <ChevronRight size={14} className="sm:size-4" />
+                SEE ALL <ChevronRight size={14} />
             </button>
         </div>
-
-        <div className={styles.books}>
-            {books.slice(0, 10).map((book, i) => (
-                <Book key={i} book={book} index={i} />
-            ))}
-        </div>
-        <div className={styles.bookshelf}>
-
-        </div>
+        <Book books={books} />
+        <div className={styles.shelfBoard} />
     </div>
 );
 

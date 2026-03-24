@@ -267,27 +267,39 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
                             Start reading
                             <ExternalLink size={18} />
                         </button>
-                        <CircleButton
-                            buttonLabel={Bookmark}
-                            Label={"Add To Library"}
-                            action={handleBookToLibrary}
-                            fill={isInLibrary ? "#8098A8" : "none"}
-                            color={isInLibrary ? "#8098A8" : "#5a4d41"}
-                        />
-                        <CircleButton
-                            buttonLabel={Heart}
-                            Label={"Wishlist"}
-                            action={handleBookToWishlist}
-                            fill={isInWishlist ? "#8098A8" : "none"}
-                            color={isInWishlist ? "#8098A8" : "#5a4d41"}
-                        />
-                        <CircleButton
-                            buttonLabel={ThumbsDown}
-                            Label={"Dislike"}
-                            action={handleBookToDislike}
-                            fill={isInDislike ? "#8098A8" : "none"}
-                            color={isInDislike ? "#8098A8" : "#5a4d41"}
-                        />
+                        {
+                            !dislike.find(d => d.id == book.id) &&
+                            <>
+                                <CircleButton
+                                    buttonLabel={Bookmark}
+                                    Label={"Add To Library"}
+                                    action={handleBookToLibrary}
+                                    fill={isInLibrary ? "#8098A8" : "none"}
+                                    color={isInLibrary ? "#8098A8" : "#5a4d41"}
+                                />
+                                <CircleButton
+                                    buttonLabel={Heart}
+                                    Label={"Wishlist"}
+                                    action={handleBookToWishlist}
+                                    fill={isInWishlist ? "#8098A8" : "none"}
+                                    color={isInWishlist ? "#8098A8" : "#5a4d41"}
+                                />
+                            </>
+
+                        }
+                        {
+                            !wishlist.find(w => w.id == book.id) &&
+                            !library.find(l => l.id == book.id) &&
+                            <CircleButton
+                                buttonLabel={ThumbsDown}
+                                Label={"Dislike"}
+                                action={handleBookToDislike}
+                                fill={isInDislike ? "#8098A8" : "none"}
+                                color={isInDislike ? "#8098A8" : "#5a4d41"}
+                            />
+
+                        }
+
                     </div>
                 </div>
             </div>

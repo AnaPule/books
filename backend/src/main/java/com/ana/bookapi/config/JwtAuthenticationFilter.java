@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import java.io.IOException;
 
 @Component
@@ -60,9 +61,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String jwtToken = header.substring(7);
             final String userEmail = jwt.extractUsername(jwtToken);
 
+            //System.out.println("🔍 JWT Filter - User: " + userEmail);
+            //System.out.println("🔍 JWT Filter - Token: " + jwtToken.substring(0, Math.min(30, jwtToken.length())) + "...");
+
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (userEmail != null && authentication == null) {
                 UserDetails userDetails = this.usd.loadUserByUsername(userEmail);
+
+                boolean isValid = jwt.isTokenValid(jwtToken, userDetails);
+                //System.out.println("🔍 JWT Filter - Token valid: " + isValid);
+                //System.out.println("🔍 JWT Filter - Token expired: " + jwt.isTokenExpired(jwtToken));
 
                 if (jwt.isTokenValid(jwtToken, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -73,11 +81,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    //System.out.println("✅ JWT Filter - Authentication set for: " + userEmail);
+                } else {
+                    System.out.println("❌ JWT Filter - Token INVALID for: " + userEmail);
+                    System.out.println("   Reason: Token expired or signature invalid");
                 }
             }
 
             chain.doFilter(req, rep);
         } catch (Exception e) {
+            System.err.println("🔥 JWT Filter ERROR: " + e.getMessage());
+            e.printStackTrace();
+
             her.resolveException(req, rep, null, e);
         }
     }

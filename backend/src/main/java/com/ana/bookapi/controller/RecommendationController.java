@@ -1,8 +1,6 @@
 package com.ana.bookapi.controller;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
@@ -72,7 +70,7 @@ public class RecommendationController {
                 .map(book -> {
                     Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
                     Genre genre = genreRepo.findById(book.getGenreId()).orElse(null);
-                    return new BookDTO(book, author,  genre);
+                    return new BookDTO(book, author, genre);
                 })
                 .collect(Collectors.toList());
 
@@ -302,7 +300,8 @@ public class RecommendationController {
         List<BookDTO> books = newBooks.stream()
                 .map(book -> {
                     Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
-                    return new BookDTO(book, author);
+                    Genre genre = genreRepo.findById(book.getGenreId()).orElse(null);
+                    return new BookDTO(book, author, genre);
                 })
                 .collect(Collectors.toList());
 
@@ -325,6 +324,52 @@ public class RecommendationController {
     }
 
     // AI discovery type shiii
+    @GetMapping("/classics")
+    public ResponseEntity<?> getClassics() {
+        try {
+            List<Book> classics = recommendationService.getClassicsByAI();
+            List<BookDTO> dtos = classics.stream()
+                    .map(book -> {
+                        Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
+                        Genre genre = genreRepo.findById(book.getGenreId()).orElse(null);
+                        return new BookDTO(book, author, genre);
+                    }).collect(Collectors.toList());
+            return ResponseEntity.ok(Map.of("books", dtos, "count", dtos.size()));
+        } catch (Exception e) {
+            //er.setMessage(e.getMessage());
+            System.err.println(e.getMessage());
+            return ResponseEntity.ok(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/classics/user/{userId}")
+    public ResponseEntity<?> getClassicBooksByGenre(@PathVariable String userId) {
+        try {
+            List<Book> classics = recommendationService.getClassicsByUserGenre(userId);
+            if (classics.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "books", Collections.emptyList(),
+                        "message", "No classics found for your favorite genre"
+                ));
+            }
+
+            List<BookDTO> dtos = classics.stream()
+                    .map(book -> {
+                        Author author = authorRepo.findById(book.getAuthorId()).orElse(null);
+                        Genre genre = genreRepo.findById(book.getGenreId()).orElse(null);
+                        return new BookDTO(book, author, genre);
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(Map.of(
+                    "books", dtos,
+                    "count", dtos.size()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/user/books/interact")
     public ResponseEntity<?> interactWithBook(@RequestBody userBookDTO dto) {
         try {

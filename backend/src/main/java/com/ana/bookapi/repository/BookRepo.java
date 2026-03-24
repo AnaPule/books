@@ -52,8 +52,11 @@ public interface BookRepo extends JpaRepository<Book, String> {
     @Query("SELECT b FROM Book b WHERE b.genreId IN :genreIds OR b.authorId IN :authorIds")
     List<Book> findByGenreIdsOrAuthorIds(@Param("genreIds") List<String> genreIds, @Param("authorIds") List<String> authorIds);
 
-    @Query("SELECT b FROM Book b ORDER BY b.publicationDate DESC")
+    @Query("SELECT b FROM Book b ORDER BY b.publicationDate DESC limit 20")
     List<Book> findTopByOrderByPublicationDateDesc();
+
+    @Query("SELECT b FROM Book b WHERE LOWER(b.name) = LOWER(:name)")
+    Book findByNameIgnoreCase(@Param("name") String name);
 
     boolean existsByIsbn(String isbn);
     boolean existsByAuthorId(String authorId);

@@ -357,6 +357,8 @@ public class userService implements UserDetailsService {
         UserQuote quote = new UserQuote(userId, quoteText, quoteAuthor);
         uqr.save(quote);
     }
+
+
 }
 
 

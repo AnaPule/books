@@ -59,13 +59,24 @@ public class JwtService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
     public boolean isTokenValid(String token, UserDetails ud){
         final String username = extractUsername(token);
+            boolean valid = username.equals(ud.getUsername()) && !isTokenExpired(token);
+            System.out.println("🔍 JWT Service - Token valid check: " + valid + " for user: " + username);
         return (username.equals(ud.getUsername()) && !isTokenExpired(token));
     }
     public String extractUsername(String token){return extractClaim(token, claims -> claims.get("username",String.class));}
-    private boolean isTokenExpired(String token){
-        return extractExpiration(token).before(new Date());
+    public boolean isTokenExpired(String token) {
+        final Date expiration = extractExpiration(token);
+        boolean expired = expiration.before(new Date());
+            System.out.println("🔍 JWT Service - Token expires at: " + expiration);
+            System.out.println("🔍 JWT Service - Current time: " + new Date());
+            System.out.println("🔍 JWT Service - Token expired: " + expired);
+        if (expired) {
+            System.out.println("Token expired at: " + expiration);
+        }
+        return expired;
     }
     private Date extractExpiration(String token){return extractClaim(token, Claims::getExpiration);}
     private Claims extractAllClaims(String token){

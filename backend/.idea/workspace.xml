@@ -6,11 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="it wants me to commit before checking out">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/JwtAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/RecommendationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/RecommendationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/skeleton/shelves/Shelves.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/skeleton/shelves/Shelves.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/skeleton/shelves/shelves.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/skeleton/shelves/shelves.module.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/BookRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/BookRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/JwtService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/userService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/userService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/RecommendationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/RecommendationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/skeleton/LoadingCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/skeleton/LoadingCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/pages/books/discover/DiscoveryPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/books/discover/DiscoveryPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/books/individual-book.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/books/individual-book.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

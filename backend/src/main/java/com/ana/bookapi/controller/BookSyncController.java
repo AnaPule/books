@@ -59,4 +59,21 @@ public class BookSyncController {
         }
     }
 
+    @PostMapping("/open-library-books")
+    public ResponseEntity<?> syncOpenLibraryBooks() {
+        try {
+            int total = gs.syncOpenLibraryBooksToMongo();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("total_fetched", total);
+            response.put("message", "Fetched " + total + " books from Open Library!");
+            response.put("status", 200);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            er.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
 }

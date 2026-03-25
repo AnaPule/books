@@ -1,7 +1,10 @@
 package com.ana.bookapi.models;
 
 import jakarta.persistence.*;
+import org.w3c.dom.Text;
+
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -17,23 +20,17 @@ public class Author {
     @Column(name = "id", length = 70, nullable = false, unique = true)
     private String id;
 
-    @Column(name = "name", length = 50, nullable = false, unique = true)
+    @Column(name = "name", length = 200, nullable = false, unique = true)
     private String name;
 
-    @Column(name = "biography", length = 2000, nullable = true) // Increased length
+    @Column(name = "biography", columnDefinition = "TEXT", nullable = true) // Increased length
     private String biography;
 
     @Column(name = "image", length = 500, nullable = true) // Increased length for URLs
     private String image;
 
-    @Column(name = "email", length = 100, nullable = true) // Increased length
-    private String email;
-
-    @Column(name = "cellphone", length = 20, nullable = true) // Increased length
-    private String cellphone;
-
-    @Column(name = "website", length = 500, nullable = true) // Increased length for URLs
-    private String website;
+    @Column(name = "dob", nullable = true) // Increased length
+    private Date dob;
 
     // Getters and Setters
     public String getId() { return id; }
@@ -48,12 +45,6 @@ public class Author {
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getCellphone() { return cellphone; }
-    public void setCellphone(String cellphone) { this.cellphone = cellphone; }
-
-    public String getWebsite() { return website; }
-    public void setWebsite(String website) { this.website = website; }
+    public Date getDob() { return dob; }
+    public void setDob(Date dob) { this.dob = dob; }
 }

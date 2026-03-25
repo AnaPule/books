@@ -1,19 +1,25 @@
 package com.ana.bookapi.service.external;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.ana.bookapi.clients.OpenLibrary;
 import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.models.Author;
 import com.ana.bookapi.models.Genre;
 import com.ana.bookapi.repository.BookRepo;
 import com.ana.bookapi.repository.GenreRepo;
 import com.ana.bookapi.repository.AuthorRepo;
+import org.bson.Document;
 import org.springframework.stereotype.Service;
-import com.ana.bookapi.config.external.GoogleBooks;
+import com.ana.bookapi.clients.GoogleBooks;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 @Service
@@ -23,6 +29,7 @@ public class GoogleBooksSyncService {
     private final GenreRepo gr;
     private final AuthorRepo ar;
     private final GoogleBooks gb;
+    private final OpenLibrary obl;
     private final MongoTemplate mongo;
 
     public GoogleBooksSyncService(
@@ -30,16 +37,18 @@ public class GoogleBooksSyncService {
             GenreRepo gr,
             AuthorRepo ar,
             GoogleBooks gb,
+            OpenLibrary obl,
             MongoTemplate mongo) {
         this.br = br;
         this.ar = ar;
         this.gb = gb;
         this.gr = gr;
+        this.obl = obl;
         this.mongo = mongo;
     }
 
     public Book convertMongoGoogleBookToBook(org.bson.Document document) {
-        Author a = createOrFindAuthor(document.getString("author"));
+        Author a = createOrFindAuthor(document.getString("author"), document.getString("author_key"));
         Genre g = createOrFindGenre(document.getString("genre"));
         Book b = new Book();
 
@@ -47,8 +56,10 @@ public class GoogleBooksSyncService {
         String isbn13 = document.getString("primary_isbn13");
         String isbn10 = document.getString("primary_isbn10");
 
-        if (isbn13 != null && !isbn13.isEmpty()) { isbn = isbn13;}
-        else if (isbn10 != null && !isbn10.isEmpty()) {isbn = isbn10;
+        if (isbn13 != null && !isbn13.isEmpty()) {
+            isbn = isbn13;
+        } else if (isbn10 != null && !isbn10.isEmpty()) {
+            isbn = isbn10;
         } else {
             System.out.println("Book skipped - No valid ISBN (13 or 10)");
             return null;
@@ -140,18 +151,79 @@ public class GoogleBooksSyncService {
         return synced;
     }
 
+    public int syncOpenLibraryBooksToMongo() {
+        try {
+            return gb.getBooksFromOpenLibraryBySubjects();
+        } catch (Exception e) {
+            throw new RuntimeException("Error syncing Open Library books: " + e.getMessage());
+        }
+    }
+
     //helper methods
-    private Author createOrFindAuthor(String name) {
+    private Author createOrFindAuthor(String name, String authorKey) {
         String authorName = (name == null || name.trim().isEmpty()) ? "Unknown Author" : name;
-        // Check if author already exists
         Optional<Author> existingAuthor = ar.findByName(authorName);
+
         if (existingAuthor.isPresent()) {
             return existingAuthor.get();
         }
 
-        // Create new author only if it doesn't exist
         Author newAuthor = new Author();
         newAuthor.setName(authorName);
+
+        // If we have an Open Library author key, fetch additional data
+        if (authorKey != null && !authorKey.isEmpty()) {
+            try {
+                String url = "https://openlibrary.org" + authorKey + ".json";
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .GET()
+                        .build();
+                HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    Document authorData = Document.parse(response.body());
+
+                    // Biography
+                    Object bio = authorData.get("bio");
+                    if (bio != null) {
+                        if (bio instanceof String) {
+                            newAuthor.setBiography((String) bio);
+                        } else if (bio instanceof Document) {
+                            newAuthor.setBiography(((Document) bio).getString("value"));
+                        }
+                    }
+
+                    // Birth date
+                    String birthDate = authorData.getString("birth_date");
+                    if (birthDate != null) {
+                        try {
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                            newAuthor.setDob(format.parse(birthDate));
+                        } catch (Exception e) {
+                            // Try year only
+                            try {
+                                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+                                newAuthor.setDob(yearFormat.parse(birthDate));
+                            } catch (Exception ex) {
+                                // Ignore parse errors
+                            }
+                        }
+                    }
+
+                    // Photo/image
+                    List<Integer> photos = (List<Integer>) authorData.get("photos");
+                    if (photos != null && !photos.isEmpty()) {
+                        Integer photoId = photos.get(0);
+                        newAuthor.setImage("https://covers.openlibrary.org/a/id/" + photoId + "-M.jpg");
+                    }
+                }
+                Thread.sleep(100); // Rate limiting
+            } catch (Exception e) {
+                System.out.println("Error fetching author details: " + e.getMessage());
+            }
+        }
+
         return ar.save(newAuthor);
     }
 

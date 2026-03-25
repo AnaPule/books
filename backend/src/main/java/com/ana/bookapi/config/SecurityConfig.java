@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorise -> authorise
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/sync/**").permitAll()
                         .requestMatchers("/books/**").permitAll()
                         .requestMatchers("/recs/**").permitAll()
                         .anyRequest().authenticated()

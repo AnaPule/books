@@ -1,4 +1,4 @@
-package com.ana.bookapi.config.external;
+package com.ana.bookapi.clients;
 
 //====================== packages ====================//
 
@@ -18,11 +18,14 @@ import java.util.List;
 public class GoogleBooks {
     @Value("${google.api.key}")
     private String googleApiKey;
+    private OpenLibrary openLibrary;
     private final MongoTemplate mongoTemplate;
 
     //default constructor
-    public GoogleBooks(MongoTemplate mongoTemplate) {
+    public GoogleBooks(MongoTemplate mongoTemplate, OpenLibrary openLibrary) {
+
         this.mongoTemplate = mongoTemplate;
+        this.openLibrary = openLibrary;
     }
 
     //methods
@@ -117,27 +120,80 @@ public class GoogleBooks {
         return TotalBooksRetrievedForMongo;
     }
 
+    // Modify the extraction method
     private int extractAndSaveGoogleBook(String jsonResponse, String subject) {
-        org.bson.Document fullResponse = org.bson.Document.parse(jsonResponse); // raw json response
-        List<Document> items = (List<org.bson.Document>) fullResponse.get("items");// get the list array of books
+        org.bson.Document fullResponse = org.bson.Document.parse(jsonResponse);
+        List<Document> items = (List<org.bson.Document>) fullResponse.get("items");
         int totalSavedBooks = 0;
 
         if (items == null || items.isEmpty()) {
             System.out.println("No items found for subject: " + subject);
-            return 0; // Early return
+            return 0;
         }
 
-        // loop through each book in the items array
         for (org.bson.Document item : items) {
             try {
                 org.bson.Document volumeInfo = (org.bson.Document) item.get("volumeInfo");
                 org.bson.Document accessInfo = (org.bson.Document) item.get("accessInfo");
 
                 if (volumeInfo != null && accessInfo != null) {
-                    // Create a clean book document with only the fields we need
+                    // Create initial book document
                     org.bson.Document book = new org.bson.Document();
 
-                    // Basic book info
+                    // Try to get ISBN
+                    String isbn13 = extractISBN13(volumeInfo);
+                    String isbn10 = extractISBN10(volumeInfo);
+
+                    // If no ISBN, try to search Open Library by title/author
+                    if (isbn13 == null && isbn10 == null) {
+                        String title = volumeInfo.getString("title");
+                        String author = getFirstAuthor(volumeInfo);
+
+                        System.out.println("No ISBN for: " + title + " - searching Open Library...");
+                        Document enriched = openLibrary.searchBookByTitleAuthor(title, author);
+
+                        if (enriched != null) {
+                            // Use enriched data to fill gaps
+                            isbn13 = enriched.getString("primary_isbn13");
+                            isbn10 = enriched.getString("primary_isbn10");
+
+                            // Enrich any missing fields
+                            if (volumeInfo.getString("description") == null) {
+                                volumeInfo.put("description", enriched.getString("synopsis"));
+                            }
+                            if (volumeInfo.get("imageLinks") == null && enriched.getString("book_image") != null) {
+                                Document cover = new Document();
+                                cover.put("thumbnail", enriched.getString("book_image"));
+                                volumeInfo.put("imageLinks", cover);
+                            }
+                        }
+                    }
+
+                    // If we have ISBN, try to enrich missing data
+                    if (isbn13 != null || isbn10 != null) {
+                        String isbnToUse = isbn13 != null ? isbn13 : isbn10;
+                        Document enriched = openLibrary.enrichBookByISBN(isbnToUse);
+
+                        if (enriched != null) {
+                            // Fill in missing fields from Open Library
+                            if (volumeInfo.getString("description") == null) {
+                                volumeInfo.put("description", enriched.getString("synopsis"));
+                            }
+                            if (volumeInfo.getString("publisher") == null) {
+                                volumeInfo.put("publisher", enriched.getString("publisher"));
+                            }
+                            if (volumeInfo.getInteger("pageCount") == null) {
+                                volumeInfo.put("pageCount", enriched.getInteger("page_count"));
+                            }
+                            if (volumeInfo.get("imageLinks") == null && enriched.getString("book_image") != null) {
+                                Document cover = new Document();
+                                cover.put("thumbnail", enriched.getString("book_image"));
+                                volumeInfo.put("imageLinks", cover);
+                            }
+                        }
+                    }
+
+                    // Now build the book document (same as before)
                     book.put("id", item.getString("id"));
                     book.put("title", volumeInfo.getString("title"));
                     book.put("author", getFirstAuthor(volumeInfo));
@@ -147,35 +203,34 @@ public class GoogleBooks {
                     book.put("page_count", volumeInfo.getInteger("pageCount"));
                     book.put("previewLink", volumeInfo.getString("previewLink"));
                     book.put("webReaderLink", accessInfo.getString("webReaderLink"));
-                    //book.put("average_rating", volumeInfo.getInteger("averageRating"));
-                    //book.put("ratings_count", volumeInfo.getInteger("ratingsCount"));
-
-                    // ISBN
-                    book.put("primary_isbn13", extractISBN13(volumeInfo));
-                    book.put("primary_isbn10", extractISBN10(volumeInfo));
+                    book.put("primary_isbn13", isbn13);
+                    book.put("primary_isbn10", isbn10);
 
                     // Cover image
                     org.bson.Document imageLinks = (org.bson.Document) volumeInfo.get("imageLinks");
                     if (imageLinks != null) {
                         book.put("book_image", imageLinks.getString("thumbnail"));
+                    } else {
+                        book.put("book_image", null);
                     }
 
-                    // Categories and subject and authors
                     book.put("genre", subject);
                     book.put("categories", volumeInfo.get("categories"));
-                    //book.put("subject", subject); -> not looping through non right now
                     book.put("language", volumeInfo.getString("language"));
                     book.put("authors", volumeInfo.get("authors"));
+                    book.put("author_key", null);
 
+                    // Save to MongoDB
                     mongoTemplate.save(book, "GoogleBooks");
                     totalSavedBooks++;
+
+                    // Small delay for rate limiting
+                    Thread.sleep(200);
                 }
-                //System.out.println("Saved " + totalSavedBooks + " individual books to MongoDB!");
             } catch (Exception e) {
-                //System.out.println("Error processing book: " + e.getMessage());
-                throw new RuntimeException("Error processing book: " + e.getMessage());
-            }// end of try catch;
-        }//end of for loop
+                System.out.println("Error processing book: " + e.getMessage());
+            }
+        }
         return totalSavedBooks;
     }
 
@@ -210,5 +265,65 @@ public class GoogleBooks {
             }
         }
         return null;
+    }
+
+    /**
+     * Get books directly from Open Library for niche genres
+     */
+    public int getBooksFromOpenLibraryBySubjects() {
+        System.out.println("Getting books from Open Library...");
+        int totalRetrieved = 0;
+
+        // Niche genres that Google Books might miss
+        String[] nicheSubjects = {
+                // Manga & Comics (already have)
+                "manga", "webtoons", "manhwa", "manhua", "light_novels",
+                "comics", "graphic_novels", "japanese_comics",
+
+                // Missing from Google Books (empty results)
+                "dark_fantasy", "urban_fantasy", "magical_realism",
+                "dark_romance", "new_adult_romance", "cosmic_horror",
+                "middle_grade", "picture_books", "shojo", "webtoons",
+                "indie_comics", "diverse_voices", "bipoc_literature",
+                "swashbuckler",
+
+                // Niche genres Google Books struggled with
+                "gothic_fiction", "romanticism", "cyberpunk", "steampunk",
+                "dystopian", "noir", "afrofuturism", "climate_fiction",
+                "indigenous_literature", "lgbtq_fiction",
+
+                // Additional genres
+                "grimdark", "slice_of_life", "isekai", "yaoi", "yuri",
+                "shonen", "seinen", "josei", "biographical_comics",
+                "historical_fiction", "mythology", "fairytale_retellings",
+                "lovecraftian", "satire", "absurdist_fiction"
+        };
+
+        for (String subject : nicheSubjects) {
+            try {
+                System.out.println("Fetching Open Library books for: " + subject);
+                List<Document> books = openLibrary.getBooksBySubject(subject, 40); // list of works found in this genre right - but these works dont have all the attributes you want.
+                //so we send these works to a helper method to get all attributes desired
+
+                for (Document book : books) {
+                    // Add the genre/subject
+                    book.put("genre", subject);
+                    book.put("source", "OpenLibrary");
+
+                    // Save to MongoDB
+                    mongoTemplate.save(book, "GoogleBooks");
+                    totalRetrieved++;
+                    Thread.sleep(200); // Rate limiting
+                }
+
+                System.out.println("Retrieved " + books.size() + " books for " + subject);
+                Thread.sleep(2000); // Delay between subjects
+
+            } catch (Exception e) {
+                System.out.println("Error fetching Open Library books for " + subject + ": " + e.getMessage());
+            }
+        }
+
+        return totalRetrieved;
     }
 }

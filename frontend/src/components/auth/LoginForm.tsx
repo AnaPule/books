@@ -69,10 +69,10 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
             password: '',
             token: ''
         }
-        await request.post<String>(`/auth/sendVerificationEmail`, dto)
+        await request.post<any>(`/auth/sendVerificationEmail`, dto)
             .then(
-                ((res: String) => {
-                    toast.info('Email Sent', { description: res });
+                ((res: any) => {
+                    toast.info('Email Sent', { description: `${res.message}` });
                 })
             ).catch(
                 (error: any) => {

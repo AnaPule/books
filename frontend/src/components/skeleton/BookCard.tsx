@@ -32,7 +32,7 @@ const randomColour = () => {
     const covers = [
         'https://i.pinimg.com/736x/25/3c/9a/253c9a4865b62f9733ef868b490fb2ac.jpg',
         'https://i.pinimg.com/736x/dd/a1/fe/dda1fe74288e92ee643261f1f94e8a29.jpg',
-        
+
     ];
 
     return covers[Math.floor(Math.random() * covers.length)];
@@ -68,7 +68,6 @@ export const Card: React.FC<CardProps> = ({
                             </div>
                         ) : null
                 }
-                <div className="tooltip">{book.name}</div>
             </div>
             <h2 className="font-bold w-64 text-lg text-left pt-4 truncate ">{book.name ?? "Default Book Name"}</h2>
             <p className="text-left text-sm px-2">by {book.author.name ?? 'Unknown Author'}</p>
@@ -96,6 +95,7 @@ export const SmallCard: React.FC<CardProps> = ({
                 } as React.CSSProperties}
 
             >
+
                 {
                     !book.coverArt ?
                         (
@@ -123,7 +123,7 @@ export const SmallCard: React.FC<CardProps> = ({
 export const MediumCard: React.FC<CardProps> = ({ book, action }) => (
     <div onClick={action} className="group cursor-pointer w-full">
         <div
-            className="w-full aspect-[2/3] rounded-xl shadow-md mb-3 group-hover:shadow-lg group-hover:-translate-y-3 transition-all duration-300 bg-[#F5F0E8]/90"
+            className="w-full aspect-[2/3] rounded-xl shadow-md mb-3 group-hover:shadow-lg group-hover:-translate-y-3 transition-all duration-300 bg-[#F5F0E8]/90 relative"
             style={{
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -132,21 +132,6 @@ export const MediumCard: React.FC<CardProps> = ({ book, action }) => (
             } as React.CSSProperties}
 
         >
-            {
-                !book.coverArt ?
-                    (
-                        <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
-                            <span className="
-                                    text-black text-[clamp(5px,1.8vw,8px)]
-                                    text-center leading-tight
-                                    tracking-wide uppercase
-                                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
-                                ">
-                                {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
-                            </span>
-                        </div>
-                    ) : null
-            }
         </div>
 
         <h3 className="font-sans font-medium text-sm text-[#5A4D41] line-clamp-2 mb-1">{book.name}</h3>
@@ -174,21 +159,6 @@ export const LargeCard: React.FC<CardProps> = ({
                 } as React.CSSProperties}
 
             >
-                {
-                    !book.coverArt ?
-                        (
-                            <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
-                                <span className="
-                                    text-black text-[clamp(5px,1.8vw,8px)]
-                                    text-center leading-tight
-                                    tracking-wide uppercase
-                                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
-                                ">
-                                    {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
-                                </span>
-                            </div>
-                        ) : null
-                }
             </div>
             <h3 className="font-sans font-medium text-base md:text-lg text-[#5A4D41] line-clamp-2 mb-1.5 group-hover:text-[#9FB89F] transition-colors">
                 {book.name}
@@ -239,7 +209,6 @@ export const BookCard: React.FC = () => {
         request.get<Book[]>(`/library/get-user-library/${user?.id}`)
             .then((res: Book[]) => {
                 setBooks(res)
-                //console.log('response: ', res);
             }).catch(
                 (error) => {
                     toast.error('Something went wrong while loading your library. Please reload your page.');

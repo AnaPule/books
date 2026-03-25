@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 {/* =============== components ============ */ }
 import { AccountSettings } from '@pages/profile/AccountSettings';
-import { Home, BookOpen, Clock, Bookmark, Settings, Menu, Search, TrendingUp, Heart, LogOut, X, Bell, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, MessageSquareDot, Clock, Bookmark, Settings, Menu, Search, TrendingUp, Heart, LogOut, X, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 
 {/* =============== services ============ */ }
 import { useNavigate } from "react-router-dom";
@@ -46,7 +46,7 @@ const Sidebar = () => {
     const navItems: NavItem[] = [
         { icon: Home, label: 'Home', element: '/books' },
         { icon: Search, label: 'Browse', element: '/discovery' },
-        { icon: TrendingUp, label: 'Trending', element: '/trending' },
+        { icon: MessageSquareDot, label: 'Discussion Hub', element: '/hub' },
         { icon: Clock, label: 'History', element: '/history' },
         { icon: Bookmark, label: 'Library', element: '/library' },
         { icon: Heart, label: 'Favorites', element: '/wishlist' },

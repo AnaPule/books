@@ -40,10 +40,8 @@ interface TopThreeShelvesProps {
 
 const randomColour = () => {
     const covers = [
-        'https://i.pinimg.com/736x/1c/5a/f9/1c5af9ef684d12f67e679022b6c9e7c3.jpg',
-        'https://i.pinimg.com/1200x/06/b8/6d/06b86da97b7c0358944941a1d536ae5f.jpg',
-        'https://i.pinimg.com/736x/9e/86/04/9e8604207b5dceca484d00ae011f2250.jpg',
-        'https://i.pinimg.com/736x/68/a2/48/68a248e7e17174e28e6a2bca70b63ff0.jpg'
+        'https://i.pinimg.com/736x/25/3c/9a/253c9a4865b62f9733ef868b490fb2ac.jpg',
+        'https://i.pinimg.com/736x/dd/a1/fe/dda1fe74288e92ee643261f1f94e8a29.jpg',
     ];
 
     return covers[Math.floor(Math.random() * covers.length)];
@@ -265,7 +263,18 @@ const Book: React.FC<BookProps> = ({ books }) => {
                     >
                         {
                             !book.coverArt ?
-                                (<span className="text-black font-medium">{book.name}</span>) : null
+                                (
+                                    <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                                        <span className="
+                                    text-black text-[clamp(5px,1.8vw,8px)]
+                                    text-center leading-tight
+                                    tracking-wide uppercase
+                                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
+                                ">
+                                            {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
+                                        </span>
+                                    </div>
+                                ) : null
                         }
                     </div>
                     <div className={styles.bookSpine} />

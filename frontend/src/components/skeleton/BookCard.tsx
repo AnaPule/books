@@ -28,6 +28,16 @@ interface BookGridProps {
     itemWidth?: string;  // add this
 }
 
+const randomColour = () => {
+    const covers = [
+        'https://i.pinimg.com/736x/25/3c/9a/253c9a4865b62f9733ef868b490fb2ac.jpg',
+        'https://i.pinimg.com/736x/dd/a1/fe/dda1fe74288e92ee643261f1f94e8a29.jpg',
+        
+    ];
+
+    return covers[Math.floor(Math.random() * covers.length)];
+}
+
 export const Card: React.FC<CardProps> = ({
     book
 }: CardProps) => {
@@ -36,13 +46,28 @@ export const Card: React.FC<CardProps> = ({
             className="w-80">
             <div
                 style={{
-                    'backgroundImage': `url(${book.coverArt})`,
-                    'backgroundSize': 'cover',
-                    'backgroundPosition': 'center',
-                    'backgroundRepeat': 'no-repeat'
-                }}
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    '--bg-image': book.coverArt ? `url(${book.coverArt})` : `url(${randomColour()})`,
+                    background: 'var(--bg-image, var(--alternative)) center center / cover no-repeat'
+                } as React.CSSProperties}
                 className="bg-transparent rounded-xl shadow-xl overflow-hidden w-64 h-96 cursor-pointer transition-transform duration-300 hover:scale-90 control-component"
             >
+                {
+                    !book.coverArt ?
+                        (
+                            <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                                <span className="
+                                    text-black text-[clamp(5px,1.8vw,8px)]
+                                    text-center leading-tight
+                                    tracking-wide uppercase
+                                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
+                                ">
+                                    {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
+                                </span>
+                            </div>
+                        ) : null
+                }
                 <div className="tooltip">{book.name}</div>
             </div>
             <h2 className="font-bold w-64 text-lg text-left pt-4 truncate ">{book.name ?? "Default Book Name"}</h2>
@@ -62,13 +87,31 @@ export const SmallCard: React.FC<CardProps> = ({
             className="group cursor-pointer w-full"
         >
             <div
-                className="w-full aspect-[2/3] rounded-lg shadow-sm mb-2 group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-300 bg-[#F5F0E8]"
+                className="w-full aspect-[2/3] rounded-lg shadow-sm mb-2 group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-300 relative"
                 style={{
-                    backgroundImage: `url(${book.coverArt})`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                }}
-            />
+                    backgroundPosition: 'center',
+                    '--bg-image': book.coverArt ? `url(${book.coverArt})` : `url(${randomColour()})`,
+                    background: 'var(--bg-image, var(--alternative)) center center / cover no-repeat'
+                } as React.CSSProperties}
+
+            >
+                {
+                    !book.coverArt ?
+                        (
+                            <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                                <span className="
+                                    text-black text-[clamp(5px,1.8vw,8px)]
+                                    text-center leading-tight
+                                    tracking-wide uppercase
+                                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
+                                ">
+                                    {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
+                                </span>
+                            </div>
+                        ) : null
+                }
+            </div>
             <h3 className="font-sans font-medium text-sm text-[#5A4D41] line-clamp-2 mb-1 group-hover:text-[#9FB89F] transition-colors">
                 {book.name}
             </h3>
@@ -80,9 +123,32 @@ export const SmallCard: React.FC<CardProps> = ({
 export const MediumCard: React.FC<CardProps> = ({ book, action }) => (
     <div onClick={action} className="group cursor-pointer w-full">
         <div
-            className="w-full aspect-[2/3] rounded-xl shadow-md mb-3 group-hover:shadow-lg group-hover:-translate-y-1.5 transition-all duration-300 bg-[#F5F0E8]"
-            style={{ backgroundImage: `url(${book.coverArt})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-        />
+            className="w-full aspect-[2/3] rounded-xl shadow-md mb-3 group-hover:shadow-lg group-hover:-translate-y-3 transition-all duration-300 bg-[#F5F0E8]/90"
+            style={{
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                '--bg-image': book.coverArt ? `url(${book.coverArt})` : `url(${randomColour()})`,
+                background: 'var(--bg-image, var(--alternative)) center center / cover no-repeat'
+            } as React.CSSProperties}
+
+        >
+            {
+                !book.coverArt ?
+                    (
+                        <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                            <span className="
+                                    text-black text-[clamp(5px,1.8vw,8px)]
+                                    text-center leading-tight
+                                    tracking-wide uppercase
+                                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
+                                ">
+                                {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
+                            </span>
+                        </div>
+                    ) : null
+            }
+        </div>
+
         <h3 className="font-sans font-medium text-sm text-[#5A4D41] line-clamp-2 mb-1">{book.name}</h3>
         <p className="text-xs text-[#7E6957] italic">{book.author.name}</p>
     </div>
@@ -101,11 +167,29 @@ export const LargeCard: React.FC<CardProps> = ({
             <div
                 className="w-full aspect-[2/3] rounded-xl shadow-md mb-4 group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-300 bg-[var(--sage-mist)]/90"
                 style={{
-                    backgroundImage: `url(${book.coverArt})`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                }}
-            />
+                    backgroundPosition: 'center',
+                    '--bg-image': book.coverArt ? `url(${book.coverArt})` : `url(${randomColour()})`,
+                    background: 'var(--bg-image, var(--alternative)) center center / cover no-repeat'
+                } as React.CSSProperties}
+
+            >
+                {
+                    !book.coverArt ?
+                        (
+                            <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                                <span className="
+                                    text-black text-[clamp(5px,1.8vw,8px)]
+                                    text-center leading-tight
+                                    tracking-wide uppercase
+                                    drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
+                                ">
+                                    {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
+                                </span>
+                            </div>
+                        ) : null
+                }
+            </div>
             <h3 className="font-sans font-medium text-base md:text-lg text-[#5A4D41] line-clamp-2 mb-1.5 group-hover:text-[#9FB89F] transition-colors">
                 {book.name}
             </h3>

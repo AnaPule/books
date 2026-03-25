@@ -14,41 +14,17 @@ import type { Book } from "@models/Book";
 {/* =============== components ============ */ }
 import Tabs from "@components/Tabs";
 import { BookGrid } from "@components/skeleton/BookCard";
-import { NoResults } from "@components/skeleton/noResults";
 import Spinner from "@components/skeleton/spinner/spinner";
-import { LoadingCards, GenreLoadingState } from "@components/skeleton/LoadingCard";
+import { LoadingCards } from "@components/skeleton/LoadingCard";
 import { Shelves, TopBooksShelves } from "@components/skeleton/shelves/Shelves";
-import { Search, BookMarked, Sparkles, BookOpen, Users, Clock, Star, Filter } from "lucide-react";
+import { Search, BookMarked, Sparkles, Clock, Filter } from "lucide-react";
 
 {/* =============== utils ============ */ }
-import { highlightMatch } from "@utils/highlightMatch";
 import type { User } from "@models/User";
-import { filter } from "framer-motion/client";
 
 interface searchForm {
     search: string;
 }
-interface Genre {
-    id: string;
-    name: string;
-    description: string;
-    count: number;
-}
-
-interface TrendingTopic {
-    id: string;
-    name: string;
-    category: string;
-}
-
-const genres: Genre[] = [
-    { id: "1", name: "Literary Fiction", description: "Timeless stories of the human condition", count: 234 },
-    { id: "2", name: "Classics", description: "Enduring works that shaped literature", count: 189 },
-    { id: "3", name: "Poetry", description: "Verses that speak to the soul", count: 156 },
-    { id: "4", name: "Philosophy", description: "Meditations on life and meaning", count: 98 },
-    { id: "5", name: "History", description: "Tales from ages past", count: 167 },
-    { id: "6", name: "Biography", description: "Lives that inspire", count: 143 },
-];
 
 const readingChallenges = [
     { title: "The Classics Challenge", books: 12, progress: 45, color: "from-[#9FB89F] to-[#8AA88A]" },
@@ -57,11 +33,7 @@ const readingChallenges = [
 ];
 
 
-export const NewRelease: React.FC = () => {
-    return <>hi im new release</>;
-}
-
-export const Classics: React.FC<{navigateM:(page: string) => void}> = ({
+export const Classics: React.FC<{ navigateM: (page: string) => void }> = ({
     navigateM
 }) => {
     const { user } = useAuth();
@@ -69,6 +41,10 @@ export const Classics: React.FC<{navigateM:(page: string) => void}> = ({
     const [classics, setClassics] = useState<Book[]>([]);
     const [newReleases, setNewReleases] = useState<Book[]>([]);
     const [genreClassics, setUserClassics] = useState<Book[]>([]);
+
+    const goToClassics = () => navigateM('/books/classics');
+    const goToNewReleases = () => navigateM('/books/NewReleases');
+    const goToUserClassics = () => navigateM('/books/userGenreClassics');
 
     useEffect(() => {
         setLoading(true)
@@ -121,17 +97,19 @@ export const Classics: React.FC<{navigateM:(page: string) => void}> = ({
                 <Shelves
                     shelf1Caption="Timeless Pieces"
                     shelf1={classics}
+                    shelf1SeeAll={goToClassics}
 
-                    shelf2Caption={`Classics in your favorite genre: ${genreClassics[0] ? genreClassics[0].genre?.name : " chaai"}`}
+                    shelf2Caption={`Classics in your favorite genre: ${genreClassics[0]?.genre?.name || "chaai"}`}
                     shelf2={genreClassics}
+                    shelf2SeeAll={goToUserClassics}
                 />
 
                 <section className="my-8 md:mb-16">
                     <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4">
                         <BookGrid
                             title="New Releases"
-                            books={newReleases.splice(0,6)}
-                            onSeeAll={() => navigateM('/books/recommended')}
+                            books={newReleases.slice(0, 6)}
+                            onSeeAll={goToNewReleases}
                             cardType="small"
                             itemWidth="w-32 md:w-40"
                         />
@@ -142,17 +120,16 @@ export const Classics: React.FC<{navigateM:(page: string) => void}> = ({
     );
 }
 
-export const StaffPicks: React.FC = () => {
-    return <>hi im trending</>;
-}
-
 export const Trending: React.FC<{ genres: string[] }> = ({ genres }) => {
-    const { recommends } = useAuth();
+    const { recommends, user } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState<Boolean>(false);
     const [filters, setFilters] = useState<string[]>([]);
     const [trendTopic, setTrendTopic] = useState<any[]>([]);
     const [featuredBooks, setFeaturedBooks] = useState<Book[] | []>([]);
+
+    const goToRecommends = () => navigate('/books/recommends');
+    const goToWeek = () => navigate('/books/week/trending');
 
 
     useEffect(() => {
@@ -257,7 +234,7 @@ export const Trending: React.FC<{ genres: string[] }> = ({ genres }) => {
                                     <BookGrid
                                         title="Featured This Week"
                                         books={filterFeatured}
-                                        onSeeAll={() => navigate('/books/recommended')}
+                                        onSeeAll={goToWeek}
                                         cardType="small"
                                         itemWidth="w-32 md:w-40"
                                     />
@@ -368,11 +345,12 @@ export const Trending: React.FC<{ genres: string[] }> = ({ genres }) => {
                                         </div>
                                     </div>
 
+                                {/* recommended books */}
                                     <div>
                                         <BookGrid
                                             title="Recommended for You"
                                             books={filterRecommends}
-                                            onSeeAll={() => navigate('/books/recommended')}
+                                            onSeeAll={goToRecommends}
                                             cardType="large"
                                             itemWidth="w-40 md:w-80"
                                         />
@@ -403,7 +381,7 @@ export const Discover: React.FC<{
     recommends, books, genres, authors,
     user, loading, setLoading,
 }) => {
-
+        const navigate = useNavigate();
         const [userGenres, setUserGenres] = useState<Book[] | []>([]);
         const [userAuthors, setUserAuthors] = useState<Book[] | []>([]);
         const [searchQuery, setSearchForm] = useState<searchForm>({
@@ -413,6 +391,10 @@ export const Discover: React.FC<{
         const handleSearchChange = (field: keyof searchForm, value: string) => {
             setSearchForm((prev) => ({ ...prev, [field]: value }));
         };
+
+        const goToRecommends = () => navigate('/books/recommends');
+        const goToGenres = () => navigate('/books/genres');
+        const goToAuthors = () => navigate('/books/authors');
 
         useEffect(() => {
             const initDiscoveryComp = async () => {
@@ -531,12 +513,15 @@ export const Discover: React.FC<{
                         <Shelves
                             shelf1Caption={searchQuery.search ? `Search Results for "${searchQuery.search}"` : "Recommended for you"}
                             shelf1={searchBooks || searchRecommends || recommends}
+                            shelf1SeeAll={goToRecommends}
 
                             shelf2Caption="Your Favourite Authors"
                             shelf2={userAuthors}
+                            shelf2SeeAll={goToAuthors}
 
                             shelf3Caption="Your favourite Genres"
                             shelf3={userGenres}
+                            shelf3SeeAll={goToGenres}
                         />
                     </div>
                 </div>
@@ -567,9 +552,7 @@ export default function DiscoveryPage() {
     const tabContent = [
         { label: "Discover", icon: <BookMarked size={16} />, content: <Discover recommends={recommends} user={user} loading={loading} books={books} genres={genres} authors={authors} /> },
         { label: "Trending", icon: <Sparkles size={16} />, content: <Trending genres={genres} /> },
-        { label: "New Releases", icon: <BookOpen size={16} />, content: <NewRelease /> },
-        { label: "Classics", icon: <Clock size={16} />, content: <Classics navigateM={NavMethod}/> },
-        { label: "Staff Picks", icon: <Users size={16} />, content: <StaffPicks /> },
+        { label: "Classics", icon: <Clock size={16} />, content: <Classics navigateM={NavMethod} /> },
     ];
 
     useEffect(() => {

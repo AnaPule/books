@@ -10,6 +10,7 @@ import {
 {/* =============== models ============ */ }
 
 {/* =============== services ============ */ }
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@context/AuthContext";
 
 {/* =============== components ============ */ }
@@ -284,9 +285,13 @@ const MobileMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
 };
 
 export default function ProfilePage() {
+    const navigate = useNavigate();
     const { quote, wishlist, library } = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    
+
+    const goToLibrary = () => navigate('/books/library');
+    const goToWishlist = () => navigate('/books/library');
+
     return (
         <div className="min-h-screen mt-10 pt-16 md:pt-20 px-3 md:px-6 pb-8">
             {/* Decorative elements - pink blurs */}
@@ -337,9 +342,13 @@ export default function ProfilePage() {
                             <section className="col-span-2">
                                 <Shelves
                                     shelf1Caption="wishlist"
-                                    shelf1={wishlist} 
-                                    shelf2Caption="Library" 
-                                    shelf2={library} />
+                                    shelf1={wishlist}
+                                    shelf1SeeAll={goToWishlist}
+
+                                    shelf2Caption="Library"
+                                    shelf2={library}
+                                    shelf2SeeAll={goToLibrary}
+                                />
                             </section>
                             <section><CurrentReads /></section>
                             <section className='space-y-2'>

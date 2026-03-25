@@ -13,7 +13,7 @@ import { request } from "@utils/ApiRequest";
 import { Shelves } from "@components/skeleton/shelves/Shelves";
 import { DateTimeCard } from '@components/skeleton/DateTimeCard';
 import { ReadingGoals, JournalMenu } from "@pages/profile/profile";
-import { ChevronRight} from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 
 interface CardProps {
@@ -51,7 +51,13 @@ export const SmallCard: React.FC<CardProps> = ({
 
 const BooksPage = () => {
     const navigate = useNavigate();
-    const { user, recommends,setRecommends, genre, popular, discover } = useAuth();
+    const { user, recommends, setRecommends, genre, popular, discover } = useAuth();
+
+    // navigation functions
+    const goToRecommends = () => navigate('/books/recommends');
+    const goToGenre = () => navigate('/books/genres');
+    const goToDiscover = () => navigate('/books/discover');
+    const goToLibrary = () => navigate('/books/library');
 
     const handleBookClick = async (book: Bk) => {
         if (!recommends.find(rb => rb.id == book.id)) {
@@ -60,7 +66,7 @@ const BooksPage = () => {
                 bookId: book.id,
                 type: RelationshipType.INTERACTION
             }).then(
-                (res:any) =>{
+                (res: any) => {
                     setRecommends(res.books);
                 }
             )
@@ -85,10 +91,15 @@ const BooksPage = () => {
                         <Shelves
                             shelf1Caption="Your Library"
                             shelf1={popular}
+                            shelf1SeeAll={goToLibrary}
+
                             shelf2Caption="Recommended For You"
                             shelf2={recommends}
+                            shelf2SeeAll={goToRecommends}
+
                             shelf3Caption="Based on Your Favourite Genre"
                             shelf3={genre}
+                            shelf3SeeAll={goToGenre}
                         />
 
                         {/* Discover Section - appears below shelves on mobile/tablet, inside left column on desktop */}
@@ -96,7 +107,9 @@ const BooksPage = () => {
                             <div className="mt-6">
                                 <div className="flex items-center justify-between mb-4 border-b border-[#E2E9DC] pb-2">
                                     <h2 className="text-lg sm:text-xl uppercase font-sans text-[#5A4D41] tracking-wide">Discover</h2>
-                                    <button className="text-[#9FB89F] hover:text-[#8AA88A] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+                                    <button
+                                        onClick={goToDiscover}
+                                        className="text-[#9FB89F] hover:text-[#8AA88A] flex items-center gap-2 transition-colors text-xs sm:text-sm">
                                         SEE ALL <ChevronRight size={14} className="sm:size-4" />
                                     </button>
                                 </div>

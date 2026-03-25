@@ -14,8 +14,8 @@ import type { LucideProps } from 'lucide-react';
 import { useAuth } from "@context/AuthContext";
 import { request } from "@utils/ApiRequest";
 import {
-    Bookmark, Download, ExternalLink, Share2,
-    ChevronLeft, ChevronRight, ThumbsDown, Heart,
+    Bookmark, ExternalLink,
+    ThumbsDown, Heart,
     ArrowLeft, Calendar, Users, BookOpen,
 } from "lucide-react";
 
@@ -50,6 +50,10 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
     const { wishlist, setWishlist, library, setLibrary, dislike, setDislike, user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const goToAlsoLike = () => navigate('/books/library');
+    const goToMoreLike = () => navigate('/books/library');
+    const gotToMoreBy = () => navigate('/books/library');
 
     const isInWishlist = Array.isArray(wishlist) && wishlist.some(wishlistBook => wishlistBook.id === book.id);
     const isInLibrary = Array.isArray(library) && library.some(LibraryBook => LibraryBook.id === book.id);
@@ -307,7 +311,7 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
     );
 }
 
-export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book[], moreBy: Book[] }> = ({ book, similar, alsoLike, moreBy }) => {
+export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book[], moreBy: Book[], goToAlsoLike: () => void; }> = ({ book, similar, alsoLike, moreBy, goToAlsoLike }) => {
     return (
         <div className="py-12 px-4 sm:px-6 md:px-8">
             <div className="fixed top-0 left-0 w-64 h-64 bg-[#C0D4E0]/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
@@ -332,6 +336,8 @@ export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book
                             <Shelves
                                 shelf1Caption="Readers also Like"
                                 shelf1={alsoLike.filter(b => b.id != book.id)}
+                                shelf1SeeAll={goToAlsoLike}
+
                                 shelf2Caption={"More like this"}
                                 shelf2={similar.filter(b => b.id != book.id)}
                                 shelf3Caption={`More by ${book.author.name}`}
@@ -464,6 +470,8 @@ export default function BookPage() {
         genre: { id: "", name: '' }
     });
 
+    const goToAlsoLike = () => navigate('/books/alsoLike');
+
     useEffect(() => {
         if (!params.id) {
             navigate('/not-found', { replace: true });
@@ -520,7 +528,7 @@ export default function BookPage() {
                 ) : (
                     <>
                         <BookHeader book={book} />
-                        <BookDetails book={book} similar={similar} alsoLike={alsoLike} moreBy={moreAuthor} />
+                        <BookDetails book={book} similar={similar} alsoLike={alsoLike} moreBy={moreAuthor} goToAlsoLike={goToAlsoLike} />
                     </>
                 )}
             </div>

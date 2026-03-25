@@ -6,18 +6,23 @@ import Tooltip from "@components/skeleton/ToolTip";
 interface ShelvesProps {
     shelf1: Bk[] | null;
     shelf1Caption: string;
+    shelf1SeeAll?: () => void;
 
     shelf2?: Bk[] | null;
     shelf2Caption?: string;
+    shelf2SeeAll?: () => void;
 
     shelf3?: Bk[] | null;
     shelf3Caption?: string;
+    shelf3SeeAll?: () => void;
 
     shelf4?: Bk[] | null;
     shelf4Caption?: string;
+    shelf4SeeAll?: () => void;
 
     shelf5?: Bk[] | null;
     shelf5Caption?: string;
+    shelf5SeeAll?: () => void;
 }
 
 interface BookProps {
@@ -277,14 +282,17 @@ const Book: React.FC<BookProps> = ({ books }) => {
 interface ShelfRowProps {
     books: Bk[];
     caption: string;
+    onSeeAll?: () => void;
 }
 
-const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption }) => (
+const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption, onSeeAll }) => (
     // In your ShelfRow component:
     <div className={styles.shelfRow}>
         <div className="flex items-center justify-between mb-4 border-b border-[#E2E9DC] pb-2">
             <span className={styles.shelvesCaption}>{caption}</span>
-            <button className="text-[#9FB89F] hover:text-[#8AA88A] flex items-center gap-2 transition-colors text-xs sm:text-sm">
+            <button
+                onClick={onSeeAll}
+                className="text-[#9FB89F] hover:text-[#8AA88A] flex items-center gap-2 transition-colors text-xs sm:text-sm">
                 SEE ALL <ChevronRight size={14} />
             </button>
         </div>
@@ -294,17 +302,17 @@ const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption }) => (
 );
 
 export const Shelves: React.FC<ShelvesProps> = ({
-    shelf1, shelf1Caption,
-    shelf2 = null, shelf2Caption = "Next Up",
-    shelf3 = null, shelf3Caption = "Finished",
-    shelf4 = null, shelf4Caption = "Finished",
-    shelf5 = null, shelf5Caption = "Finished",
+    shelf1, shelf1Caption, shelf1SeeAll,
+    shelf2 = null, shelf2Caption = "", shelf2SeeAll,
+    shelf3 = null, shelf3Caption = "", shelf3SeeAll,
+    shelf4 = null, shelf4Caption = "", shelf4SeeAll,
+    shelf5 = null, shelf5Caption = "", shelf5SeeAll,
 }) => (
     <div className={styles.shelves}>
-        {shelf1 && shelf1.length > 0 && <ShelfRow books={shelf1} caption={shelf1Caption} />}
-        {shelf2 && shelf2.length > 0 && <ShelfRow books={shelf2} caption={shelf2Caption} />}
-        {shelf3 && shelf3.length > 0 && <ShelfRow books={shelf3} caption={shelf3Caption} />}
-        {shelf4 && shelf4.length > 0 && <ShelfRow books={shelf4} caption={shelf4Caption} />}
-        {shelf5 && shelf5.length > 0 && <ShelfRow books={shelf5} caption={shelf5Caption} />}
+        {shelf1 && shelf1.length > 0 && <ShelfRow books={shelf1} caption={shelf1Caption} onSeeAll={shelf1SeeAll} />}
+        {shelf2 && shelf2.length > 0 && <ShelfRow books={shelf2} caption={shelf2Caption} onSeeAll={shelf2SeeAll} />}
+        {shelf3 && shelf3.length > 0 && <ShelfRow books={shelf3} caption={shelf3Caption} onSeeAll={shelf3SeeAll} />}
+        {shelf4 && shelf4.length > 0 && <ShelfRow books={shelf4} caption={shelf4Caption} onSeeAll={shelf4SeeAll} />}
+        {shelf5 && shelf5.length > 0 && <ShelfRow books={shelf5} caption={shelf5Caption} onSeeAll={shelf5SeeAll} />}
     </div>
 );

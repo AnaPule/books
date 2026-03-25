@@ -18,7 +18,7 @@ import Picture2 from"@assets/Flower_6.jpeg";
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [verified, setVerified] = useState<boolean>(false);
+  const [verified, setVerified] = useState<boolean>(true);
   const token = searchParams.get('token');
 
   const PageTurner: React.FC = () => {
@@ -119,7 +119,7 @@ export default function VerifyEmailPage() {
 
         {/* Animated book/parchment element */}
 
-        <div className='flex flex-row lg:flex-col items-start justify-center'>
+        <div className='flex flex-row lg:flex-col items-center'>
           <PageTurner />
           {verified ? <div className={styles.welcomeContainer}>
             <h2 className="text-2xl font-sans text-[#5a4d41] mb-2">Welcome</h2>

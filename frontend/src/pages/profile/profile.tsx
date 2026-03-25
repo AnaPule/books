@@ -16,8 +16,8 @@ import { useAuth } from "@context/AuthContext";
 {/* =============== components ============ */ }
 import { AccountSettings } from './AccountSettings';
 import { Shelves } from "@components/skeleton/shelves/Shelves";
-import { WordOfTheDay } from "@components/skeleton/WordofTheDay";
-import { DateTimeCard } from '@components/skeleton/DateTimeCard';
+import { WordOfTheDay } from "@components/WordofTheDay";
+import { DateTimeCard } from '@components/DateTimeCard';
 import { Calendar } from "@components/skeleton/calendar/Calendar";
 
 const ProfileHeader: React.FC = () => {

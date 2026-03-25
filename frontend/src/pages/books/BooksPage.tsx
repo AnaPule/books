@@ -11,7 +11,7 @@ import { request } from "@utils/ApiRequest";
 
 {/* =============== components ============ */ }
 import { Shelves } from "@components/skeleton/shelves/Shelves";
-import { DateTimeCard } from '@components/skeleton/DateTimeCard';
+import { DateTimeCard } from '@components/DateTimeCard';
 import { ReadingGoals, JournalMenu } from "@pages/profile/profile";
 import { ChevronRight } from "lucide-react";
 

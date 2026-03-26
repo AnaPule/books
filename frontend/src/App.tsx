@@ -20,8 +20,9 @@ import ResubscribePage from "@pages/auth/Resubscribe";
 
 import VerifyEmailPage from "@pages/auth/VerifyEmailPage";
 import ResetPasswordPage from "@pages/auth/ResetPasswordPage";
-import DiscoveryPage from "@pages/books/discover/DiscoveryPage";
 import { DiscussionHubPage } from "@pages/books/DiscussionHub";
+import NotificationsPage from "@components/Notifications";
+import DiscoveryPage from "@pages/books/discover/DiscoveryPage";
 
 {/* =============== component ============ */ }
 import Spinner from "@components/skeleton/spinner/spinner";
@@ -126,6 +127,7 @@ function App() {
             <Route path="/book/:id" element={<ProtectedRoute><BookPage /></ProtectedRoute>} />
             <Route path="/discovery" element={<ProtectedRoute><DiscoveryPage /></ProtectedRoute>} />
             <Route path="/hub" element={<ProtectedRoute><DiscussionHubPage /></ProtectedRoute>} />
+            <Route path='/notifications' element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
 
             <Route path="/books/recommends" element={<SeeAllPage title="Books recommended for you" endpoint={`/recs/user/${user?.id}`} />} />
             <Route path="/books/alsoLike" element={<SeeAllPage title="Readers also like" endpoint={`/recs/user/${user?.id}/collaborative`} />} />

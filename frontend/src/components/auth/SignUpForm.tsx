@@ -9,6 +9,7 @@ import type { SignUpForm } from '@models/User';
 
 {/* =============== services ============ */ }
 import { request } from '@utils/ApiRequest';
+import { useSoundNotification } from '@hooks/useNotification';
 
 {/* =============== components ============ */ }
 import Spinner from '@components/skeleton/spinner/spinner';
@@ -19,6 +20,7 @@ interface SignUpFormProps {
 
 export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
     const [loading, setLoading] = useState(false);
+    const {playToastSound} = useSoundNotification();
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState<SignUpForm>({
         username: "",
@@ -37,16 +39,17 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                 toast.warning('Terrms And Conditions', {
                     description: `Please read and accept the application T's n C's before joining.`
                 });
+                playToastSound();
                 return;
             }
             console.log('user', formData);
 
             await request.post<User>('/auth/register', formData)
                 .then(
-
                     ((res: User) => {
                         if (res.username != null) {
                             toast.info(`Thank you for signing up with PńP ${res.username}. Please login.`)
+                            playToastSound();
                             setFormData({
                                 email: '',
                                 password: '',
@@ -56,7 +59,8 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                             });
                             OnChangePage();
                         } else {
-                            toast.error('Sorry, An error occured', { description: `${res}` })
+                            toast.error('Sorry, An error occured', { description: `${res}` });
+                            playToastSound();
                         }
                     })
                 )
@@ -67,6 +71,7 @@ export default function SignUpForm({ OnChangePage }: SignUpFormProps) {
                 'Sign up failed',
                 { description: msg }
             );
+            playToastSound();
             /*
             toast.error('Sign up failed', {
                 description: `There was an error while registering your account. Please try again later.`,

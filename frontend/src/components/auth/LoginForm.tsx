@@ -10,6 +10,7 @@ import { type tokenResponse, type loginResponse, type User } from '@models/User'
 
 {/* =============== services ============ */ }
 import { request } from '@utils/ApiRequest';
+import { useSoundNotification } from '@hooks/useNotification';
 
 {/* =============== components ============ */ }
 import Spinner from '@components/skeleton/spinner/spinner';
@@ -36,6 +37,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const { playToastSound } = useSoundNotification();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isResubscribeOpen, setResubscribeOpen] = useState<boolean>(false);
@@ -73,10 +75,12 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
             .then(
                 ((res: any) => {
                     toast.info('Email Sent', { description: `${res.message}` });
+                    playToastSound();
                 })
             ).catch(
                 (error: any) => {
-                    toast.warning('Error Sending your token', { description: 'We do apologise for the inconvenience. There was a problem sending your verification email.' })
+                    toast.warning('Error Sending your token', { description: 'We do apologise for the inconvenience. There was a problem sending your verification email.' });
+                    playToastSound();
                     console.error(error.message)
                 }
             ).finally(
@@ -99,6 +103,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                         toast.error('Pages ń Parchments', {
                             description: errorMsg || "Invalid Credentials: Please enter the correct credentials"
                         })
+                        playToastSound();
 
                         if (errorMsg?.includes('unsubscribed')) {
                             handleResubscribe();
@@ -114,6 +119,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                         toast.success('Pages ń Parchments',
                             { description: `Welcome back ${decoded.username || decoded.sub || "reader"}!` }
                         );
+                        playToastSound();
                         navigate("/profile", { replace: true });
 
                         setFormData({ email: "", password: "" });
@@ -121,6 +127,7 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                 }))
         } catch (err: any) {
             toast.error("Login failed", { description: err.message });
+            playToastSound();
         } finally {
             setLoading(false);
         }
@@ -135,10 +142,12 @@ export default function LoginForm({ OnChangePage }: LoginFormProps) {
                 ((res: any) => {
                     setSubmitted(true);
                     toast.info(`Password Reset`, { description: res.message })
+                    playToastSound();
                 })
             ).catch(
                 (error: any) => {
                     toast.error(`Failed Password Reset`, { description: error.message })
+                    playToastSound();
                 }
             ).finally(
                 () => {

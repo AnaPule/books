@@ -14,9 +14,11 @@ import com.ana.bookapi.clients.OpenLibrary;
 import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.models.Author;
 import com.ana.bookapi.models.Genre;
+import com.ana.bookapi.models.book.DiscussionRoom.Room;
 import com.ana.bookapi.repository.BookRepo;
 import com.ana.bookapi.repository.GenreRepo;
 import com.ana.bookapi.repository.AuthorRepo;
+import com.ana.bookapi.service.book.DiscussionRoom.RoomService;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 import com.ana.bookapi.clients.GoogleBooks;
@@ -28,6 +30,7 @@ public class GoogleBooksSyncService {
     private final BookRepo br;
     private final GenreRepo gr;
     private final AuthorRepo ar;
+    private final RoomService rs;
     private final GoogleBooks gb;
     private final OpenLibrary obl;
     private final MongoTemplate mongo;
@@ -36,6 +39,7 @@ public class GoogleBooksSyncService {
             BookRepo br,
             GenreRepo gr,
             AuthorRepo ar,
+            RoomService rs,
             GoogleBooks gb,
             OpenLibrary obl,
             MongoTemplate mongo) {
@@ -43,6 +47,7 @@ public class GoogleBooksSyncService {
         this.ar = ar;
         this.gb = gb;
         this.gr = gr;
+        this.rs = rs;
         this.obl = obl;
         this.mongo = mongo;
     }
@@ -50,7 +55,9 @@ public class GoogleBooksSyncService {
     public Book convertMongoGoogleBookToBook(org.bson.Document document) {
         Author a = createOrFindAuthor(document.getString("author"), document.getString("author_key"));
         Genre g = createOrFindGenre(document.getString("genre"));
-        Book b = new Book();
+
+        Book b = new Book(); // auto creates book id
+        Room r = createOrFindRoom(b.getId(), document.getString("title"));
 
         String isbn;
         String isbn13 = document.getString("primary_isbn13");
@@ -160,6 +167,14 @@ public class GoogleBooksSyncService {
     }
 
     //helper methods
+    private Room createOrFindRoom(String book_id, String book_title) {
+        try{
+            return rs.createNewMainRoom(book_id, book_title);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Room already exists: "+e);
+        }
+    }
+
     private Author createOrFindAuthor(String name, String authorKey) {
         String authorName = (name == null || name.trim().isEmpty()) ? "Unknown Author" : name;
         Optional<Author> existingAuthor = ar.findByName(authorName);

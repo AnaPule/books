@@ -7,9 +7,8 @@ import jakarta.persistence.Table;
 
 import java.util.Date;
 import java.util.UUID;
-
 @Entity
-@Table(name = "comments")
+@Table(name = "comment")
 public class Comment {
     @Id
     @Column(name= "id", length = 70, unique = true) private String id;

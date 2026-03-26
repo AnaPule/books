@@ -1,16 +1,16 @@
 package com.ana.bookapi.models.book.DiscussionRoom;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.Date;
 import java.util.UUID;
 
-@Entity
+@Entity(name="interact")
 // bridge entity
-@Table(name="comment_interaction")
+@Table(
+        name="comment_interaction",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"comment_id","user_id","type"})
+)
 public class CommentInteraction {
     @Id
     @Column(name="id", unique = true, nullable = false, length = 70) private String id; //PK
@@ -45,4 +45,10 @@ public class CommentInteraction {
 
     public Date getCreatedAt() {return createdAt;}
     public void setCreatedAt(Date createdAt) {this.createdAt = createdAt;}
+
+    public enum RelationshipType {
+        Like,        // comments they like
+        DISLIKE,     // comments they disliked
+        REPORT       // comments they reported
+    };
 }

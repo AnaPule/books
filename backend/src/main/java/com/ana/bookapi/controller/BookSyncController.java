@@ -41,7 +41,7 @@ public class BookSyncController {
         }
     }
 
-    @PostMapping("/mongo-to-postgres-googlebooks")
+    @PostMapping("/mongo-to-postgres-books")
     public ResponseEntity<Map<String, Object>> SyncGoogleBooks() {
         try {
             List<Book> synced = gs.syncGoogleBooksFromMongoToPostgres();

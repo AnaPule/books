@@ -24,7 +24,7 @@ public class User implements UserDetails {
     private String id;
 
     @Column(name = "username", unique = true, nullable = true, length = 50)
-    private String username;
+    private String username; // usernames may not be repeated
 
     @Column(name = "email", unique = true, nullable = false, length = 40)
     private String email;

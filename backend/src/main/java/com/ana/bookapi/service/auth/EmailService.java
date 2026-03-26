@@ -259,7 +259,7 @@ public class EmailService {
 
             helper.setText(plainText, htmlText);
             sender.send(mimeMessage);
-            //System.out.println("Verification email sent successfully to:" + to);
+            System.out.println("Verification email sent successfully to:" + to);
         } catch (MessagingException e) {
             e.printStackTrace();
             System.out.println("Failed to send email: " + e.getMessage());

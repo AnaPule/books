@@ -1,4 +1,4 @@
-package com.ana.bookapi.DTO;
+package com.ana.bookapi.DTO.Auth;
 
 public class PasswordResetDTO {
 

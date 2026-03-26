@@ -42,4 +42,13 @@ public class Report {
     public void setReason(Integer reason) {this.reason = reason;}
 
     public Date getCreatedAt() {return createdAt;}
+
+    public enum RelationshipType {
+        HARASSMENT,
+        VIOLENCE,
+        HATE_SPEECH,
+        SCAM_SPAM,
+        INTELLECTUAL_PROPERTY_THEFT,
+        IMPERSIONATION
+    }
 }

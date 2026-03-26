@@ -13,6 +13,11 @@ import java.util.UUID;
 public class Member {
 
     public Member() {this.id = UUID.randomUUID().toString();}
+    public Member(String user_id, String room_id) {
+        this.id = UUID.randomUUID().toString();
+        this.roomId = room_id;
+        this.userId = user_id;
+    }
 
     @Id
     @Column(unique=true, nullable=false)

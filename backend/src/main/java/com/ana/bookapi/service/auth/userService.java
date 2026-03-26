@@ -5,9 +5,10 @@ package com.ana.bookapi.service.auth;
 import com.ana.bookapi.config.EncodeConfig;
 
 /* =================== MODELS =================== */
-import com.ana.bookapi.DTO.LoginDTO;
+import com.ana.bookapi.DTO.Auth.LoginDTO;
 import com.ana.bookapi.DTO.userBookDTO;
 import com.ana.bookapi.models.book.Book;
+import com.ana.bookapi.models.user.Notification;
 import com.ana.bookapi.models.user.User;
 import com.ana.bookapi.models.user.UserWord;
 import com.ana.bookapi.models.user.UserQuote;
@@ -16,6 +17,7 @@ import com.ana.bookapi.models.book.userBook;
 /* =================== repo =================== */
 import com.ana.bookapi.repository.BookRepo;
 import com.ana.bookapi.repository.UserBookRepo;
+import com.ana.bookapi.repository.auth.NotificationRepo;
 import com.ana.bookapi.repository.auth.userRepo;
 import com.ana.bookapi.repository.auth.userWordRepo;
 import com.ana.bookapi.repository.auth.UserQuoteRepo;
@@ -46,6 +48,7 @@ public class userService implements UserDetailsService {
     private final UserBookRepo urb;
     private final userWordRepo urw;
     private final UserQuoteRepo uqr;
+    private final NotificationRepo nr;
 
     // constructor injection vs. field injection
     /*
@@ -65,10 +68,12 @@ public class userService implements UserDetailsService {
             EncodeConfig ec,
             UserBookRepo urp,
             userWordRepo urw,
-            UserQuoteRepo uqr) {
+            UserQuoteRepo uqr,
+            NotificationRepo nr) {
         this.ec = ec;
         this.br = br;
         this.ur = ur;
+        this.nr =  nr;
         this.urb = urp;
         this.urw = urw;
         this.uqr = uqr;
@@ -356,6 +361,23 @@ public class userService implements UserDetailsService {
         }
         UserQuote quote = new UserQuote(userId, quoteText, quoteAuthor);
         uqr.save(quote);
+    }
+
+    // send user notification
+    public Notification sendNotification(Notification message){
+        if (!ur.existsById(message.getRecieveId())){
+            throw new RuntimeException("User not found with recieveId: " + message.getRecieveId() + " - message no sent.");
+        }
+
+        return nr.save(message);
+    }
+
+    // get all user notifications
+    public List<Notification> getUserNotifications(String userId) {
+        if (!ur.existsById(userId)) {
+            throw new RuntimeException("Get notifications: User not found: " + userId);
+        }
+        return nr.findAllToUser_Id(userId);
     }
 
 

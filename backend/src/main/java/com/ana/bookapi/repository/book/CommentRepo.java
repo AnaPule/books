@@ -11,10 +11,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface CommentRepo extends JpaRepository<Comment, String> {
 
-    @Query("SELECT c FROM Comment WHERE c.parentId = :parent_id")
+    @Query("SELECT c FROM Comment c WHERE c.parentId = :parent_id")
     List<Comment> findByParentComment_Id(@Param("parent_id") String parentCommentId);
+
     List<Comment> findByRoomId(@Param("room_id") String roomId);
-    List<Comment> findByUserId(Integer userId);
+    List<Comment> findByUserId(String userId);
 
     Optional<Comment> findById(String id);
 

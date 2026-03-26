@@ -12,14 +12,15 @@ import com.ana.bookapi.models.book.DiscussionRoom.CommentInteraction;
 
 @Repository
 public interface CommentInteractionRepo extends JpaRepository<CommentInteraction, String> {
-    Optional<CommentInteraction> findByComment_Id(Integer commentId);
+    //Optional<CommentInteraction> findByComment_Id(Integer commentId);
 
     // number of interactions - by type (universal use just counts hey)
     @Query("SELECT COUNT(ci) FROM interact ci WHERE ci.commentId = :comment_id AND ci.type = :type_id")
     Integer getNumberOfInteractionType(@Param("comment_id") String comment_id, @Param("type_id") Integer type);
 
-    List<CommentInteraction> findByCommnetId(String commentId);
-    List<CommentInteraction> findByUser_Id(String user_id);
+    @Query("SELECT ci FROM interact ci WHERE ci.commentId = :comment_id")
+    List<CommentInteraction> findByCommetId(@Param("comment_id") String commentId);
+    //List<CommentInteraction> findByUser_Id(String user_id);
 
     @Override
     boolean existsById(String s);

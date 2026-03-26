@@ -131,7 +131,7 @@ public class CommentService {
             System.err.println("Comment does not exist: get all interactions");
             return null;
         }
-        return cir.findByCommnetId(comment_id);
+        return cir.findByCommetId(comment_id);
     }
 
     // add comment report
@@ -149,7 +149,7 @@ public class CommentService {
             System.err.println("Comment does not exist: get all comment reports");
             return null;
         }
-        return repr.findByComment_Id(comment_id);
+        return repr.findByCommentId(comment_id);
     }
 
     //helper

@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/sync/**").permitAll()
                         .requestMatchers("/books/**").permitAll()
+                        .requestMatchers("/rooms/**").permitAll()
                         .requestMatchers("/recs/**").permitAll()
                         .anyRequest().authenticated()
                 )

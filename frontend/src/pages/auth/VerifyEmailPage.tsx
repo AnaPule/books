@@ -11,9 +11,117 @@ import { request } from '@utils/ApiRequest';
 import styles from './book.module.css';
 
 {/* =============== images ============ */ }
-import Picture3 from"@assets/flower.jpeg";
+import Picture3 from "@assets/flower.jpeg";
 import Picture1 from "@assets/bouqet.jpeg";
-import Picture2 from"@assets/Flower_6.jpeg";
+import Picture2 from "@assets/Flower_6.jpeg";
+import Spine1 from "@assets/spine_1.png";
+import Spine2 from "@assets/spine_2.png";
+import Spine4 from "@assets/spine_4.png";
+
+export const BooksLogo: React.FC = () => {
+  const [animationState, setAnimationState] = useState<'idle' | 'animating' | 'complete'>('idle');
+
+  useEffect(() => {
+    const startTimer = setTimeout(() => {
+      setAnimationState('animating');
+    }, 100);
+
+    const completeTimer = setTimeout(() => {
+      setAnimationState('complete');
+    }, 200);
+
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(completeTimer);
+    };
+  }, []);
+
+  const isVerified = animationState === 'complete';
+
+  return (
+    <>
+      <div className="flex justify-center items-center min-h-screen relative ml-50 w-full">
+    
+        <div className={styles.library}>
+          {isVerified && (
+            <>
+              {/* Whimsical corner lines - responsive sizing */}
+              {/* Top left */}
+              <div className="absolute top-0 left-0 w-12 sm:w-16 h-12 sm:h-16">
+                <div className="absolute top-0 left-0 w-8 sm:w-12 h-0.5 bg-[#c9a394]" />
+                <div className="absolute top-0 left-0 w-0.5 h-8 sm:h-12 bg-[#c9a394]" />
+                <div className="absolute top-1 left-1 w-5 sm:w-8 h-0.5 bg-[#e8cfc5]" />
+                <div className="absolute top-1 left-1 w-0.5 h-5 sm:h-8 bg-[#e8cfc5]" />
+              </div>
+
+              {/* Top right */}
+              <div className="absolute top-0 right-0 w-12 sm:w-16 h-12 sm:h-16">
+                <div className="absolute top-0 right-0 w-8 sm:w-12 h-0.5 bg-[#c9a394]" />
+                <div className="absolute top-0 right-0 w-0.5 h-8 sm:h-12 bg-[#c9a394]" />
+                <div className="absolute top-1 right-1 w-5 sm:w-8 h-0.5 bg-[#e8cfc5]" />
+                <div className="absolute top-1 right-1 w-0.5 h-5 sm:h-8 bg-[#e8cfc5]" />
+              </div>
+
+              {/* Bottom left */}
+              <div className="absolute bottom-0 left-0 w-12 sm:w-16 h-12 sm:h-16">
+                <div className="absolute bottom-0 left-0 w-8 sm:w-12 h-0.5 bg-[#c9a394]" />
+                <div className="absolute bottom-0 left-0 w-0.5 h-8 sm:h-12 bg-[#c9a394]" />
+                <div className="absolute bottom-1 left-1 w-5 sm:w-8 h-0.5 bg-[#e8cfc5]" />
+                <div className="absolute bottom-1 left-1 w-0.5 h-5 sm:h-8 bg-[#e8cfc5]" />
+              </div>
+
+              {/* Bottom right */}
+              <div className="absolute bottom-0 right-0 w-12 sm:w-16 h-12 sm:h-16">
+                <div className="absolute bottom-0 right-0 w-8 sm:w-12 h-0.5 bg-[#c9a394]" />
+                <div className="absolute bottom-0 right-0 w-0.5 h-8 sm:h-12 bg-[#c9a394]" />
+                <div className="absolute bottom-1 right-1 w-5 sm:w-8 h-0.5 bg-[#e8cfc5]" />
+                <div className="absolute bottom-1 right-1 w-0.5 h-5 sm:h-8 bg-[#e8cfc5]" />
+              </div>
+
+              {/* Decorative corner flourishes - responsive */}
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 w-2 h-2 sm:w-3 sm:h-3 border-l-2 border-t-2 border-[#d4a574] rounded-tl-md" />
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-2 h-2 sm:w-3 sm:h-3 border-r-2 border-t-2 border-[#d4a574] rounded-tr-md" />
+              <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 w-2 h-2 sm:w-3 sm:h-3 border-l-2 border-b-2 border-[#d4a574] rounded-bl-md" />
+              <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-2 h-2 sm:w-3 sm:h-3 border-r-2 border-b-2 border-[#d4a574] rounded-br-md" />
+
+              <div className='flex flex-col m-4 sm:m-6 md:m-8'>
+                <div className="flex items-start mx-2 sm:mx-6 md:mx-[4.5rem] mt-4 sm:mt-6 md:mt-[2rem]">
+                  <div style={{
+                    background: `url(${Spine1})`, backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                    className={`${styles.libraryBook} ${styles.libraryBook4} w-16 sm:w-20 md:w-auto`} />
+                  <div style={{
+                    background: `url(${Spine2})`, backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                    className={`${styles.libraryBook} ${styles.libraryBook5} w-16 sm:w-20 md:w-auto`} />
+                  <div
+                    style={{
+                      background: `url(${Spine4})`, backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat'
+                    }}
+                    className={`${styles.libraryBook} ${styles.libraryBook6} ${styles.slideIn} w-16 sm:w-20 md:w-auto`} />
+                </div>
+                
+                <h3 className="text-center animate-fade-in font-serif text-lg sm:text-xl md:text-2xl text-[#5a4d41] tracking-wide px-2">
+                  Pages & Parchment
+                  <br /><br />
+                  <span className="font-sans text-xs sm:text-sm uppercase tracking-wider block">
+                    Comfort.Harmony.Classic
+                  </span>
+                </h3>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -22,42 +130,42 @@ export default function VerifyEmailPage() {
   const token = searchParams.get('token');
 
   const PageTurner: React.FC = () => {
-        const Pictures = [Picture1, Picture2, Picture3];
-        return (
-            <div className={styles.library}>
-                <div className={`${styles.book} ${verified ? styles.bookToSpine : ''}`}>
-                    <span className={styles.cover}></span>
-                    <span className={`${styles.cover} ${!verified ? styles.turn : styles.close}`}></span>
+    const Pictures = [Picture1, Picture2, Picture3];
+    return (
+      <div className={styles.library}>
+        <div className={`${styles.book} ${verified ? styles.bookToSpine : ''}`}>
+          <span className={styles.cover}></span>
+          <span className={`${styles.cover} ${!verified ? styles.turn : styles.close}`}></span>
 
-                    {Array.from({ length: 16 }).map((_, i) => (
-                        <span
-                            key={i}
-                            className={`${styles.page} ${verified ? styles.close : styles.turn}`}
-                            style={{ '--target-rotate': i < 3 ? '180deg' : i < 6 ? '150deg' : i < 9 ? '55deg' : '30deg' } as React.CSSProperties}
-                        ></span>
-                    ))}
+          {Array.from({ length: 16 }).map((_, i) => (
+            <span
+              key={i}
+              className={`${styles.page} ${verified ? styles.close : styles.turn}`}
+              style={{ '--target-rotate': i < 3 ? '180deg' : i < 6 ? '150deg' : i < 9 ? '55deg' : '30deg' } as React.CSSProperties}
+            ></span>
+          ))}
 
-                    <span className={styles.cover}></span>
-                </div>
+          <span className={styles.cover}></span>
+        </div>
 
-                {verified && (
-                    <div className="flex items-end">
-                        <div className={`${styles.libraryBook} ${styles.libraryBook1}`} />
-                        <div className={`${styles.libraryBook} ${styles.libraryBook2}`} />
-                        <div className={`${styles.libraryBook} ${styles.libraryBook3} ${styles.slideIn}`} />
-                    </div>
-                )}
+        {verified && (
+          <div className="flex items-end">
+            <div className={`${styles.libraryBook} ${styles.libraryBook1}`} />
+            <div className={`${styles.libraryBook} ${styles.libraryBook2}`} />
+            <div className={`${styles.libraryBook} ${styles.libraryBook3} ${styles.slideIn}`} />
+          </div>
+        )}
 
-                {verified && (
-                    <>
-                        <div className={styles.shelf} />
-                        <div style={{backgroundImage: `url(${Pictures[Math.floor(Math.random() * Pictures.length)]})`}} className={styles.frame} />
-                    </>
-                )}
+        {verified && (
+          <>
+            <div className={styles.shelf} />
+            <div style={{ backgroundImage: `url(${Pictures[Math.floor(Math.random() * Pictures.length)]})` }} className={styles.frame} />
+          </>
+        )}
 
-            </div>
-        );
-    };
+      </div>
+    );
+  };
 
   useEffect(() => {
     const verify = async () => {
@@ -70,11 +178,11 @@ export default function VerifyEmailPage() {
               toast.info('Verification Status', { description: res.message })
             } else {
               navigate('/auth');
-              toast.error('Verification failed',{description: 'You are too late. Please try again!'})
+              toast.error('Verification failed', { description: 'You are too late. Please try again!' })
             }
           }))
         setTimeout(() => navigate('/auth'), 60000);
-        
+
       } catch (err: any) {
         alert(err.message)
         toast.error(err.message || "The invitation could not be honoured.");

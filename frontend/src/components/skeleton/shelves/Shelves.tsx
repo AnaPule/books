@@ -271,7 +271,7 @@ const Book: React.FC<BookProps> = ({ books }) => {
                                     tracking-wide uppercase
                                     drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]
                                 ">
-                                            {book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
+                                            {book.name && book.name.length > 30 ? book.name.slice(0, 10) + '…' : book.name}
                                         </span>
                                     </div>
                                 ) : null

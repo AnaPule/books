@@ -22,6 +22,14 @@ export interface Genre{
     name: string;
 }
 
+export interface Room{
+    id: string;
+    name: string;
+    bookId: string;
+    deleted: Boolean;
+    parentId: String;
+}
+
 export const RelationshipType = {
     LIBRARY: 1,
     WISHLIST: 2,

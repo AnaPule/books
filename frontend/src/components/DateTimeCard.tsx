@@ -6,7 +6,7 @@ export const DateTimeCard: React.FC = () => {
     const minutes = now.getMinutes().toString().padStart(2, '0');
 
     return (
-        <div className=" h-full bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
+        <div className=" h-[10rem] bg-gradient-to-br from-[#fcf9f4] to-[#fceae8] rounded-2xl border border-[#e8bfb0] p-4 md:p-5 shadow-[0_10px_25px_-8px_rgba(181,139,124,0.25)]">
             <p className="text-[10px] md:text-xs text-[#d9b6a8] mb-2 md:mb-3 flex items-center gap-1">
                 <Heart size={10} className="text-[#c9a394]" /> 02 41 PM · SAT
             </p>

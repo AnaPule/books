@@ -15,27 +15,36 @@ import { request } from "@utils/ApiRequest";
 
 {/* =============== models ============ */ }
 import type { User } from "@models/User";
+import type { Notification } from '@models/Notice';
 import { RelationshipType, type Book } from "@models/Book";
 import { type Word, type Quote, wordList } from '@models/Word';
 
 interface AuthContextType {
     user: User | null;
     setUser: (user: User | null) => void;
+
     wishlist: Book[] | [];
     setWishlist: (books: Book[] | []) => void;
+
     library: Book[] | [],
     setLibrary: (book: Book[] | []) => void;
+
     genre: Book[] | [],
     setGenre: (book: Book[] | []) => void;
+
     author: Book[] | [],
     setAuthor: (book: Book[] | []) => void;
+
     dislike: Book[] | [],
     setDislike: (book: Book[] | []) => void;
+
     recommends: Book[] | [],
     setRecommends: (book: Book[] | []) => void;
+
+    pings: Notification[] | [];
     popular: Book[] | [],
     discover: Book[] | [],
-    trending: Book[] |[],
+    trending: Book[] | [],
     isLoggedIn: Boolean;
     logout: () => void;
     loading: boolean;
@@ -53,8 +62,10 @@ const AuthContext = createContext<AuthContextType>({
     popular: [],
     discover: [],
     trending: [],
+    pings: [],
     recommends: [],
     isLoggedIn: false,
+
     logout: () => { },
     setUser: () => { },
     setGenre: () => [],
@@ -63,6 +74,7 @@ const AuthContext = createContext<AuthContextType>({
     setWishlist: () => [],
     setDislike: () => [],
     setRecommends: () => [],
+
     loading: false,
     word: null,
     quote: null
@@ -91,6 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
     const [word, setWord] = useState<Word | any>(null);
+    const [pings, setPings] = useState<Notification[] | []>([]);
     const [quote, setQuote] = useState<Quote | any>(null);
     const isLoggedIn = !!user;
     const [dislike, setDislike] = useState<Book[] | []>([]);
@@ -152,9 +165,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 request.setAuthToken(token);
                 const res = await request.get<any>('/auth/user');
+
+                //console.log('user res',res);
                 const actualUser = res.user as User;
+
                 if (!actualUser) throw new Error("No user object in response");
+
                 setUser(actualUser);
+                setPings(res.pings as Notification[] | []);
 
                 const timeLeftMs = getTimeLeft(token);
                 if (timeLeftMs > 0) {
@@ -177,9 +195,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setLoading(false);
             }
         };
-        
+
         initAuth();
-        
+
         intervalId = setInterval(() => {
             const currentToken = getToken();
             if (currentToken && !isTokenvalid(currentToken)) {
@@ -195,77 +213,98 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [logout, navigate]);
 
     // Single effect to load ALL user data when user changes
-useEffect(() => {
-    if (!user?.id) {
-        console.log("No user ID yet, skipping data fetch");
-        return;
-    }
-
-    let isCurrent = true;
-
-    const loadAllUserData = async () => {
-        try {
-            // Fetch ALL data in parallel
-            const [
-                wordRes, 
-                quoteRes, 
-                discoverRes, 
-                recommendsRes, 
-                genreRes, 
-                authorRes, 
-                trendsRes, 
-                popularRes, 
-                libraryRes, 
-                wishlistRes
-            ] = await Promise.all([
-                WordOfTheDay(user.id),
-                QuoteOfTheDay(user.id),
-                request.get<any>(`/recs/random`),
-                request.get<any>(`/recs/user/${user.id}`),
-                request.get<any>(`/recs/user/${user.id}/genre`),
-                request.get<any>(`/recs/user/${user.id}/author`),
-                request.get<any>(`/recs/user/${user.id}/trending`),
-                request.get<any>(`/recs/user/${user.id}/popular`),
-                request.get<any>(`/auth/${user.id}/books/${RelationshipType.LIBRARY}`),
-                request.get<any>(`/auth/${user.id}/books/${RelationshipType.WISHLIST}`)
-            ]);
-
-            if (!isCurrent) return;
-
-            // Set word and quote - they're valid or undefined
-            if (wordRes) setWord(wordRes);
-            if (quoteRes) setQuote(quoteRes);
-            
-            // Set book lists - ensure they're arrays
-            setDiscover(discoverRes?.books || []);
-            setRecommends(recommendsRes?.books || []);
-            setGenre(genreRes?.books || []);
-            setAuthor(authorRes?.books || []);
-            setTrending(trendsRes?.books || []);
-            setPopular(popularRes?.books || []);
-            setLibrary(libraryRes?.books || []);
-            setWishlist(wishlistRes?.books || []);
-            
-        } catch (err) {
-            console.error("Failed to load user data:", err);
-            // Set empty arrays on error so components don't crash
-            setDiscover([]);
-            setRecommends([]);
-            setGenre([]);
-            setAuthor([]);
-            setTrending([]);
-            setPopular([]);
-            setLibrary([]);
-            setWishlist([]);
+    useEffect(() => {
+        if (!user?.id) {
+            console.log("No user ID yet, skipping data fetch");
+            return;
         }
-    };
 
-    loadAllUserData();
+        let isCurrent = true;
 
-    return () => {
-        isCurrent = false;
-    };
-}, [user?.id]); // Only runs when user ID changes (login/logout)
+        const loadAllUserData = async () => {
+            try {
+                // Fetch ALL data in parallel
+                const [
+                    wordRes,
+                    quoteRes,
+                    discoverRes,
+                    recommendsRes,
+                    genreRes,
+                    authorRes,
+                    trendsRes,
+                    popularRes,
+                    libraryRes,
+                    wishlistRes
+                ] = await Promise.all([
+                    WordOfTheDay(user.id),
+                    QuoteOfTheDay(user.id),
+                    request.get<any>(`/recs/random`),
+                    request.get<any>(`/recs/user/${user.id}`),
+                    request.get<any>(`/recs/user/${user.id}/genre`),
+                    request.get<any>(`/recs/user/${user.id}/author`),
+                    request.get<any>(`/recs/user/${user.id}/trending`),
+                    request.get<any>(`/recs/user/${user.id}/popular`),
+                    request.get<any>(`/auth/${user.id}/books/${RelationshipType.LIBRARY}`),
+                    request.get<any>(`/auth/${user.id}/books/${RelationshipType.WISHLIST}`)
+                ]);
+
+                if (!isCurrent) return;
+
+                // Set word and quote - they're valid or undefined
+                if (wordRes) setWord(wordRes);
+                if (quoteRes) setQuote(quoteRes);
+
+                // Set book lists - ensure they're arrays
+                setDiscover(discoverRes?.books || []);
+                setRecommends(recommendsRes?.books || []);
+                setGenre(genreRes?.books || []);
+                setAuthor(authorRes?.books || []);
+                setTrending(trendsRes?.books || []);
+                setPopular(popularRes?.books || []);
+                setLibrary(libraryRes?.books || []);
+                setWishlist(wishlistRes?.books || []);
+
+            } catch (err) {
+                console.error("Failed to load user data:", err);
+                // Set empty arrays on error so components don't crash
+                setDiscover([]);
+                setRecommends([]);
+                setGenre([]);
+                setAuthor([]);
+                setTrending([]);
+                setPopular([]);
+                setLibrary([]);
+                setWishlist([]);
+            }
+        };
+
+        loadAllUserData();
+
+        return () => {
+            isCurrent = false;
+        };
+    }, [user?.id]); // Only runs when user ID changes (login/logout)
+
+    //when user details changes
+    useEffect(() => {
+        const RefetchUser = async () => {
+            const res = await request.get<any>('/auth/user');
+            //request.setAuthToken(token);
+
+            //console.log('user res',res);
+            const actualUser = res.user as User;
+
+            if (!actualUser) throw new Error("No user object in response");
+
+            setUser(actualUser);
+            setPings(res.pings as Notification[] | []);
+        }
+        try {
+            RefetchUser()
+        } catch (err) {
+            console.log('Exception while fetching user: ', err)
+        }
+    }, [user?.username, user?.profilePhoto, user?.cellphone, user?.email, user?.bio]);
 
     return (
         <AuthContext.Provider value={{
@@ -278,7 +317,7 @@ useEffect(() => {
             dislike, setDislike,
             word, quote,
             popular, discover,
-            trending,
+            trending, pings,
             isLoggedIn, logout,
             loading
         }}>

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { type FormEvent } from 'react';
 
 {/* =============== services ============ */ }
+import { useSoundNotification } from '@hooks/useNotification';
 import { request } from '@utils/ApiRequest';
 import { useAuth } from '@context/AuthContext';
 
@@ -18,6 +19,7 @@ interface AccountSettingsModalProps {
 }
 
 export const AccountSettings: React.FC<AccountSettingsModalProps> = ({ isOpen, onClose }) => {
+    const {playToastSound} = useSoundNotification();
     const { user, setUser } = useAuth();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -47,7 +49,9 @@ export const AccountSettings: React.FC<AccountSettingsModalProps> = ({ isOpen, o
                     toast.info('Account Settings', {
                         description: res.message
                     });
-                    setUser(res.user)
+                    setUser(res.user);
+                    //console.log('acoount settings',res);
+                    playToastSound();
                 }
             ).catch(
                 (error: any) => {

@@ -3,11 +3,12 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 //components
 import { toast } from "sonner";
+import { Modal } from "@components/skeleton/modal";
 import { Shelves } from "@components/skeleton/shelves/Shelves";
 import { LoadingCards } from "@components/skeleton/LoadingCard";
 
 //models
-import { RelationshipType, type Book } from "@models/Book";
+import {RelationshipType, type Book, type Room } from "@models/Book";
 import type { LucideProps } from 'lucide-react';
 
 //services
@@ -46,7 +47,7 @@ const CircleButton: React.FC<CircleButtonProps> = ({ buttonLabel: IconComponent,
     );
 };
 
-export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
+export const BookHeader: React.FC<{ book: Book, onToggl: () => void }> = ({ book, onToggl }) => {
     const { wishlist, setWishlist, library, setLibrary, dislike, setDislike, user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -137,6 +138,7 @@ export const BookHeader: React.FC<{ book: Book }> = ({ book }) => {
                             error: 'Error',
                         });
                         setLibrary([...library, book]);
+                        onToggl()
                     })
                     .catch((error) => {
                         toast.error(`Error adding book to your library: ${error?.message || error}`);
@@ -448,14 +450,32 @@ export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book
     );
 }
 
+export const BookRoom: React.FC<{room: Room, isOpen: boolean, onModalToggl: () => void}> = ({room, isOpen, onModalToggl}) => {
+    return(
+        <Modal
+        isOpen={isOpen}
+        onClose={() => onModalToggl()}
+        title={`Join the discussion Room`}
+        >
+            Join the book community and have endless conversations about the characters and plot with you fellow readers!!!
+        </Modal>
+    );
+}
+
 export default function BookPage() {
     const { user } = useAuth();
     const params = useParams();
     const [similar, setSimilar] = useState<Book[] | []>([]);
     const [alsoLike, setAlsoLike] = useState<Book[] | []>([]);
     const [moreAuthor, setMoreAuthor] = useState<Book[] | []>([]);
+
     const navigate = useNavigate();
+
+    const [isOpen, setOpen] = useState<boolean>(false);
+    const onModalToggl = () => setOpen((prev) => !prev);
     const [loading, setLoading] = useState<boolean>(false);
+    const [room, setRoom] = useState<Room | null>(null);
+
     const [book, setBook] = useState<Book>({
         id: params.id?.toString() || '',
         name: "",
@@ -496,6 +516,7 @@ export default function BookPage() {
                     genre: { id: res.genre.id, name: res.genre.name }
                 };
                 setBook(b);
+                setRoom(res.room);
 
                 const authorBooks = await request.get<any>(`/books/author/${res.author.id}`);
                 setMoreAuthor(authorBooks.books);
@@ -527,7 +548,7 @@ export default function BookPage() {
                     <LoadingCards LoadingSelection="BookHeader" />
                 ) : (
                     <>
-                        <BookHeader book={book} />
+                        <BookHeader book={book} onToggl={() => onModalToggl()} />
                         <BookDetails book={book} similar={similar} alsoLike={alsoLike} moreBy={moreAuthor} goToAlsoLike={goToAlsoLike} />
                     </>
                 )}

@@ -5,8 +5,10 @@ import com.ana.bookapi.DTO.errResponse;
 import com.ana.bookapi.models.Author;
 import com.ana.bookapi.models.Genre;
 import com.ana.bookapi.models.book.Book;
+import com.ana.bookapi.models.book.DiscussionRoom.Room;
 import com.ana.bookapi.service.AuthorService;
 import com.ana.bookapi.service.book.BookService;
+import com.ana.bookapi.service.book.DiscussionRoom.RoomService;
 import com.ana.bookapi.service.book.GenreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,15 +23,21 @@ import java.util.stream.Collectors;
 @RequestMapping("/books")
 public class BookController {
 
+    private final RoomService roomService;
     private final BookService bookService;
     private final GenreService genreService;
     private final AuthorService authorService;
     private errResponse er = new errResponse();
 
-    public BookController(BookService bookService, AuthorService authorService,  GenreService genreService) {
+    public BookController(
+            BookService bookService,
+            AuthorService authorService,
+            RoomService roomService,
+            GenreService genreService) {
         this.bookService = bookService;
         this.genreService = genreService;
         this.authorService = authorService;
+        this.roomService = roomService;
     }
 
     // Get all books
@@ -59,7 +67,8 @@ public class BookController {
             Book book = bookService.getBookById(id);
             Author au = authorService.getAuthorById(book.getAuthorId());
             Genre genre = genreService.getGenre(book.getGenreId());
-            return ResponseEntity.ok(Map.of("book", book, "author", au, "genre", genre));
+            Room room = roomService.getBookMainRoom(book.getId());
+            return ResponseEntity.ok(Map.of("book", book, "author", au, "genre", genre, "room", room));
         } catch (RuntimeException e) {
             er.setMessage("404 error: " + e.getMessage());
             er.setStatus(HttpStatus.NOT_FOUND.value());

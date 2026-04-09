@@ -3,6 +3,8 @@ package com.ana.bookapi.DTO;
 import com.ana.bookapi.models.Genre;
 import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.models.Author;
+import com.ana.bookapi.models.book.DiscussionRoom.Room;
+
 import java.util.Date;
 
 public class BookDTO {
@@ -17,11 +19,27 @@ public class BookDTO {
     private Integer pageCount;
     private Date publicationDate;
     private String language;
+    private Room room;
 
     // Default constructor
     public BookDTO() {}
 
     // Constructor from Book entity
+    public BookDTO(Book book, Author author, Genre genre, Room room) {
+        this.id = book.getId();
+        this.name = book.getName();
+        this.coverArt = book.getCoverArt();
+        this.isbn = book.getIsbn();
+        this.author = new AuthorDTO(author);
+        this.synopsis = book.getSynopsis();
+        this.publisher = book.getPublisher();
+        this.pageCount = book.getPageCount();
+        this.room = room;
+        this.language = book.getLanguage();
+        this.genre = new GenreDTO(genre);
+        this.publicationDate = book.getPublicationDate();
+    }
+
     public BookDTO(Book book, Author author, Genre genre) {
         this.id = book.getId();
         this.name = book.getName();
@@ -34,7 +52,6 @@ public class BookDTO {
         this.publicationDate = book.getPublicationDate();
         this.language = book.getLanguage();
         this.genre = new GenreDTO(genre);
-
     }
 
     public BookDTO(Book book, Author author) {

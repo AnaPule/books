@@ -277,32 +277,34 @@ public class GoogleBooks {
         // Niche genres that Google Books might miss
         String[] nicheSubjects = {
                 // Manga & Comics (already have)
-                "manga", "webtoons", "manhwa", "manhua", "light_novels",
+                "manga", "webtoon", "manhwa", "manhua", "light_novels",
                 "comics", "graphic_novels", "japanese_comics",
 
                 // Missing from Google Books (empty results)
-                "dark_fantasy", "urban_fantasy", "magical_realism",
-                "dark_romance", "new_adult_romance", "cosmic_horror",
-                "middle_grade", "picture_books", "shojo", "webtoons",
-                "indie_comics", "diverse_voices", "bipoc_literature",
+                "dark fantasy", "urban fantasy", "magical realism",
+                "dark romance", "new adult romance", "cosmic horror",
+                "middle grade", "picture books", "shojo",
+                "indie comics", "diverse voices",
                 "swashbuckler",
 
                 // Niche genres Google Books struggled with
-                "gothic_fiction", "romanticism", "cyberpunk", "steampunk",
+                "gothic fiction", "romanticism", "cyberpunk", "steampunk",
                 "dystopian", "noir", "afrofuturism", "climate_fiction",
-                "indigenous_literature", "lgbtq_fiction",
+                "indigenous literature",
 
                 // Additional genres
-                "grimdark", "slice_of_life", "isekai", "yaoi", "yuri",
-                "shonen", "seinen", "josei", "biographical_comics",
-                "historical_fiction", "mythology", "fairytale_retellings",
-                "lovecraftian", "satire", "absurdist_fiction"
+                "grimdark", "slice of life", "isekai", "yaoi", "yuri",
+                "shonen", "seinen", "josei", "biographical comics",
+                "historical fiction", "mythology",
+                "lovecraftian", "satire", "absurdist_fiction",
+
+                "english literature", "vampire", "vampire romance", "mafia romance"
         };
 
         for (String subject : nicheSubjects) {
             try {
                 System.out.println("Fetching Open Library books for: " + subject);
-                List<Document> books = openLibrary.getBooksBySubject(subject, 40); // list of works found in this genre right - but these works dont have all the attributes you want.
+                List<Document> books = openLibrary.getBooksBySubject(subject, 80); // list of works found in this genre right - but these works dont have all the attributes you want.
                 //so we send these works to a helper method to get all attributes desired
 
                 for (Document book : books) {

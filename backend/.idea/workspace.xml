@@ -6,15 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="it wants me to commit before checking out">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentInteractionRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentInteractionRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/MemberRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/MemberRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/ReportRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/ReportRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/RoomRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/RoomRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/JwtService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/CommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/CommentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/Auth/PingDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/Auth/PingDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/BookDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/BookDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/clients/GoogleBooks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/clients/GoogleBooks.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/BookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/BookController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/Notification.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,8 +21,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>

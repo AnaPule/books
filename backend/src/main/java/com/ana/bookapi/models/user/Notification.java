@@ -21,18 +21,44 @@ public class Notification {
     @Column(name="read", nullable = false) private Boolean read = false; // if the user read the message
     @Column(name="content", columnDefinition = "TEXT", nullable = false) private String content; // the actual message
     @Column(name="post_time", nullable = false) private Date postTime;
+    @Column(name="type", nullable = false) private Integer type;
+    @Column(name="preview", nullable = false, length = 100) private String preview;
 
     public Notification() {
         this.id = UUID.randomUUID().toString();
         this.postTime = new Date();
     }
 
+    // with preview
     public Notification(
+            Integer type,
+            String preview,
             String senderId,
             String receiveId,
             String subject,
             String content
+
     ){
+        this.type = type;
+        this.preview = preview;
+        this.senderId = senderId;
+        this.receiveId = receiveId;
+        this.content = content;
+        this.subject = subject;
+        this.id = UUID.randomUUID().toString();
+        this.postTime = new Date();
+    }
+
+    // without preview
+    public Notification(
+            Integer type,
+            String senderId,
+            String receiveId,
+            String subject,
+            String content
+
+    ){
+        this.type = type;
         this.senderId = senderId;
         this.receiveId = receiveId;
         this.content = content;
@@ -54,6 +80,9 @@ public class Notification {
     //public String getRoomId() { return roomId; }
     //public void setRoomId(String roomId) { this.roomId = roomId; }
 
+    public Integer getType() { return type; }
+    public void setType(Integer type) { this.type = type; }
+
     public String getSubject() { return subject; }
     public void setSubject(String subject) { this.subject = subject; }
 
@@ -66,10 +95,17 @@ public class Notification {
     public Date getPostTime() { return postTime; }
     public void setPostTime(Date postTime) { this.postTime = postTime; }
 
-    public enum RelationshipType {
-        GENERAL,            // sender = pages ń parchments
-        DIRECT_MESSAGE,     // sender = user_id
-        ROOM_ACTIVITY
+    public String getPreview() { return preview; }
+    public void setPreview(String preview) { this.preview = preview; }
+
+    public enum NoticeType {
+        GENERAL,            // 1. sender = pages ń parchments
+        DIRECT_MESSAGE,     // 2. sender = user_id
+        ROOM_ACTIVITY,      // 3.
+        REACTION,           // 4.
+        MENTION,            // 5.
+        INVITE,             // 6.
+        ACHIEVEMENT,        // 7.
         ///NOTE: messages from rooms on account of activity - sender = id
     };
 }

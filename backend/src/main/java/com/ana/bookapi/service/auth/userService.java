@@ -152,6 +152,11 @@ public class userService implements UserDetailsService {
         return user;
     }
 
+    //does user exist
+    public Boolean doesUserExist(String userId) {
+        return ur.existsById(userId);
+    }
+
     //register user
     public User createUser(User user) {
         if (ur.existsByUsername(user.getUsername())) {

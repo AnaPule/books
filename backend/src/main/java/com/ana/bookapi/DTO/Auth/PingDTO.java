@@ -10,7 +10,9 @@ public class PingDTO {
     private String message;
     private Date timestamp;
     private Boolean read;
+    private String recipient; // Id
     private From from;
+    private MetaData meta;
 
     // Inner class for From
     public static class From {
@@ -39,6 +41,33 @@ public class PingDTO {
         public void setProfilePhoto(String profilePhoto) {this.profilePhoto = profilePhoto;}
     }
 
+    // inner class room meta data
+    public static class MetaData{
+        private String roomId;
+        private String roomName;
+        private String bookId;
+        private String bookName;
+
+        public MetaData(String roomId, String roomName, String bookId, String bookName) {
+            this.roomId = roomId;
+            this.roomName = roomName;
+            this.bookId = bookId;
+            this.bookName = bookName;
+        }
+
+        public String getRoomId() {return roomId;}
+        public void setRoomId(String roomId) {this.roomId = roomId;}
+
+        public String getRoomName() {return roomName;}
+        public void setRoomName(String roomName) {this.roomName = roomName;}
+
+        public String getBookId() {return bookId;}
+        public void setBookId(String bookId) {this.bookId = bookId;}
+
+        public String getBookName() {return bookName;}
+        public void setBookName(String bookName) {this.bookName = bookName;}
+    }
+
     // Default constructor
     public PingDTO() {}
 
@@ -53,6 +82,20 @@ public class PingDTO {
         this.timestamp = timestamp;
         this.read = read;
         this.from = from;
+    }
+
+    //if interaction from room
+    public PingDTO(String id, Integer type, String title, String preview, String message,
+                   Date timestamp, Boolean read, From from, MetaData meta) {
+        this.id = id;
+        this.type = type;
+        this.title = title;
+        this.preview = preview;
+        this.message = message;
+        this.timestamp = timestamp;
+        this.read = read;
+        this.from = from;
+        this.meta = meta;
     }
 
     // Getters and Setters
@@ -79,5 +122,11 @@ public class PingDTO {
 
     public From getFrom() {return from;}
     public void setFrom(From from) {this.from = from;}
+
+    public MetaData getMeta() {return meta;}
+    public void setMeta(MetaData meta) {this.meta = meta;}
+
+    public String getRecipient() {return recipient;}
+    public void setRecipient(String recipient) {this.recipient = recipient;}
 }
 

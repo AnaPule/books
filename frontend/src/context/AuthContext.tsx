@@ -237,7 +237,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     trendsRes,
                     popularRes,
                     libraryRes,
-                    wishlistRes
+                    wishlistRes,
+                    pingsRes
                 ] = await Promise.all([
                     WordOfTheDay(user.id),
                     QuoteOfTheDay(user.id),
@@ -248,7 +249,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     request.get<any>(`/recs/user/${user.id}/trending`),
                     request.get<any>(`/recs/user/${user.id}/popular`),
                     request.get<any>(`/auth/${user.id}/books/${RelationshipType.LIBRARY}`),
-                    request.get<any>(`/auth/${user.id}/books/${RelationshipType.WISHLIST}`)
+                    request.get<any>(`/auth/${user.id}/books/${RelationshipType.WISHLIST}`),
+                    request.get<any>(`/auth/notice/user/${user.id}`)
                 ]);
 
                 if (!isCurrent) return;
@@ -266,6 +268,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setPopular(popularRes?.books || []);
                 setLibrary(libraryRes?.books || []);
                 setWishlist(wishlistRes?.books || []);
+                setPings(pingsRes?.pings || []);
 
             } catch (err) {
                 console.error("Failed to load user data:", err);
@@ -278,6 +281,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setPopular([]);
                 setLibrary([]);
                 setWishlist([]);
+                setPings([]);
             }
         };
 

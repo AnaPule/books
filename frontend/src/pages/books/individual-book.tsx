@@ -3,13 +3,15 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 //components
 import { toast } from "sonner";
+import { Logo } from "@components/Logo/Logo";
 import { Modal } from "@components/skeleton/modal";
 import { Shelves } from "@components/skeleton/shelves/Shelves";
 import { LoadingCards } from "@components/skeleton/LoadingCard";
 
 //models
-import {RelationshipType, type Book, type Room } from "@models/Book";
+import { type Notification, NoticeType } from "@models/Notice";
 import type { LucideProps } from 'lucide-react';
+import { RelationshipType, type Book, type Room } from "@models/Book";
 
 //services
 import { useAuth } from "@context/AuthContext";
@@ -19,6 +21,8 @@ import {
     ThumbsDown, Heart,
     ArrowLeft, Calendar, Users, BookOpen,
 } from "lucide-react";
+import { useNewMessage } from "@hooks/useMessage";
+import { useSoundNotification } from '@hooks/useNotification';
 
 interface CircleButtonProps {
     buttonLabel: React.ComponentType<LucideProps>;
@@ -47,14 +51,80 @@ const CircleButton: React.FC<CircleButtonProps> = ({ buttonLabel: IconComponent,
     );
 };
 
-export const BookHeader: React.FC<{ book: Book, onToggl: () => void }> = ({ book, onToggl }) => {
-    const { wishlist, setWishlist, library, setLibrary, dislike, setDislike, user } = useAuth();
+export const BookHeader: React.FC<{ book: Book, room: Room | null }> = ({ book, room }) => {
+    const { setPings, wishlist, setWishlist, library, setLibrary, dislike, setDislike, user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const {showNewMessageToast} = useNewMessage();
+    const {playToastSound, playMessageSendSound} = useSoundNotification();
 
-    const goToAlsoLike = () => navigate('/books/library');
-    const goToMoreLike = () => navigate('/books/library');
-    const gotToMoreBy = () => navigate('/books/library');
+    const [openDeConfirm, setOpenDelConfirm] = useState<boolean>(false);
+    const togglModal = async () => {
+        setOpenDelConfirm(prev => !prev)
+    };
+
+    const sendInviteMessage = async () => {
+        const notice: Notification = {
+            type: NoticeType.INVITE,
+            title: 'You Are Dually Invited',
+            preview: `You are dually invited to the ${room?.name}`,
+            message: `
+            <div style="display: flex; flex-direction: column; background: #f5f5f5; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;">
+        <div style="padding: 16px 16px 40px 16px;">
+            <div style="background: white; border: 1px solid #d4d4d4; border-radius: 10px; overflow: hidden; width: 80%%; margin: 5rem auto;">
+                <div style="display: flex; gap: 12px; align-items: flex-start; padding: 14px 20px; border-bottom: 1px solid #ececec;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%%; background: #b0b0b0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: white; flex-shrink: 0; margin-top: 2px;">pP</div>
+                    <div style="flex: 1; min-width: 0;">
+                        <p style="font-size: 13px; font-weight: 500; color: #1d1d1f; margin: 0;">Pages &amp; Parchment <span style="color: #888; font-weight: normal;">&lt;noreply@pagesparchment.com&gt;</span></p>
+                        <p style="font-size: 12px; color: #555; margin: 4px 0 0 0;">Pages &amp; Parchment %d: A discussion awaits</p>
+                        <p style="font-size: 11px; color: #999; margin: 4px 0 0 0;">Reply-To: Pages &amp; Parchment — help@pagesparchment.com</p>
+                    </div>
+                    <div style="text-align: right; flex-shrink: 0;">
+                        <p style="font-size: 11px; color: #888; white-space: nowrap; margin: 0;">Inbox · Invitation &nbsp; %s</p>
+                        <span style="display: inline-block; margin-top: 4px; font-size: 10px; background: #ebebeb; color: #555; border-radius: 4px; padding: 2px 6px;">pages_parchment_${new Date().getFullYear()}</span>
+                        <p style="color: #d44000; font-size: 13px; margin-top: 6px; margin-bottom: 0;">⚑</p>
+                    </div>
+                </div>
+                <div style="padding: 32px 56px;">
+                    <p style="text-align: center; font-size: 12px; font-weight: 600; color: #999; letter-spacing: 0.2px; margin: 0 0 4px 0;">pages_parchment_${new Date().getFullYear()}</p>
+                    <p style="text-align: center; font-size: 22px; color: #bbb; font-weight: 300; margin: 0 0 16px 0;">Pages &amp; Parchment ${new Date().getFullYear()}</p>
+                    <h1 style="text-align: center; font-size: 18px; font-weight: 700; color: #1d1d1f; margin: 0 0 20px 0;">A reading room awaits you</h1>
+                    <h2 style="font-size: 15px; font-weight: 700; color: #1d1d1f; margin: 0 0 10px 0;">There's a discussion for that book</h2>
+                    <p style="font-size: 15px; line-height: 1.65; color: #1d1d1f; margin: 0 0 20px 0;">Dearest <strong>${user?.username}</strong>,</p>
+                    <p style="font-size: 15px; line-height: 1.65; color: #1d1d1f; margin: 0 0 20px 0;">We noticed you added <strong>"${book.name}"</strong> to your library.</p>
+                    <p style="font-size: 15px; line-height: 1.65; color: #1d1d1f; margin: 0 0 20px 0;">Did you know? This book has its own discussion room — a quiet corner where readers gather to share thoughts, favorite passages, and interpretations.</p>
+                    <p style="font-size: 15px; line-height: 1.65; color: #1d1d1f; margin: 0 0 20px 0;">Should you ever wish to join the conversation, the door is always open.</p>
+                    <p style="text-align: center; font-size: 13px; color: #999; font-style: italic; margin-top: 10px;">The fellowship grows with every reader</p>
+                </div>
+                <div style="background: #f0f0f0; border-top: 1px solid #e0e0e0; padding: 20px 56px;">
+                    <p style="font-size: 12px; color: #999; margin: 0 0 2px 0;">Email brought to you by</p>
+                    <p style="font-size: 15px; font-weight: 700; color: #1d1d1f; margin: 0 0 12px 0;">Pages &amp; Parchment</p>
+                    <p style="font-size: 13px; font-weight: 500; color: #1d1d1f; margin: 0 0 2px 0;">What is a discussion room? *</p>
+                    <p style="font-size: 13px; color: #666; margin: 0 0 12px 0;">Contact support at help@pagesparchment.com</p>
+                    <p style="font-size: 11px; color: #999; line-height: 1.5; margin: 0;">*Discussion rooms are dedicated spaces for readers to connect over a specific book. You're always welcome to join or simply observe.</p>
+                </div>
+            </div>
+        </div>
+    </div>`,
+            recipient: user?.id,
+            timestamp: new Date(),
+            read: false,
+            from: {
+                id: room?.id ?? "",
+                username: room?.name ?? '',
+            }
+        }
+        await request.post(`/auth/notice`, notice);//send room invite
+        const pings = await request.get<any>(`/auth/notice/user/${user?.id}`)
+        setPings(pings.pings);
+        showNewMessageToast();
+    }
+
+    const onJoinRoom = async () => {
+        await request.post(`/rooms/add-member/${user?.id}/${room?.id}`);
+        togglModal();
+        showNewMessageToast();
+    }
 
     const isInWishlist = Array.isArray(wishlist) && wishlist.some(wishlistBook => wishlistBook.id === book.id);
     const isInLibrary = Array.isArray(library) && library.some(LibraryBook => LibraryBook.id === book.id);
@@ -91,6 +161,7 @@ export const BookHeader: React.FC<{ book: Book, onToggl: () => void }> = ({ book
                             success: () => `${res.message}`,
                             error: 'Error',
                         });
+                        playToastSound();
                         setWishlist([...wishlist, book]);
                     })
             } catch (error) {
@@ -138,7 +209,8 @@ export const BookHeader: React.FC<{ book: Book, onToggl: () => void }> = ({ book
                             error: 'Error',
                         });
                         setLibrary([...library, book]);
-                        onToggl()
+                        sendInviteMessage(); 
+                        togglModal();
                     })
                     .catch((error) => {
                         toast.error(`Error adding book to your library: ${error?.message || error}`);
@@ -213,103 +285,139 @@ export const BookHeader: React.FC<{ book: Book, onToggl: () => void }> = ({ book
     }
 
     return (
-        <div className="bg-gradient-to-br from-[#E0E9F0] to-[#D0E0E8] py-8 px-4 sm:px-6 md:px-8 w-full border-b border-[#B0C4D0]/50 relative">
-            <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-[#9CB0C0]/40" />
-            <div className="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-[#9CB0C0]/40" />
-
-            <button
-                onClick={handleGoBack}
-                className="absolute top-20 left-4 md:left-8 flex items-center gap-2 text-[#5a4d41] hover:text-[#8098A8] transition-colors group"
+        <>
+            <Modal
+                showCloseButton={false}
+                isOpen={openDeConfirm}
+                onClose={togglModal}
             >
-                <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                <span className="text-sm font-medium">Back</span>
-            </button>
-
-            <div className="max-w-7xl mx-auto mt-16 flex flex-col lg:flex-row items-center gap-8 lg:gap-16 w-full">
-                <div className="relative flex-shrink-0">
-                    <div
-                        style={!book.coverArt ? {} : {
-                            backgroundImage: `url(${book.coverArt})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat'
-                        }}
-                        className="w-[220px] h-[330px] sm:w-[250px] sm:h-[375px] md:w-[280px] md:h-[420px] lg:w-[320px] lg:h-[480px] rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-[#B0C4D0]/50 relative overflow-hidden"
-                    >
-                        {!book.coverArt && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#C0D4E0] to-[#B0C4D0] flex flex-col items-center justify-center p-6">
-                                <div className="absolute left-0 top-1 bottom-2 w-[10px] h-full rounded-r bg-[#8098A8]" />
-                                <h1 className="text-[#5a4d41] font-serif text-xl sm:text-2xl md:text-3xl font-medium text-center break-words px-2">
-                                    {book.name}
-                                </h1>
-                            </div>
-                        )}
-                    </div>
-                    <div className="absolute inset-0 bg-[#9CB0C0]/10 rounded-lg -z-10 blur-md transform translate-y-4" />
+                {/* Icon + text */}
+                <div className="flex flex-col items-center text-center pb-4 border-b border-black/10">
+                    <span className="text-4xl mb-2.5"><Logo size='xs' /></span>
+                    <h2 className="text-[17px] font-semibold text-[#1c1c1e] mb-1.5">
+                        Books Discussion Room
+                    </h2>
+                    <p className="text-[13px] text-[#3c3c43]/75 leading-snug">
+                        Join a quiet space for readers to share thoughts, recommendations, and reflections.
+                    </p>
                 </div>
 
-                <div className="flex-1 text-[#5a4d41] w-full max-w-6xl text-center lg:text-left">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold mb-3 w-full leading-tight">{book.name}</h1>
-                    <p className="text-lg sm:text-xl lg:text-2xl text-[#7e6957] mb-4">{book.author.name}</p>
+                {/* Actions */}
+                <div className="flex -mx-4 -mb-4 mt-0 border-t border-black/10">
+                    <button
+                        onClick={togglModal}
+                        className="flex-1 py-3.5 text-[17px] font-normal text-[#007aff] border-r border-black/10 hover:bg-black/5 active:bg-black/10 transition-colors"
+                    >
+                        Not now
+                    </button>
+                    <button
+                        onClick={() => {
+                            onJoinRoom()
+                        }}
+                        className="flex-1 py-3.5 text-[17px] font-semibold text-[#007aff] hover:bg-black/5 active:bg-black/10 transition-colors"
+                    >
+                        Join
+                    </button>
+                </div>
+            </Modal>
+            <div className="bg-gradient-to-br from-[#E0E9F0] to-[#D0E0E8] py-8 px-4 sm:px-6 md:px-8 w-full border-b border-[#B0C4D0]/50 relative">
+                <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-[#9CB0C0]/40" />
+                <div className="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-[#9CB0C0]/40" />
 
-                    <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-6">
-                        <span className="text-sm text-[#8098A8] flex items-center gap-1">
-                            <BookOpen size={16} /> {book.pageCount || '?'} pages
-                        </span>
-                        <span className="text-sm text-[#8098A8] flex items-center gap-1">
-                            <Calendar size={16} /> {new Date(book.publicationDate).getFullYear()}
-                        </span>
-                        <span className="text-sm text-[#8098A8] flex items-center gap-1">
-                            <Users size={16} /> {book.language}
-                        </span>
+                <button
+                    onClick={handleGoBack}
+                    className="absolute top-20 left-4 md:left-8 flex items-center gap-2 text-[#5a4d41] hover:text-[#8098A8] transition-colors group"
+                >
+                    <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                    <span className="text-sm font-medium">Back</span>
+                </button>
+
+                <div className="max-w-7xl mx-auto mt-16 flex flex-col lg:flex-row items-center gap-8 lg:gap-16 w-full">
+                    <div className="relative flex-shrink-0">
+                        <div
+                            style={!book.coverArt ? {} : {
+                                backgroundImage: `url(${book.coverArt})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat'
+                            }}
+                            className="w-[220px] h-[330px] sm:w-[250px] sm:h-[375px] md:w-[280px] md:h-[420px] lg:w-[320px] lg:h-[480px] rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-[#B0C4D0]/50 relative overflow-hidden"
+                        >
+                            {!book.coverArt && (
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#C0D4E0] to-[#B0C4D0] flex flex-col items-center justify-center p-6">
+                                    <div className="absolute left-0 top-1 bottom-2 w-[10px] h-full rounded-r bg-[#8098A8]" />
+                                    <h1 className="text-[#5a4d41] font-serif text-xl sm:text-2xl md:text-3xl font-medium text-center break-words px-2">
+                                        {book.name}
+                                    </h1>
+                                </div>
+                            )}
+                        </div>
+                        <div className="absolute inset-0 bg-[#9CB0C0]/10 rounded-lg -z-10 blur-md transform translate-y-4" />
                     </div>
 
-                    <p className="text-sm sm:text-base text-[#7e6957] italic mb-8 lg:mb-10 max-w-3xl leading-relaxed mx-auto lg:mx-0">
-                        {book.synopsis?.slice(0, 220)}...
-                    </p>
+                    <div className="flex-1 text-[#5a4d41] w-full max-w-6xl text-center lg:text-left">
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold mb-3 w-full leading-tight">{book.name}</h1>
+                        <p className="text-lg sm:text-xl lg:text-2xl text-[#7e6957] mb-4">{book.author.name}</p>
 
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 lg:gap-4">
-                        <button className="bg-gradient-to-r from-[#B0C4D0] to-[#9CB0C0] text-white px-6 lg:px-8 py-3 rounded-full hover:from-[#9CB0C0] hover:to-[#8098A8] transition-all duration-300 flex items-center gap-3 text-sm lg:text-base font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                            Start reading
-                            <ExternalLink size={18} />
-                        </button>
-                        {
-                            !dislike.find(d => d.id == book.id) &&
-                            <>
+                        <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-6">
+                            <span className="text-sm text-[#8098A8] flex items-center gap-1">
+                                <BookOpen size={16} /> {book.pageCount || '?'} pages
+                            </span>
+                            <span className="text-sm text-[#8098A8] flex items-center gap-1">
+                                <Calendar size={16} /> {new Date(book.publicationDate).getFullYear()}
+                            </span>
+                            <span className="text-sm text-[#8098A8] flex items-center gap-1">
+                                <Users size={16} /> {book.language}
+                            </span>
+                        </div>
+
+                        <p className="text-sm sm:text-base text-[#7e6957] italic mb-8 lg:mb-10 max-w-3xl leading-relaxed mx-auto lg:mx-0">
+                            {book.synopsis?.slice(0, 220)}...
+                        </p>
+
+                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 lg:gap-4">
+                            <button className="bg-gradient-to-r from-[#B0C4D0] to-[#9CB0C0] text-white px-6 lg:px-8 py-3 rounded-full hover:from-[#9CB0C0] hover:to-[#8098A8] transition-all duration-300 flex items-center gap-3 text-sm lg:text-base font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                Start reading
+                                <ExternalLink size={18} />
+                            </button>
+                            {
+                                !dislike.find(d => d.id == book.id) &&
+                                <>
+                                    <CircleButton
+                                        buttonLabel={Bookmark}
+                                        Label={"Add To Library"}
+                                        action={handleBookToLibrary}
+                                        fill={isInLibrary ? "#8098A8" : "none"}
+                                        color={isInLibrary ? "#8098A8" : "#5a4d41"}
+                                    />
+                                    <CircleButton
+                                        buttonLabel={Heart}
+                                        Label={"Wishlist"}
+                                        action={handleBookToWishlist}
+                                        fill={isInWishlist ? "#8098A8" : "none"}
+                                        color={isInWishlist ? "#8098A8" : "#5a4d41"}
+                                    />
+                                </>
+
+                            }
+                            {
+                                !wishlist.find(w => w.id == book.id) &&
+                                !library.find(l => l.id == book.id) &&
                                 <CircleButton
-                                    buttonLabel={Bookmark}
-                                    Label={"Add To Library"}
-                                    action={handleBookToLibrary}
-                                    fill={isInLibrary ? "#8098A8" : "none"}
-                                    color={isInLibrary ? "#8098A8" : "#5a4d41"}
+                                    buttonLabel={ThumbsDown}
+                                    Label={"Dislike"}
+                                    action={handleBookToDislike}
+                                    fill={isInDislike ? "#8098A8" : "none"}
+                                    color={isInDislike ? "#8098A8" : "#5a4d41"}
                                 />
-                                <CircleButton
-                                    buttonLabel={Heart}
-                                    Label={"Wishlist"}
-                                    action={handleBookToWishlist}
-                                    fill={isInWishlist ? "#8098A8" : "none"}
-                                    color={isInWishlist ? "#8098A8" : "#5a4d41"}
-                                />
-                            </>
 
-                        }
-                        {
-                            !wishlist.find(w => w.id == book.id) &&
-                            !library.find(l => l.id == book.id) &&
-                            <CircleButton
-                                buttonLabel={ThumbsDown}
-                                Label={"Dislike"}
-                                action={handleBookToDislike}
-                                fill={isInDislike ? "#8098A8" : "none"}
-                                color={isInDislike ? "#8098A8" : "#5a4d41"}
-                            />
+                            }
 
-                        }
-
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
 
@@ -450,12 +558,12 @@ export const BookDetails: React.FC<{ book: Book, similar: Book[], alsoLike: Book
     );
 }
 
-export const BookRoom: React.FC<{room: Room, isOpen: boolean, onModalToggl: () => void}> = ({room, isOpen, onModalToggl}) => {
-    return(
+export const BookRoom: React.FC<{ room: Room, isOpen: boolean, onModalToggl: () => void }> = ({ room, isOpen, onModalToggl }) => {
+    return (
         <Modal
-        isOpen={isOpen}
-        onClose={() => onModalToggl()}
-        title={`Join the discussion Room`}
+            isOpen={isOpen}
+            onClose={() => onModalToggl()}
+            title={`Join the discussion Room`}
         >
             Join the book community and have endless conversations about the characters and plot with you fellow readers!!!
         </Modal>
@@ -470,9 +578,6 @@ export default function BookPage() {
     const [moreAuthor, setMoreAuthor] = useState<Book[] | []>([]);
 
     const navigate = useNavigate();
-
-    const [isOpen, setOpen] = useState<boolean>(false);
-    const onModalToggl = () => setOpen((prev) => !prev);
     const [loading, setLoading] = useState<boolean>(false);
     const [room, setRoom] = useState<Room | null>(null);
 
@@ -548,7 +653,7 @@ export default function BookPage() {
                     <LoadingCards LoadingSelection="BookHeader" />
                 ) : (
                     <>
-                        <BookHeader book={book} onToggl={() => onModalToggl()} />
+                        <BookHeader book={book} room={room ?? null} />
                         <BookDetails book={book} similar={similar} alsoLike={alsoLike} moreBy={moreAuthor} goToAlsoLike={goToAlsoLike} />
                     </>
                 )}

@@ -4,6 +4,7 @@ package com.ana.bookapi.controller;
 
 import com.ana.bookapi.DTO.*;
 import com.ana.bookapi.DTO.Auth.*;
+import com.ana.bookapi.models.book.DiscussionRoom.Room;
 import com.ana.bookapi.models.user.Notification;
 import com.ana.bookapi.DTO.Auth.PingDTO;
 import com.ana.bookapi.models.user.User;
@@ -23,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.ana.bookapi.service.book.BookService;
+import com.ana.bookapi.service.book.DiscussionRoom.RoomService;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.weaver.ast.Not;
 import org.springframework.http.HttpStatus;
@@ -43,18 +46,24 @@ public class AuthController {
     private final JwtService js;
     private final userService us;
     private final EmailService es;
+    private final RoomService rs;
+    private final BookService bs;
     private final VerificationTokenService ts;
     private errResponse er = new errResponse();
 
     private AuthController(
             userService us,
             JwtService js,
+            RoomService rs,
+            BookService bs,
             VerificationTokenService ts,
             EmailService es) {
         this.us = us;
         this.js = js;
         this.ts = ts;
         this.es = es;
+        this.rs = rs;
+        this.bs = bs;
     }
 
     @Value("${app.mode}")
@@ -334,27 +343,60 @@ public class AuthController {
         try {
             String username = js.extractUsername(token);
             User user = us.getUserByUsername(username);
+
             List<PingDTO> pings = us.getUserNotifications(user.getId())
                     .stream()
                     .map(ping -> {
-                        return new PingDTO(
-                                ping.getId(),
-                                ping.getType(),
-                                ping.getSubject(),
-                                ping.getPreview(),
-                                ping.getContent(),
-                                ping.getPostTime(),
-                                ping.getRead(),
-                                new PingDTO.From(
-                                        user.getId(),
-                                        user.getUsername(),
-                                        user.getProfilePhoto()
-                                )
-                        );
+
+                        // if room interaction (comment, like, reply) or invite
+                        if (
+                                ping.getType() == 3 ||
+                                        ping.getType() == 4 ||
+                                        ping.getType() == 5 ||
+                                        ping.getType() == 6) {
+
+                            // the sender is the room and that
+                            //so get that meta data
+                            Room room = rs.findRoomById(ping.getSenderId());
+                            return new PingDTO(
+                                    ping.getId(),
+                                    ping.getType(),
+                                    ping.getSubject(),
+                                    ping.getPreview(),
+                                    ping.getContent(),
+                                    ping.getPostTime(),
+                                    ping.getRead(),
+                                    new PingDTO.From(
+                                            room.getId(),
+                                            room.getName(),
+                                            ""
+                                    ),
+                                    new PingDTO.MetaData(
+                                            room.getId(),
+                                            room.getName(),
+                                            room.getBookId(),
+                                            bs.getBookById(room.getBookId()).getName()
+                                    )
+                            );
+
+                        } else {
+                            return new PingDTO(
+                                    ping.getId(),
+                                    ping.getType(),
+                                    ping.getSubject(),
+                                    ping.getPreview(),
+                                    ping.getContent(),
+                                    ping.getPostTime(),
+                                    ping.getRead(),
+                                    new PingDTO.From(
+                                            user.getId(),
+                                            user.getUsername(),
+                                            user.getProfilePhoto()
+                                    )
+                            );
+                        }
                     })
                     .collect(Collectors.toList());
-
-
             if (user == null) {
                 er.setMessage("404 error: User not found");
                 er.setStatus(HttpStatus.NOT_FOUND.value());
@@ -1129,6 +1171,31 @@ public class AuthController {
     }
 
     //notifications
+    @PostMapping("/notice")
+    public ResponseEntity<?> postNotification(@RequestBody PingDTO ping) {
+        try {
+            //make sure receiver exists
+            if (!us.doesUserExist(ping.getRecipient())) {
+                er.setStatus(HttpStatus.BAD_GATEWAY.value());
+                er.setMessage("User does not exist");
+            }
+            Notification message = new Notification(
+                    ping.getType(),
+                    ping.getPreview(),
+                    ping.getFrom().getId(),
+                    ping.getRecipient(),
+                    ping.getTitle(),
+                    ping.getMessage()
+            );
+            us.sendNotification(message);
+            return ResponseEntity.ok(Map.of("message", "ping sent"));
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
     @PutMapping("/notice/status/{id}/{readStatus}")
     public ResponseEntity<?> readNotice(@PathVariable String id, @PathVariable Boolean readStatus) {
         try {
@@ -1174,10 +1241,10 @@ public class AuthController {
 
     @DeleteMapping("/notice/{id}")
     public ResponseEntity<?> deleteNotification(@PathVariable String id) {
-        try{
-           us.deleteNotification(id);
-           return ResponseEntity.noContent().build();
-        }catch(Exception e){
+        try {
+            us.deleteNotification(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
             er.setMessage("500 error: " + e.getMessage());
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);

@@ -1,7 +1,6 @@
 
-
-import ToastSound from "@assets/short_chime.mp3";
-import MessageSound from "@assets/iphone_glass.mp3";
+import ToastSound from "@assets/iphone_glass.mp3";
+import MessageSound from "@assets/miraculous.mp3";
 import { useCallback, useRef, useEffect } from "react";
 
 export const useSoundNotification = () =>{

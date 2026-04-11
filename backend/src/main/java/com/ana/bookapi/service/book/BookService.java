@@ -37,6 +37,8 @@ public class BookService {
                 .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
     }
 
+    //get individual book by Room
+
     // Get individual book by ISBN
     public Book getBookByIsbn(String isbn) {
         Book book = bookRepo.findByIsbn(isbn);

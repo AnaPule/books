@@ -1,0 +1,270 @@
+/* ═══════════════════════════════════════════════════════════════
+   BOOKS LOGO STATIC — logo.module.css
+   Four upright spines on a shelf, corner lines, flourishes, text.
+   Sizes: xxs · xs · sm · md (default) · lg
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ── Wrapper ───────────────────────────────────────────────── */
+
+.logoWrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 20px 28px 16px;
+}
+
+.xxs { padding: 6px 8px 5px;  }
+.xs  { padding: 9px 12px 8px; }
+.sm  { padding: 14px 18px 12px; }
+.lg  { padding: 28px 36px 20px; }
+
+
+/* ── Corner boxes ──────────────────────────────────────────── */
+
+.corner {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+}
+
+.xxs .corner { width: 16px; height: 16px; }
+.xs  .corner { width: 24px; height: 24px; }
+.sm  .corner { width: 36px; height: 36px; }
+.lg  .corner { width: 60px; height: 60px; }
+
+.tl { top: 0; left: 0; }
+.tr { top: 0; right: 0; }
+.bl { bottom: 0; left: 0; }
+.br { bottom: 0; right: 0; }
+
+
+/* ── Corner line elements ──────────────────────────────────── */
+
+.l1h, .l1v { position: absolute; background: #c9a394; }
+.l2h, .l2v { position: absolute; background: #e8cfc5; }
+
+.l1h { height: 1.5px; width: 36px; }
+.l2h { height: 1.5px; width: 22px; }
+.l1v { width: 1.5px;  height: 36px; }
+.l2v { width: 1.5px;  height: 22px; }
+
+.xxs .l1h { width: 10px; } .xxs .l2h { width: 6px;  }
+.xxs .l1v { height: 10px;} .xxs .l2v { height: 6px; }
+.xs  .l1h { width: 16px; } .xs  .l2h { width: 10px; }
+.xs  .l1v { height: 16px;} .xs  .l2v { height: 10px;}
+.sm  .l1h { width: 26px; } .sm  .l2h { width: 16px; }
+.sm  .l1v { height: 26px;} .sm  .l2v { height: 16px;}
+.lg  .l1h { width: 46px; } .lg  .l2h { width: 28px; }
+.lg  .l1v { height: 46px;} .lg  .l2v { height: 28px;}
+
+.tl .l1h, .tl .l1v { top: 0;       left: 0;    }
+.tl .l2h, .tl .l2v { top: 3px;     left: 3px;  }
+.tr .l1h, .tr .l1v { top: 0;       right: 0;   }
+.tr .l2h, .tr .l2v { top: 3px;     right: 3px; }
+.bl .l1h, .bl .l1v { bottom: 0;    left: 0;    }
+.bl .l2h, .bl .l2v { bottom: 3px;  left: 3px;  }
+.br .l1h, .br .l1v { bottom: 0;    right: 0;   }
+.br .l2h, .br .l2v { bottom: 3px;  right: 3px; }
+
+/* tighten offset for tiny sizes */
+.xxs .tl .l2h, .xxs .tl .l2v { top: 2px;    left: 2px;   }
+.xxs .tr .l2h, .xxs .tr .l2v { top: 2px;    right: 2px;  }
+.xxs .bl .l2h, .xxs .bl .l2v { bottom: 2px; left: 2px;   }
+.xxs .br .l2h, .xxs .br .l2v { bottom: 2px; right: 2px;  }
+.xs  .tl .l2h, .xs  .tl .l2v { top: 2px;    left: 2px;   }
+.xs  .tr .l2h, .xs  .tr .l2v { top: 2px;    right: 2px;  }
+.xs  .bl .l2h, .xs  .bl .l2v { bottom: 2px; left: 2px;   }
+.xs  .br .l2h, .xs  .br .l2v { bottom: 2px; right: 2px;  }
+
+
+/* ── Corner flourishes ─────────────────────────────────────── */
+
+.flourish {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  pointer-events: none;
+}
+
+.xxs .flourish { width: 4px;  height: 4px;  }
+.xs  .flourish { width: 6px;  height: 6px;  }
+.sm  .flourish { width: 7px;  height: 7px;  }
+.lg  .flourish { width: 11px; height: 11px; }
+
+.flourishTl { top: 5px;    left: 5px;  border-top:    1.5px solid #d4a574; border-left:  1.5px solid #d4a574; border-radius: 2px 0 0 0; }
+.flourishTr { top: 5px;    right: 5px; border-top:    1.5px solid #d4a574; border-right: 1.5px solid #d4a574; border-radius: 0 2px 0 0; }
+.flourishBl { bottom: 5px; left: 5px;  border-bottom: 1.5px solid #d4a574; border-left:  1.5px solid #d4a574; border-radius: 0 0 0 2px; }
+.flourishBr { bottom: 5px; right: 5px; border-bottom: 1.5px solid #d4a574; border-right: 1.5px solid #d4a574; border-radius: 0 0 2px 0; }
+
+.xxs .flourishTl, .xxs .flourishTr { top: 3px;    }
+.xxs .flourishBl, .xxs .flourishBr { bottom: 3px; }
+.xxs .flourishTl, .xxs .flourishBl { left: 3px;   }
+.xxs .flourishTr, .xxs .flourishBr { right: 3px;  }
+
+.xs  .flourishTl, .xs  .flourishTr { top: 4px;    }
+.xs  .flourishBl, .xs  .flourishBr { bottom: 4px; }
+.xs  .flourishTl, .xs  .flourishBl { left: 4px;   }
+.xs  .flourishTr, .xs  .flourishBr { right: 4px;  }
+
+
+/* ── Books row ─────────────────────────────────────────────── */
+
+.booksRow {
+  display: flex;
+  align-items: flex-end;
+}
+
+
+/* ── Shared spine styles ───────────────────────────────────── */
+
+.bookSpine {
+  position: relative;
+  width: 30px;
+  border-radius: 1px 2px 2px 1px;
+  box-shadow:
+    inset 3px 0px 14px rgba(0, 0, 0, 0.18),
+    4px 0 7px -3px rgba(0, 0, 0, 0.28);
+  outline: 1px solid var(--aged-gold, #8D6C45);
+  outline-offset: -2px;
+}
+
+.bookSpine::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 5px;
+  right: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+.xxs .bookSpine { width: 10px; }
+.xs  .bookSpine { width: 13px; }
+.sm  .bookSpine { width: 22px; }
+.lg  .bookSpine { width: 38px; }
+
+/* hide the inner crease on tiny sizes — too noisy */
+.xxs .bookSpine::after,
+.xs  .bookSpine::after { display: none; }
+
+
+/* ── Individual books ──────────────────────────────────────── */
+
+/* Book 0 — leftmost, slightly shorter */
+.book0 {
+  height: 100px;
+  background-color: #D4B896;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+.xxs .book0 { height: 34px; }
+.xs  .book0 { height: 52px; }
+.sm  .book0 { height: 72px; }
+.lg  .book0 { height: 126px; }
+
+/* Book 1 — biscuit */
+.book1 {
+  height: 110px;
+  background-color: var(--biscuit, #DCC49A);
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+.xxs .book1 { height: 38px; }
+.xs  .book1 { height: 58px; }
+.sm  .book1 { height: 80px; }
+.lg  .book1 { height: 138px; }
+
+/* Book 2 — leather, tallest upright */
+.book2 {
+  height: 118px;
+  background-color: var(--leather, #CFAF7C);
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+.xxs .book2 { height: 42px; }
+.xs  .book2 { height: 62px; }
+.sm  .book2 { height: 88px; }
+.lg  .book2 { height: 148px; }
+
+/* Book 3 — wheat, tilted, pushed right and slightly down */
+.book3 {
+  height: 110px;
+  background-color: var(--wheat, #E2CDA9);
+  transform: translateX(18px) translateY(10px) rotate(-30deg);
+  transform-origin: bottom left;
+}
+.xxs .book3 { height: 33px; transform: translateX(7px)  translateY(0px)  rotate(-12deg); }
+.xs  .book3 { height: 48px; transform: translateX(10px) translateY(0px)  rotate(-13deg); }
+.sm  .book3 { height: 80px; transform: translateX(15px) translateY(0px)  rotate(-11deg); }
+.lg  .book3 { height: 130px; transform: translateX(20px) translateY(0px) rotate(-9deg); }
+
+
+/* ── Shelf ─────────────────────────────────────────────────── */
+
+.shelf {
+  width: calc(100% + 16px);
+  height: 8px;
+  background-color: var(--deep-tea, #685035);
+  border-radius: 2px 2px 0 0;
+  box-shadow:
+    0 -1px 0 var(--aged-gold, #8D6C45),
+    0 3px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.shelf::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1.5px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--aged-gold, #8D6C45) 20%,
+    var(--aged-gold, #8D6C45) 80%,
+    transparent
+  );
+}
+
+.xxs .shelf { height: 4px; width: calc(100% + 6px); }
+.xs  .shelf { height: 5px; width: calc(100% + 10px); }
+.sm  .shelf { height: 6px; }
+
+
+/* ── Text ──────────────────────────────────────────────────── */
+
+.logoText {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 13px;
+  color: var(--mocha, #5A4D41);
+  letter-spacing: 0.04em;
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+/* text is hidden at xxs and xs — too small to be legible */
+.xxs .logoText { display: none; }
+.xs  .logoText { display: none; }
+.sm  .logoText { font-size: 11px; margin-top: 8px; }
+.lg  .logoText { font-size: 15px; margin-top: 14px; }
+
+.logoSub {
+  font-family: 'Crimson Pro', 'Georgia', serif;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chai, #7E6957);
+  display: block;
+  margin-top: 4px;
+}
+
+.sm  .logoSub { font-size: 7px; }
+.lg  .logoSub { font-size: 9px; }

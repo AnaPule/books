@@ -1,5 +1,6 @@
 package com.ana.bookapi.service.book.DiscussionRoom;
 
+import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.repository.BookRepo;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
@@ -64,9 +65,9 @@ public class RoomService {
     }
 
     // search for room by room id
-    public Room findRoomById(String id) throws BadRequestException {
+    public Room findRoomById(String id){
         if (!rr.existsById(id)) {
-            throw new BadRequestException("Room does not exist");
+            new RuntimeException("Room does not exist");
         }
         return findById(id);
     }

@@ -1,9 +1,10 @@
 export interface Notification {
-    id: string;
-    type: Number;
+    id?: string;
+    type: number;
     title: string;
     preview: string;
     message: string;
+    recipient?: string;
     timestamp: Date | string | number;
     read: boolean;
     from: {
@@ -12,9 +13,10 @@ export interface Notification {
         profilePhoto?: string;
     };
     metadata?: {
+        roomId?: string;
         roomName?: string;
-        bookTitle?: string;
-        achievementName?: string;
+        bookId?: string;
+        bookName?: string;
     };
 }
 

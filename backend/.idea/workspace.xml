@@ -6,12 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="it wants me to commit before checking out">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/Auth/PingDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/Auth/PingDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/BookDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/BookDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/clients/GoogleBooks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/clients/GoogleBooks.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/BookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/BookController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/Notification.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/auth/NotificationRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/auth/NotificationRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/userService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/userService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/Notifications.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

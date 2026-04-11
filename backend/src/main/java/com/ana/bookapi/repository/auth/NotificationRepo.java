@@ -11,6 +11,10 @@ import java.util.List;
 @Repository
 public interface NotificationRepo extends JpaRepository<Notification, Integer> {
 
+    Boolean existsById(String id);
+    Notification findById(String id);
+
+    void deleteById(String id);
     @Query("SELECT n FROM Notification n WHERE n.receiveId = :user_id")
     List<Notification> findAllToUser_Id(@Param("user_id") String userId); // where receiver is user
 }

@@ -74,7 +74,7 @@ export const NoResults: React.FC<NoResultsProps> = ({
             </div>
 
             {/* Warning message */}
-            <h3 className="font-sans text-md italic md:text-xl text-[#5a4d41] mb-4 text-center max-w-md">
+            <h3 className="font-sans text-md italic capitalize md:text-xl text-[#5a4d41] mb-4 text-center max-w-md">
                 {WarningLabel}
             </h3>
 

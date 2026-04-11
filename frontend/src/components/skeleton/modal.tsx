@@ -1,5 +1,5 @@
 
-import { useEffect} from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ModalProps {
@@ -47,12 +47,13 @@ export const Modal: React.FC<ModalProps> = ({
                 className="relative bg-[#fcf9f4]/85 rounded-2xl border border-[#e8cfc5]/50 shadow-[0_20px_40px_-15px_rgba(139,111,76,0.3)] max-w-lg w-full max-h-[90vh] overflow-auto"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Decorative top line */}
+                {/* Decorative top line 
                 <div className="w-20 h-[2px] bg-gradient-to-r from-transparent via-[#8d6c45] to-transparent mx-auto mt-4" />
-
+                */}
+                
                 {/* Header */}
                 {(title || showCloseButton) && (
-                    <div className="flex items-center justify-between p-6 pb-2">
+                    <div className="flex items-center capitalize justify-between p-6 pb-2">
                         {title && (
                             <h2 className="text-xl font-sans text-[#5a4d41] tracking-[0.1em] uppercase">
                                 {title}
@@ -72,12 +73,13 @@ export const Modal: React.FC<ModalProps> = ({
                 )}
 
                 {/* Content */}
-                <div className="p-6 pt-2">
+                <div className="p-6 pt-6">
                     {children}
                 </div>
 
-                {/* Decorative bottom line */}
+                {/* Decorative bottom line 
                 <div className="w-20 h-[2px] bg-gradient-to-r from-transparent via-[#8d6c45] to-transparent mx-auto mb-4" />
+                */}
             </div>
         </div>,
         document.body

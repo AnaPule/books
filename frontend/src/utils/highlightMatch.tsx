@@ -15,7 +15,7 @@ export function highlightMatch(
         <>
             {parts.map((part, idx) => 
                 part.toLowerCase().includes(searchTerm.toLowerCase()) ? (
-                    <span key={idx} className="text-[#9FB89F] font-semibold">{part}</span>
+                    <span key={idx} className=" bg-[var(--honey-pastel)] font-semibold">{part}</span>
                 ) : (
                     <span key={idx}>{part}</span>
                 )

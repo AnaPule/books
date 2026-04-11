@@ -42,6 +42,8 @@ interface AuthContextType {
     setRecommends: (book: Book[] | []) => void;
 
     pings: Notification[] | [];
+    setPings: (pings: Notification[] | []) => void;
+
     popular: Book[] | [],
     discover: Book[] | [],
     trending: Book[] | [],
@@ -69,6 +71,7 @@ const AuthContext = createContext<AuthContextType>({
     logout: () => { },
     setUser: () => { },
     setGenre: () => [],
+    setPings: () => [],
     setAuthor: () => [],
     setLibrary: () => [],
     setWishlist: () => [],
@@ -317,7 +320,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             dislike, setDislike,
             word, quote,
             popular, discover,
-            trending, pings,
+            trending, pings, setPings,
             isLoggedIn, logout,
             loading
         }}>

@@ -21,7 +21,7 @@ import ResubscribePage from "@pages/auth/Resubscribe";
 import VerifyEmailPage from "@pages/auth/VerifyEmailPage";
 import ResetPasswordPage from "@pages/auth/ResetPasswordPage";
 import { DiscussionHubPage } from "@pages/books/DiscussionHub";
-import NotificationsPage from "@components/Notifications";
+import NotificationsPage from "@pages/profile/Notifications";
 import DiscoveryPage from "@pages/books/discover/DiscoveryPage";
 
 {/* =============== component ============ */ }

@@ -1127,4 +1127,60 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);  // HTTP 500
         }
     }
+
+    //notifications
+    @PutMapping("/notice/status/{id}/{readStatus}")
+    public ResponseEntity<?> readNotice(@PathVariable String id, @PathVariable Boolean readStatus) {
+        try {
+            us.changeNoticeStatus(id, readStatus);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    @GetMapping("/notice/user/{id}")
+    public ResponseEntity<?> getUserNotifications(@PathVariable String id) {
+        try {
+            User user = us.getUserById(id);
+            List<PingDTO> pings = us.getUserNotifications(user.getId())
+                    .stream()
+                    .map(ping -> {
+                        return new PingDTO(
+                                ping.getId(),
+                                ping.getType(),
+                                ping.getSubject(),
+                                ping.getPreview(),
+                                ping.getContent(),
+                                ping.getPostTime(),
+                                ping.getRead(),
+                                new PingDTO.From(
+                                        user.getId(),
+                                        user.getUsername(),
+                                        user.getProfilePhoto()
+                                )
+                        );
+                    })
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(Map.of("pings", pings));
+        } catch (Exception e) {
+            er.setMessage(e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    @DeleteMapping("/notice/{id}")
+    public ResponseEntity<?> deleteNotification(@PathVariable String id) {
+        try{
+           us.deleteNotification(id);
+           return ResponseEntity.noContent().build();
+        }catch(Exception e){
+            er.setMessage("500 error: " + e.getMessage());
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
 }

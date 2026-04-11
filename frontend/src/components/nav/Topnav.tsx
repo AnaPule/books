@@ -6,7 +6,8 @@ import { useAuth } from '@context/AuthContext';
 import { Bell } from 'lucide-react';
 
 export const Topnav: React.FC = () => {
-    const { user, isLoggedIn } = useAuth();
+    const { user, pings, isLoggedIn } = useAuth();
+    const messages = pings.filter(n => n.read == false).length;
     const navigate = useNavigate();
 
     return (
@@ -70,8 +71,15 @@ export const Topnav: React.FC = () => {
                             </div>
 
 
-                            <button className="border-none bg-transparent p-2 hover:scale-110 transition-all duration-300">
+                            <button className="relative inline-flex items-center justify-center rounded-lg border-none bg-transparent p-2 cursor-pointer hover:scale-110 transition-all duration-300">
                                 <Bell size={20} className="text-[#c9a394] hover:text-[#8d6c45]" />
+                                {messages > 0 && (
+                                    <div className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] rounded-full bg-[var(--acorn)] border-[1.5px] border-white flex items-center justify-end">
+                                        <span className="text-[9px] font-bold text-white leading-none px-0.5">
+                                            {messages > 99 ? '99+' : messages}
+                                        </span>
+                                    </div>
+                                )}
                             </button>
                         </div>
                     </>

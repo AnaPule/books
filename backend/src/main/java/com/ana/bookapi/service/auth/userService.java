@@ -368,7 +368,6 @@ public class userService implements UserDetailsService {
         if (!ur.existsById(message.getRecieveId())){
             throw new RuntimeException("User not found with recieveId: " + message.getRecieveId() + " - message no sent.");
         }
-
         return nr.save(message);
     }
 
@@ -380,7 +379,24 @@ public class userService implements UserDetailsService {
         return nr.findAllToUser_Id(userId);
     }
 
+    // change notification status
+    public Notification changeNoticeStatus(String id, Boolean readStatus) {
+        if (!nr.existsById(id)){
+            throw new RuntimeException("Notification not found");
+        }
+        Notification notice = nr.findById(id);
+        notice.setRead(readStatus);
+        return nr.save(notice);
+    }
 
+    //delete notification
+    @Transactional
+    public void deleteNotification(String id) {
+        if (!nr.existsById(id)){
+            throw new RuntimeException("Notification not found " + id);
+        }
+        nr.deleteById(id);
+    }
 }
 
 

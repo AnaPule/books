@@ -2,7 +2,7 @@ export interface Notification {
     id: string;
     type: Number;
     title: string;
-    preview: String;
+    preview: string;
     message: string;
     timestamp: Date | string | number;
     read: boolean;

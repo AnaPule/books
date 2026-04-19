@@ -1,8 +1,6 @@
 package com.ana.bookapi.service.book;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.ana.bookapi.models.Genre;
@@ -30,11 +28,8 @@ public class RecommendationService {
     private final UserBookRepo ur;
     private final BookService bs;
 
-    @Value("${groq.ai.key}")
-    private String groqApiKey;
-
-    @Value("${groq.api.url}")
-    private String groqApiUrl;
+    @Value("${gemini.ai.key}") private String geminiApiKey;
+    @Value("${gemini.api.url}") private String geminiApiUrl;
 
     public RecommendationService(
             BookRepo br,
@@ -139,7 +134,6 @@ public class RecommendationService {
                 .collect(Collectors.toList());
     }
 
-    // Get popular books filtered for user
     public List<Book> getPopularBooksForUser(String userId) {
         List<Object[]> popular = ur.findPopularBooksExcludingDislikes(userId);
 
@@ -147,11 +141,10 @@ public class RecommendationService {
                 .map(result -> br.findById((String) result[0]))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .filter(book -> !isBookDislikedByUser(userId, book.getId())) // Extra safety
+                .filter(book -> !isBookDislikedByUser(userId, book.getId()))
                 .collect(Collectors.toList());
     }
 
-    // Get trending books filtered for user
     public List<Book> getTrendingBooksForUser(String userId) {
         List<Object[]> trending = ur.findTrendingBooksExcludingDislikes(userId);
 
@@ -196,7 +189,6 @@ public class RecommendationService {
             Map<String, Object> genre = new HashMap<>();
             genre.put("genreId", row[0]);
 
-            // Get genre name
             Genre g = gr.findById((String) row[0]).orElse(null);
             genre.put("name", g != null ? g.getName() : "Unknown");
             genre.put("count", row[1]);
@@ -205,9 +197,7 @@ public class RecommendationService {
         return genres;
     }
 
-    // Get trending books filtered by user's favorite genres
     public List<Book> getTrendingBooksByUserGenres(String userId) {
-        // Get user's preferred genres (from library, wishlist, reading, completed, favorites)
         List<Integer> positiveTypes = Arrays.asList(1, 2, 3, 4, 7);
         List<userBook> userBooks = ur.findByUserIdAndTypes(userId, positiveTypes);
 
@@ -232,14 +222,11 @@ public class RecommendationService {
                 .collect(Collectors.toList());
     }
 
-    // Helper method to check if user disliked a book
     private boolean isBookDislikedByUser(String userId, String bookId) {
-        return ur.existsByBookIdAndUserIdAndType(userId, bookId, 5); // 5 = DISLIKE
+        return ur.existsByBookIdAndUserIdAndType(userId, bookId, 5);
     }
 
-    //users fav genre
     public String getUserFavoriteGenre(String userId) {
-        // Get all positive interactions from user (library, wishlist, reading, completed, favorite)
         List<Integer> positiveTypes = Arrays.asList(1, 2, 3, 4, 7);
         List<userBook> userBooks = ur.findByUserIdAndTypes(userId, positiveTypes);
 
@@ -247,7 +234,6 @@ public class RecommendationService {
             return null;
         }
 
-        // Count genre frequencies
         Map<String, Integer> genreCount = new HashMap<>();
 
         for (userBook ub : userBooks) {
@@ -260,7 +246,6 @@ public class RecommendationService {
             }
         }
 
-        // Find the genre with highest count
         return genreCount.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
@@ -338,69 +323,47 @@ public class RecommendationService {
         return br.findByGenreIdsOrAuthorIds(new ArrayList<>(genres), new ArrayList<>(authors));
     }
 
-    //more like this
     public List<Book> getSimilarBooks(Book sourceBook, String userId) {
         Set<Book> candidates = new HashSet<>();
 
-        // 1. Same author (highest weight)
         candidates.addAll(br.findByAuthorId(sourceBook.getAuthorId()));
-
-        // 2. Same genre
         candidates.addAll(br.findByGenreId(sourceBook.getGenreId()));
-
-        // Remove the source book itself
         candidates.remove(sourceBook);
 
-        // If userId provided, filter out disliked books
         if (userId != null) {
-            // Get all disliked book IDs for this user (type 5 = DISLIKE)
             List<userBook> disliked = ur.findByUserIdAndType(userId, 5);
             Set<String> dislikedIds = disliked.stream()
                     .map(userBook::getBookId)
                     .collect(Collectors.toSet());
-
-            // Remove disliked books from candidates
             candidates.removeIf(book -> dislikedIds.contains(book.getId()));
         }
 
-        // Score and sort
         List<Book> scored = new ArrayList<>(candidates);
         scored.sort((a, b) -> {
             int scoreA = 0, scoreB = 0;
-
-            // Same author = +2 points
             if (a.getAuthorId().equals(sourceBook.getAuthorId())) scoreA += 2;
             if (b.getAuthorId().equals(sourceBook.getAuthorId())) scoreB += 2;
-
-            // Same genre = +1 point
             if (a.getGenreId().equals(sourceBook.getGenreId())) scoreA += 1;
             if (b.getGenreId().equals(sourceBook.getGenreId())) scoreB += 1;
-
             return Integer.compare(scoreB, scoreA);
         });
 
-        return scored.stream()
-                .limit(20)  // Hard limit
-                .collect(Collectors.toList());
+        return scored.stream().limit(20).collect(Collectors.toList());
     }
 
-    //AI recommendations
+    // ==================== AI METHODS CONVERTED TO GEMINI ====================
 
-    //general recommends
     public List<Book> getAIRecommendations(String userId, String triggeredBookId) {
         try {
-            // Get user's positive interactions
             List<Integer> positiveTypes = Arrays.asList(1, 2, 3, 4, 7, 8);
             List<userBook> userBooks = ur.findByUserIdAndTypes(userId, positiveTypes);
 
             if (userBooks.isEmpty()) {
-                return getRecommendationsForUser(userId); // fallback to regular
+                return getRecommendationsForUser(userId);
             }
 
-            // Get triggered book
             Book triggeredBook = br.findById(triggeredBookId).orElse(null);
 
-            // Get user's liked books info
             List<Book> likedBooks = userBooks.stream()
                     .map(ub -> br.findById(ub.getBookId()))
                     .filter(Optional::isPresent)
@@ -408,7 +371,6 @@ public class RecommendationService {
                     .limit(15)
                     .collect(Collectors.toList());
 
-            // Get candidate books (not interacted with)
             Set<String> interactedIds = userBooks.stream()
                     .map(userBook::getBookId)
                     .collect(Collectors.toSet());
@@ -418,13 +380,9 @@ public class RecommendationService {
                     .limit(50)
                     .collect(Collectors.toList());
 
-            // Build prompt
-            String prompt = buildGroqPrompt(likedBooks, triggeredBook, candidates);
+            String prompt = buildGeminiPrompt(likedBooks, triggeredBook, candidates);
+            List<String> recommendedIds = callGemini(prompt);
 
-            // Call groq
-            List<String> recommendedIds = callGroq(prompt);
-
-            // Return actual books
             return recommendedIds.stream()
                     .map(id -> br.findById(id).orElse(null))
                     .filter(Objects::nonNull)
@@ -432,26 +390,21 @@ public class RecommendationService {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             System.err.println("AI recommendations failed: " + e.getMessage());
-            return getRecommendationsForUser(userId); // fallback
+            return getRecommendationsForUser(userId);
         }
     }
 
-    //general classics
     public List<Book> getClassicsByAI() {
         try {
-            // 1. Build prompt asking AI for classic book titles in that genre
-            String prompt = String.format("""
-            You are a literary mastermind, that will happily refer readers to absolute gold of any genre they specify.
-            List the 30 most essential and timeless classic books in the entirety of the readers society.
-            That all readers novice and/or patriot has read, re-read, loved and recommended.
+            String prompt = """
+            You are a literary mastermind that recommends essential classic books.
+            List the 30 most essential and timeless classic books that all readers should know.
             Return ONLY a JSON array of book titles.
-            Example of the format to return it in: ["Book Name", "Book Name", "Book Name" ...]
-            """);
+            Example: ["Book Name", "Book Name", "Book Name"]
+            """;
 
-            // 2. Call Groq
-            List<String> classicTitles = callGroqForTitles(prompt);
+            List<String> classicTitles = callGeminiForTitles(prompt);
 
-            // 3. Find matching books in your database by title
             List<Book> classicBooks = new ArrayList<>();
             for (String title : classicTitles) {
                 Book book = br.findByNameIgnoreCase(title);
@@ -459,7 +412,6 @@ public class RecommendationService {
                     classicBooks.add(book);
                 }
             }
-
             return classicBooks;
         } catch (Exception e) {
             System.err.println("AI classics failed: " + e.getMessage());
@@ -467,76 +419,7 @@ public class RecommendationService {
         }
     }
 
-    //get classics by user genres
-    /*
-    public List<Book> getClassicsByUserGenre(String userId) {
-        try {
-            /// Get user's favorite genre (as a name, not ID)
-            String favoriteGenre = getUserFavoriteGenre(userId);
-
-            if (favoriteGenre == null) {
-                return Collections.emptyList();
-            }
-
-            // 2. Build prompt asking AI for classic book titles in that genre
-            String prompt = String.format("""
-            List the 10 most essential classic books in the %s genre.
-            Return ONLY a JSON array of book titles.
-            Example: ["Pride and Prejudice", "Jane Eyre", "Wuthering Heights"]
-            """, favoriteGenre);
-
-            // 3. Call Groq
-            List<String> classicTitles = callGroqForTitles(prompt);
-
-            // 4. Find matching books in your database by title
-            List<Book> classicBooks = new ArrayList<>();
-            for (String title : classicTitles) {
-                Book book = br.findByNameIgnoreCase(title);
-                if (book != null) {
-                    classicBooks.add(book);
-                }
-            }
-            return classicBooks;
-        } catch (Exception e) {
-            System.err.println("AI user genre classics failed: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-     */
-    //general classics prompt
-    private String buildClassicBooksPrompt(List<Book> books) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("You are a literary expert. From the following list of books in our database, identify the TRUE literary classics—works that have stood the test of time, are widely recognized as essential reading, and are considered timeless masterpieces.\n\n");
-        sb.append("Books in our database are:\n");
-
-        for (Book book : books) {
-            sb.append(String.format("- ID: %s | Title: \"%s\" | Author: %s | Genre: %s\n",
-                    book.getId(), book.getName(), book.getAuthorId(), book.getGenreId()));
-        }
-
-        sb.append("\nReturn ONLY a JSON array of the IDs of books that are undeniable classics. Include at least 10 books, up to 20. Format: [\"id1\", \"id2\", \"id3\"]");
-
-        return sb.toString();
-    }
-
-    // genre classics prompt
-    private String buildClassicGenrePrompt(List<Book> books, String genreName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("You are a literary expert specializing in %s literature. From the following list of %s books in our database, identify the TRUE classics—works that are essential reading in this genre, have stood the test of time, and are considered masterpieces.\n\n", genreName, genreName));
-        sb.append("Books in our database:\n");
-
-        for (Book book : books) {
-            sb.append(String.format("- ID: %s | Title: \"%s\" | Author: %s\n",
-                    book.getId(), book.getName(), book.getAuthorId()));
-        }
-
-        sb.append(String.format("\nReturn ONLY a JSON array of the IDs of %s books that are undeniable classics. Include at least 5 books, up to 10. Format: [\"id1\", \"id2\", \"id3\"]", genreName));
-
-        return sb.toString();
-    }
-
-    //general AI recommendations prompt
-    private String buildGroqPrompt(List<Book> likedBooks, Book triggeredBook, List<Book> candidates) {
+    private String buildGeminiPrompt(List<Book> likedBooks, Book triggeredBook, List<Book> candidates) {
         StringBuilder sb = new StringBuilder();
         sb.append("You are a book recommendation expert. The user likes these books:\n\n");
 
@@ -555,115 +438,176 @@ public class RecommendationService {
             sb.append(String.format("%d. %s\n", i + 1, b.getName()));
         }
 
-        sb.append("\nRespond ONLY with a JSON array of the recommended book titles in order of relevance.\n");
-        sb.append("Example: [\"The Hobbit\", \"Dune\", \"1984\"]");
+        sb.append("\nRespond ONLY with a JSON array of the recommended book IDs in order of relevance.\n");
+        sb.append("Example: [\"id1\", \"id2\", \"id3\"]");
 
         return sb.toString();
     }
 
-    // user genre classics  prompt
-    private String buildUserGenreClassicPrompt(List<Book> books, List<String> genreIds) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("You are a literary expert. From the following list of books in our database, identify the TRUE classics—works that have stood the test of time, are widely recognized as essential reading, and are considered timeless masterpieces. Focus on books from these genres.\n\n");
-        sb.append("Books in our database:\n");
-
-        for (Book book : books) {
-            sb.append(String.format("- ID: %s | Title: \"%s\" | Author: %s | Genre: %s\n",
-                    book.getId(), book.getName(), book.getAuthorId(), book.getGenreId()));
-        }
-
-        sb.append("\nReturn ONLY a JSON array of the IDs of books that are undeniable classics. Include at least 8 books, up to 15. Format: [\"id1\", \"id2\", \"id3\"]");
-
-        return sb.toString();
-    }
-
-    private List<String> callGroq(String prompt) {
+    public List<Book> getClassicsByUserGenre(String userId) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
+            String favoriteGenre = getUserFavoriteGenre(userId);
+            if (favoriteGenre == null) {
+                return Collections.emptyList();
+            }
 
-            // Set headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + groqApiKey);
-            headers.set("Content-Type", "application/json");
+            String prompt = String.format("""
+            You are a literary mastermind that recommends essential classic books.
+            List the 30 most essential classic books in the %s genre.
+            Return ONLY a JSON array of book titles.
+            Example: ["Book Name", "Book Name", "Book Name"]
+            """, favoriteGenre);
 
-            // Build request body (OpenAI-compatible format)
-            Map<String, Object> request = new HashMap<>();
-            request.put("model", "llama-3.3-70b-versatile"); // or "llama-3.1-70b-versatile"
-            request.put("temperature", 0.8);
-            request.put("max_tokens", 500);
+            List<String> classicTitles = callGeminiForTitles(prompt);
 
-            List<Map<String, String>> messages = new ArrayList<>();
-            messages.add(Map.of("role", "user", "content", prompt));
-            request.put("messages", messages);
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(groqApiUrl, entity, Map.class);
-
-            if (response.getBody() != null) {
-                List<Map> choices = (List<Map>) response.getBody().get("choices");
-                if (choices != null && !choices.isEmpty()) {
-                    Map message = (Map) choices.get(0).get("message");
-                    String content = (String) message.get("content");
-                    return extractBookIdsFromText(content);
+            List<Book> classicBooks = new ArrayList<>();
+            for (String title : classicTitles) {
+                Book book = br.findByNameIgnoreCase(title);
+                if (book != null) {
+                    classicBooks.add(book);
                 }
             }
-            return Collections.emptyList();
+            return classicBooks;
         } catch (Exception e) {
-            System.err.println("Groq error: " + e.getMessage());
+            System.err.println("AI classics failed: " + e.getMessage());
             return Collections.emptyList();
         }
     }
 
-    private List<String> callGroqForClassics(String prompt) {
-        try {
+    // ==================== GEMINI API CALLS ====================
 
-            // Check prompt size before sending
-            System.out.println("Prompt length: " + prompt.length() + " characters");
+    private List<String> callGemini(String prompt) {
+        int maxRetries = 5;
+        int retryDelay = 5000;
 
-            // If prompt is too big, truncate
-            if (prompt.length() > 10000) {
-                prompt = prompt.substring(0, 10000) + "\n... [truncated]";
-            }
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Content-Type", "application/json");
 
-            RestTemplate restTemplate = new RestTemplate();
-            String url = groqApiUrl + "?key=" + groqApiKey;
+                Map<String, Object> request = new HashMap<>();
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + groqApiKey);
-            headers.set("Content-Type", "application/json");
+                Map<String, Object> content = new HashMap<>();
+                List<Map<String, String>> parts = new ArrayList<>();
+                parts.add(Map.of("text", prompt));
+                content.put("parts", parts);
 
-            Map<String, Object> request = new HashMap<>();
-            request.put("model", "llama-3.3-70b-versatile");
-            request.put("temperature", 0.3);
-            request.put("max_tokens", 500);
+                List<Map<String, Object>> contents = new ArrayList<>();
+                contents.add(content);
+                request.put("contents", contents);
 
-            List<Map<String, String>> messages = new ArrayList<>();
-            messages.add(Map.of("role", "user", "content", prompt));
-            request.put("messages", messages);
+                Map<String, Object> generationConfig = new HashMap<>();
+                generationConfig.put("temperature", 0.7);
+                generationConfig.put("maxOutputTokens", 800);
+                request.put("generationConfig", generationConfig);
 
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+                String url = geminiApiUrl + "?key=" + geminiApiKey;
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+                ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
 
-            if (response.getBody() != null) {
-                List<Map> choices = (List<Map>) response.getBody().get("choices");
-                if (choices != null && !choices.isEmpty()) {
-                    Map message = (Map) choices.get(0).get("message");
-                    String content = (String) message.get("content");
-                    return extractBookIdsFromText(content);
+                if (response.getBody() != null) {
+                    List<Map> candidates = (List<Map>) response.getBody().get("candidates");
+                    if (candidates != null && !candidates.isEmpty()) {
+                        Map candidate = candidates.get(0);
+                        Map contentResp = (Map) candidate.get("content");
+                        List<Map> partsResp = (List<Map>) contentResp.get("parts");
+                        if (partsResp != null && !partsResp.isEmpty()) {
+                            String text = (String) partsResp.get(0).get("text");
+                            return extractBookIdsFromText(text);
+                        }
+                    }
+                }
+                return Collections.emptyList();
+
+            } catch (Exception e) {
+                String errorMsg = e.getMessage();
+                if (errorMsg.contains("429") || errorMsg.contains("rate_limit") || errorMsg.contains("RESOURCE_EXHAUSTED")) {
+                    System.err.println("Rate limit hit. Attempt " + attempt + " of " + maxRetries + ". Waiting " + retryDelay/1000 + " seconds...");
+                    try {
+                        Thread.sleep(retryDelay);
+                        retryDelay = retryDelay * 2;
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return Collections.emptyList();
+                    }
+                } else {
+                    System.err.println("Gemini error: " + e.getMessage());
+                    return Collections.emptyList();
                 }
             }
-            return Collections.emptyList();
-        } catch (Exception e) {
-            System.err.println("Groq error: " + e.getMessage());
-            return Collections.emptyList();
         }
+        return Collections.emptyList();
+    }
+
+    private List<String> callGeminiForTitles(String prompt) {
+        int maxRetries = 5;
+        int retryDelay = 5000;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Content-Type", "application/json");
+
+                Map<String, Object> request = new HashMap<>();
+
+                Map<String, Object> content = new HashMap<>();
+                List<Map<String, String>> parts = new ArrayList<>();
+                parts.add(Map.of("text", prompt));
+                content.put("parts", parts);
+
+                List<Map<String, Object>> contents = new ArrayList<>();
+                contents.add(content);
+                request.put("contents", contents);
+
+                Map<String, Object> generationConfig = new HashMap<>();
+                generationConfig.put("temperature", 0.3);
+                generationConfig.put("maxOutputTokens", 500);
+                request.put("generationConfig", generationConfig);
+
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+                String url = geminiApiUrl + "?key=" + geminiApiKey;
+
+                ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+
+                if (response.getBody() != null) {
+                    List<Map> candidates = (List<Map>) response.getBody().get("candidates");
+                    if (candidates != null && !candidates.isEmpty()) {
+                        Map candidate = candidates.get(0);
+                        Map contentResp = (Map) candidate.get("content");
+                        List<Map> partsResp = (List<Map>) contentResp.get("parts");
+                        if (partsResp != null && !partsResp.isEmpty()) {
+                            String text = (String) partsResp.get(0).get("text");
+                            return extractTitlesFromResponse(text);
+                        }
+                    }
+                }
+                return Collections.emptyList();
+
+            } catch (Exception e) {
+                String errorMsg = e.getMessage();
+                if (errorMsg.contains("429") || errorMsg.contains("rate_limit") || errorMsg.contains("RESOURCE_EXHAUSTED")) {
+                    System.err.println("Rate limit hit. Attempt " + attempt + " of " + maxRetries + ". Waiting " + retryDelay/1000 + " seconds...");
+                    try {
+                        Thread.sleep(retryDelay);
+                        retryDelay = retryDelay * 2;
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return Collections.emptyList();
+                    }
+                } else {
+                    System.err.println("Gemini error: " + e.getMessage());
+                    return Collections.emptyList();
+                }
+            }
+        }
+        return Collections.emptyList();
     }
 
     private List<String> extractBookIdsFromText(String text) {
         try {
-            // Clean the text - remove markdown code blocks if present
             String cleaned = text.trim();
             if (cleaned.startsWith("```json")) {
                 cleaned = cleaned.substring(7);
@@ -676,17 +620,13 @@ public class RecommendationService {
             }
             cleaned = cleaned.trim();
 
-            // Find JSON array of IDs
             int start = cleaned.indexOf('[');
             int end = cleaned.lastIndexOf(']');
             if (start != -1 && end != -1) {
                 String jsonArray = cleaned.substring(start, end + 1);
-
-                // Parse JSON array directly
                 ObjectMapper mapper = new ObjectMapper();
                 List<String> ids = mapper.readValue(jsonArray, new TypeReference<List<String>>() {});
 
-                // Filter to only include IDs that actually exist in your database
                 List<String> validIds = new ArrayList<>();
                 for (String id : ids) {
                     if (br.existsById(id)) {
@@ -695,103 +635,19 @@ public class RecommendationService {
                         System.out.println("AI returned non-existent ID: " + id);
                     }
                 }
-
                 if (!validIds.isEmpty()) {
                     return validIds;
                 }
             }
-
             return Collections.emptyList();
-
         } catch (Exception e) {
             System.err.println("Failed to parse AI response: " + e.getMessage());
             return Collections.emptyList();
         }
     }
 
-    public List<Book> getClassicsByUserGenre(String userId) {
-        try {
-            // 1. Get user's favorite genre name
-            String favoriteGenre = getUserFavoriteGenre(userId);
-
-            if (favoriteGenre == null) {
-                return Collections.emptyList();
-            }
-
-            //System.out.println("fav genre res: "+favoriteGenre);
-
-            // 2. Build prompt asking AI for classic book titles in that genre
-            String prompt = String.format("""
-            You are a literary mastermind, that will happily refer readers to absolute gold of any genre they specify.
-            List the 30 most essential classic books in the %s genre.
-            That all readers novice and/or patriot has read, re-read, loved and recommended.
-            Return ONLY a JSON array of book titles.
-            Example of the format to return it in: ["Book Name", "Book Name", "Book Name" ...]
-            """, favoriteGenre);
-
-            // 3. Call Groq
-            List<String> classicTitles = callGroqForTitles(prompt);
-            //System.out.println("AI res: "+classicTitles);
-
-            // 4. Find matching books in your database by title
-            List<Book> classicBooks = new ArrayList<>();
-            for (String title : classicTitles) {
-                Book book = br.findByNameIgnoreCase(title);
-                if (book != null) {
-                    classicBooks.add(book);
-                }
-            }
-
-            //System.out.println("mapped res: "+classicBooks);
-
-            return classicBooks;
-
-        } catch (Exception e) {
-            System.err.println("AI classics failed: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
-    private List<String> callGroqForTitles(String prompt) {
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            String url = groqApiUrl + "?key=" + groqApiKey;
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + groqApiKey);
-            headers.set("Content-Type", "application/json");
-
-            Map<String, Object> request = new HashMap<>();
-            request.put("model", "llama-3.3-70b-versatile");
-            request.put("temperature", 0.3);
-            request.put("max_tokens", 500);
-
-            List<Map<String, String>> messages = new ArrayList<>();
-            messages.add(Map.of("role", "user", "content", prompt));
-            request.put("messages", messages);
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-
-            if (response.getBody() != null) {
-                List<Map> choices = (List<Map>) response.getBody().get("choices");
-                if (choices != null && !choices.isEmpty()) {
-                    Map message = (Map) choices.get(0).get("message");
-                    String content = (String) message.get("content");
-                    return extractTitlesFromResponse(content);
-                }
-            }
-            return Collections.emptyList();
-        } catch (Exception e) {
-            System.err.println("Groq error: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
     private List<String> extractTitlesFromResponse(String text) {
         try {
-            // Clean the text
             String cleaned = text.trim();
             if (cleaned.startsWith("```json")) {
                 cleaned = cleaned.substring(7);
@@ -803,7 +659,6 @@ public class RecommendationService {
                 cleaned = cleaned.substring(0, cleaned.length() - 3);
             }
 
-            // Find JSON array
             int start = cleaned.indexOf('[');
             int end = cleaned.lastIndexOf(']');
             if (start != -1 && end != -1) {
@@ -818,20 +673,8 @@ public class RecommendationService {
         }
     }
 
-    private List<String> fallbackMatchTitles(String text) {
-        List<String> ids = new ArrayList<>();
-
-        // Get all books from DB for matching
-        List<Book> allBooks = br.findAll();
-
-        // Look for book titles in the response
-        for (Book book : allBooks) {
-            if (text.toLowerCase().contains(book.getName().toLowerCase())) {
-                ids.add(book.getId());
-                if (ids.size() >= 5) break;
-            }
-        }
-
-        return ids;
+    /* --------------------- DISCUSSION ROOM ALGORITHM ------------------*/
+    public List<Object[]> getPopularRooms() {
+        return ur.findMostPopularRooms();
     }
 }

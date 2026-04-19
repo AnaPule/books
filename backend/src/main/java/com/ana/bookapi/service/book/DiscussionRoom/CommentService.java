@@ -29,37 +29,35 @@ public class CommentService {
         this.cir = cir;
         this.repr = repr;
     }
-    //get all comments in a room
-    public List<Comment> getAllRoomComments(String roomId) {
+
+    public List<Comment> getAllRoomParentCommentsByRoomId(String roomId) {
         if (!rr.existsById(roomId)){
             System.err.println("Room does not exist: get all comments");
             return null;
         }
-        return cr.findByRoomId(roomId);
+        return cr.findAllRoomParentCommentsByRoomId(roomId);
     }
 
+    //get one comments replies/ threads
     // get all comment replies -> get all child comments to a comment
-    public List<Comment> getAllReplies (String parent_id){
-        if (!cr.existsById(parent_id)){
-            System.err.println("Parent does not exist: get all comment replies");
+    public List<Comment> getCommentReplies(String parentId){
+        if (!cr.existsById(parentId)){
+            System.err.println("Parent does not exist: get all comments");
             return null;
         }
-        return cr.findByParentComment_Id(parent_id);
+        return cr.findByParentComment_Id(parentId);
     }
 
     //post comment (can be independent or replies
     public Comment PostComment(Comment comment) {
         //check if room exists
         if (!rr.existsById(comment.getRoomId())){
-            System.err.println("Room does not exist: post comment");
-            return null;
+            throw new RuntimeException("Room does not exist: " + comment.getRoomId());
         }
 
         //check if its a reply
-        // if reply, than first check if parent exists
         if (comment.getParentId() != null && !cr.existsById(comment.getParentId())){
-            System.err.println("Parent does not exist: post comment");
-            return null;
+            throw new RuntimeException("Parent comment does not exist: " + comment.getParentId());
         }
 
         // post comment

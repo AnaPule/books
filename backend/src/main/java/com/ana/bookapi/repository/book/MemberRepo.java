@@ -18,6 +18,9 @@ public interface MemberRepo extends JpaRepository<Member, String> {
     @Query("SELECT COUNT(m) FROM Member m WHERE m.roomId = :roomId")
     Integer countMembersByRoomId(@Param("roomId") String roomId);
 
+    @Query("SELECT m.roomId FROM Member m WHERE m.userId = :userId")
+    List<String> findRoomIdsByUserId(@Param("userId") String userId);
+
     Optional<Member> findByUserIdAndRoomId(String userId, String roomId);
 
     void deleteByUserIdAndRoomId(String userId, String roomId);

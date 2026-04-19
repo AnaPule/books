@@ -2,6 +2,8 @@ package com.ana.bookapi.repository;
 
 import java.util.List;
 import java.util.Set;
+
+import com.ana.bookapi.models.book.DiscussionRoom.Room;
 import com.ana.bookapi.models.book.userBook;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,8 +13,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface UserBookRepo extends JpaRepository<userBook, String> {
     List<userBook> findByUserId(String userId);
+
     List<userBook> findByBookId(String bookId);
+
     List<userBook> findByUserIdAndBookId(String userId, String bookId);
+
     List<userBook> findByUserIdAndBookIdAndType(String userId, String bookId, Integer type);
 
     @Query("SELECT ub FROM userBook ub WHERE ub.userId = :userId AND ub.type = :type")
@@ -105,4 +110,16 @@ public interface UserBookRepo extends JpaRepository<userBook, String> {
     boolean existsById(String s);
 
     void deleteByUserIdAndBookIdAndType(String userId, String bookId, Integer type);
+
+    /**
+     * -- DISCUSSION ROOM ALGORITHM --
+     **/
+    @Query("SELECT r, COUNT(m.userId) as members FROM Room r " +
+            "LEFT JOIN Member m ON r.id = m.roomId " +
+            "WHERE r.deleted = false " +
+            "GROUP BY r.id " +
+            "HAVING COUNT(m.userId) > 0 " +
+            "ORDER BY COUNT(m.userId) DESC")
+    List<Object[]> findMostPopularRooms();
+
 }

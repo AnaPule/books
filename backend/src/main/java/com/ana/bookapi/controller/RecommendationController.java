@@ -6,7 +6,12 @@ import java.time.LocalDate;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 
+import com.ana.bookapi.DTO.DiscussionRoom.SubRoomDTO;
 import com.ana.bookapi.models.Genre;
+import com.ana.bookapi.models.book.DiscussionRoom.Room;
+import com.ana.bookapi.repository.book.MemberRepo;
+import com.ana.bookapi.service.book.DiscussionRoom.MemberService;
+import com.ana.bookapi.service.book.DiscussionRoom.RoomService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +36,7 @@ import com.ana.bookapi.DTO.BookDTO;
 import com.ana.bookapi.DTO.errResponse;
 import com.ana.bookapi.DTO.userBookDTO;
 
+
 @RestController
 @RequestMapping("/recs")
 public class RecommendationController {
@@ -42,6 +48,8 @@ public class RecommendationController {
     private final GenreRepo genreRepo;
     private final BookRepo bookRepo;
     private final BookService bookService;
+    private final RoomService roomService;
+    private final MemberService ms;
 
     private errResponse er = new errResponse();
 
@@ -52,7 +60,9 @@ public class RecommendationController {
             GenreRepo genreRepo,
             UserBookRepo userBookRepo,
             userService us,
-            BookService bookService) {
+            BookService bookService,
+            RoomService roomService,
+            MemberService memberService) {
         this.recommendationService = recommendationService;
         this.authorRepo = authorRepo;
         this.bookRepo = bookRepo;
@@ -60,6 +70,8 @@ public class RecommendationController {
         this.userBookRepo = userBookRepo;
         this.us = us;
         this.bookService = bookService;
+        this.roomService = roomService;
+        this.ms = memberService;
     }
 
     @GetMapping("/user/{userId}")
@@ -73,8 +85,19 @@ public class RecommendationController {
                     return new BookDTO(book, author, genre);
                 })
                 .collect(Collectors.toList());
+        //get recommended books rooms.
+        List<SubRoomDTO> rooms = books.stream()
+                .map(book -> roomService.getBookMainRoom(book.getId()))
+                .filter(room -> room != null && !ms.isMemberInRoom(userId, room.getId()))
+                .map(room -> new SubRoomDTO(
+                        room.getId(),
+                        room.getName(),
+                        ms.getNoOfMembers(room.getId()),
+                        room.getBookId()
+                ))
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(Map.of("books", dtos));
+        return ResponseEntity.ok(Map.of("books", dtos, "rooms", rooms));
     }
 
     @GetMapping("/user/{userId}/collaborative")
@@ -378,6 +401,19 @@ public class RecommendationController {
 
             // Get AI recommendations based on this interaction
             List<Book> recommendations = recommendationService.getAIRecommendations(dto.getUserId(), dto.getBookId());
+            //get recommended books rooms.
+            List<SubRoomDTO> rooms = recommendations.stream()
+                    .map(
+                            book -> {
+                                Room room = roomService.getBookMainRoom(book.getId());
+                                return new SubRoomDTO(
+                                        room.getId(),
+                                        room.getName(),
+                                        room.getBookId()
+                                );
+                            }
+                    )
+                    .collect(Collectors.toList());
 
             // Save recommendations to user's RECOMMEND list
             for (Book book : recommendations) {
@@ -395,7 +431,8 @@ public class RecommendationController {
 
             return ResponseEntity.ok(Map.of(
                     "message", "Interaction recorded",
-                    "books", dtos
+                    "books", dtos,
+                    "rooms", rooms
             ));
         } catch (RuntimeException e) {
             // error handling
@@ -426,6 +463,34 @@ public class RecommendationController {
             er.setMessage("404 error: " + e.getMessage());
             er.setStatus(HttpStatus.NOT_FOUND.value());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(er);
+        }
+    }
+
+    /* -- DISCUSSION ROOMS -- */
+    @GetMapping("/popular-rooms")
+    public ResponseEntity<?> getPopularRooms() {
+        try {
+            List<SubRoomDTO> rooms = recommendationService.getPopularRooms()
+                    .stream()
+                    .map(row -> {
+                        Room room = (Room) row[0];
+                        Long memberCount = (Long) row[1];
+
+                        return new SubRoomDTO(
+                                room.getId(),
+                                room.getName(),
+                                memberCount.intValue(),
+                                room.getBookId()
+                        );
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(Map.of(
+                    "rooms", rooms
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }

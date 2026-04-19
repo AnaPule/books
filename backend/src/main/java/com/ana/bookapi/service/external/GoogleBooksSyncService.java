@@ -5,24 +5,28 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import com.ana.bookapi.clients.OpenLibrary;
 import com.ana.bookapi.models.book.Book;
 import com.ana.bookapi.models.Author;
 import com.ana.bookapi.models.Genre;
+import com.ana.bookapi.models.book.DiscussionRoom.Comment;
 import com.ana.bookapi.models.book.DiscussionRoom.Room;
 import com.ana.bookapi.repository.BookRepo;
 import com.ana.bookapi.repository.GenreRepo;
 import com.ana.bookapi.repository.AuthorRepo;
+import com.ana.bookapi.service.book.DiscussionRoom.CommentService;
 import com.ana.bookapi.service.book.DiscussionRoom.RoomService;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.ana.bookapi.clients.GoogleBooks;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class GoogleBooksSyncService {
@@ -31,9 +35,16 @@ public class GoogleBooksSyncService {
     private final GenreRepo gr;
     private final AuthorRepo ar;
     private final RoomService rs;
+    private final CommentService cs;
     private final GoogleBooks gb;
     private final OpenLibrary obl;
     private final MongoTemplate mongo;
+
+    @Value("${gemini.ai.key}")
+    private String geminiApiKey;
+
+    @Value("${gemini.api.url}")
+    private String geminiApiUrl;
 
     public GoogleBooksSyncService(
             BookRepo br,
@@ -42,38 +53,46 @@ public class GoogleBooksSyncService {
             RoomService rs,
             GoogleBooks gb,
             OpenLibrary obl,
+            CommentService cs,
             MongoTemplate mongo) {
         this.br = br;
         this.ar = ar;
         this.gb = gb;
         this.gr = gr;
+        this.cs = cs;
         this.rs = rs;
         this.obl = obl;
         this.mongo = mongo;
     }
 
     public Book convertMongoGoogleBookToBook(org.bson.Document document) {
-        Author a = createOrFindAuthor(document.getString("author"), document.getString("author_key"));
-        Genre g = createOrFindGenre(document.getString("genre"));
-
-        Book b = new Book(); // auto creates book id
-        Room r = createOrFindRoom(b.getId(), document.getString("title"));
-
-        String isbn;
         String isbn13 = document.getString("primary_isbn13");
         String isbn10 = document.getString("primary_isbn10");
+        String title = document.getString("title");
 
-        if (isbn13 != null && !isbn13.isEmpty()) {
-            isbn = isbn13;
-        } else if (isbn10 != null && !isbn10.isEmpty()) {
-            isbn = isbn10;
-        } else {
-            System.out.println("Book skipped - No valid ISBN (13 or 10)");
+        if ((isbn13 == null || isbn13.isEmpty()) && (isbn10 == null || isbn10.isEmpty())) {
+            System.out.println("Book skipped - No valid ISBN (13 or 10) for title: " + title);
             return null;
         }
 
+        if (title == null || title.isEmpty()) {
+            System.out.println("Book skipped - No title");
+            return null;
+        }
+
+        String authorName = document.getString("author");
+        if (authorName == null || authorName.isEmpty()) {
+            authorName = "Unknown Author";
+        }
+
+        Author a = createOrFindAuthor(authorName, document.getString("author_key"));
+        Genre g = createOrFindGenre(document.getString("genre"));
+
+        Book b = new Book();
+
+        String isbn = (isbn13 != null && !isbn13.isEmpty()) ? isbn13 : isbn10;
         b.setIsbn(isbn);
-        b.setName(document.getString("title"));
+        b.setName(title);
         b.setCoverArt(document.getString("book_image"));
         b.setPublisher(Optional.ofNullable(document.getString("publisher")).orElse("Unknown"));
         b.setPageCount(Optional.ofNullable(document.getInteger("page_count")).orElse(0));
@@ -81,33 +100,29 @@ public class GoogleBooksSyncService {
         b.setAuthorId(a.getId());
         b.setGenreId(g.getId());
 
-        // Handle publication date safely
         String pubDate = document.getString("published_date");
         if (pubDate != null && !pubDate.isEmpty()) {
             try {
-                // Handle different date formats
-                if (pubDate.length() == 4) { // Just year
+                if (pubDate.length() == 4) {
                     SimpleDateFormat format = new SimpleDateFormat("yyyy");
                     b.setPublicationDate(format.parse(pubDate));
-                } else if (pubDate.length() == 7) { // Year-month (yyyy-MM)
+                } else if (pubDate.length() == 7) {
                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
                     b.setPublicationDate(format.parse(pubDate));
-                } else { // Full date
-                    // Try common formats
+                } else {
                     try {
                         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                         b.setPublicationDate(format.parse(pubDate));
                     } catch (Exception e) {
-                        // Fallback to current date
                         b.setPublicationDate(new Date());
                     }
                 }
             } catch (Exception e) {
                 System.out.println("Failed to parse date: " + pubDate + " - " + e.getMessage());
-                b.setPublicationDate(new Date()); // Fallback to now
+                b.setPublicationDate(new Date());
             }
         } else {
-            b.setPublicationDate(new Date()); // Fallback to now if no date
+            b.setPublicationDate(new Date());
         }
 
         return b;
@@ -118,7 +133,6 @@ public class GoogleBooksSyncService {
         try {
             totalBooksSavedToMongo = gb.GetAndSaveGoogleBooksToMongo();
         } catch (Exception e) {
-            //System.out.println("An error occurred while saving new google books to the mongo database" + e.getMessage());
             throw new RuntimeException("An error occurred while saving new google books to the mongo database: " + e.getMessage());
         }
         return totalBooksSavedToMongo;
@@ -127,33 +141,29 @@ public class GoogleBooksSyncService {
     public List<Book> syncGoogleBooksFromMongoToPostgres() {
         List<Book> synced = new ArrayList<>();
 
-        //get all books from mongo
         List<org.bson.Document> mongoBooks = mongo.findAll(org.bson.Document.class, "GoogleBooks");
         for (org.bson.Document book : mongoBooks) {
             try {
                 Book b = convertMongoGoogleBookToBook(book);
 
-                /* Check each required field
-                System.out.println("ISBN: " + b.getIsbn());
-                System.out.println("Name: " + b.getName());
-                System.out.println("CoverArt: " + b.getCoverArt());
-                System.out.println("Publisher: " + b.getPublisher());
-                System.out.println("PageCount: " + b.getPageCount());
-                 */
+                // ADD THIS NULL CHECK
+                if (b == null) {
+                    System.out.println("Book skipped - conversion returned null");
+                    continue;  // Skip this book and move to next
+                }
 
-                //check if book exists in postgres byISBN
-                if (b.getIsbn() != null & !br.existsByIsbn(b.getIsbn())) {
-                    Book savedBook = br.save(b); // save the book if not in db
+                if (!br.existsByIsbn(b.getIsbn())) {
+                    Book savedBook = br.save(b);
+                    if (savedBook != null) {
+                        Room r = createOrFindRoom(b.getId(), savedBook.getName());
+                    }
                     synced.add(savedBook);
                 } else {
-                    System.out.println("Book skipped - " +
-                            (b.getIsbn() == null ? "No ISBN" : "ISBN already exists"));
-                    //System.out.println("The book has already been saved");
+                    System.out.println("Book skipped - ISBN already exists: " + b.getIsbn());
                 }
             } catch (Exception e) {
-                System.out.println("er saving book to Postgres DB: " + e.getMessage());
+                System.out.println("Error saving book to Postgres DB: " + e.getMessage());
             }
-
         }
         return synced;
     }
@@ -168,10 +178,73 @@ public class GoogleBooksSyncService {
 
     //helper methods
     private Room createOrFindRoom(String book_id, String book_title) {
-        try{
-            return rs.createNewMainRoom(book_id, book_title);
+        try {
+            Room room = rs.createNewMainRoom(book_id, book_title);
+
+            cs.PostComment(new Comment(
+                    room.getId(),
+                    "Pages & Parchment",
+                    String.format("""
+                <div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; padding: 8px 0;">
+                    <p style="font-size: 15px; line-height: 1.5; color: #1d1d1f; margin: 0 0 12px 0;">
+                        Dearest gentle reader.<br />
+                        Welcome to <strong>%s</strong>.
+                    </p>
+                    <p style="font-size: 15px; line-height: 1.5; color: #1d1d1f; margin: 0 0 20px 0;">
+                        We're glad to have you here. Before you join the conversation, here are a few gentle reminders.
+                    </p>
+                    <p style="font-size: 15px; font-weight: 600; color: #1d1d1f; margin: 0 0 10px 0;">
+                        📖 Room Guidelines
+                    </p>
+                    <ol style="margin: 0 0 20px 0; padding-left: 20px; color: #1d1d1f; font-size: 14px; line-height: 1.6;">
+                        <li style="margin-bottom: 6px;">Be kind. Every reader is on their own journey.</li>
+                        <li style="margin-bottom: 6px;">No spoilers without warning. Use spoiler tags when needed.</li>
+                        <li style="margin-bottom: 6px;">Respect differing interpretations. That's what makes reading beautiful.</li>
+                        <li style="margin-bottom: 6px;">Stay on topic. Each subroom has its own focus.</li>
+                        <li style="margin-bottom: 6px;">Report don't engage. If something feels off, let us know.</li>
+                    </ol>
+                    <p style="font-size: 14px; color: #86868b; margin: 0 0 8px 0;">
+                        That's all. Now, go on — share your thoughts, ask questions, and enjoy the discussion.
+                    </p>
+                    <p style="font-size: 14px; color: #c9a394; margin: 0; font-style: italic;">
+                        — The Pages & Parchment team
+                    </p>
+                </div>
+                """, room.getName())
+            ));
+
+            Book book = br.findById(book_id).orElse(null);
+            String authorName = "Unknown Author";
+            if (book != null) {
+                Author author = ar.findById(book.getAuthorId()).orElse(null);
+                if (author != null) {
+                    authorName = author.getName();
+                }
+            }
+
+            Thread.sleep(1000);
+
+            try {
+                createCharacterAnalysisRoom(room.getId(), book_id, book_title);
+            } catch (Exception e) {
+                System.err.println("Failed to create Character Analysis room: " + e.getMessage());
+            }
+
+            Thread.sleep(1500);
+
+            try {
+                createPlotDevicesRoom(room.getId(), book_id, book_title);
+            } catch (Exception e) {
+                System.err.println("Failed to create Plot Devices room: " + e.getMessage());
+            }
+
+            return room;
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Room creation interrupted: " + e.getMessage());
         } catch (RuntimeException e) {
-            throw new RuntimeException("Room already exists: "+e);
+            throw new RuntimeException("Room already exists: " + e);
         }
     }
 
@@ -186,7 +259,6 @@ public class GoogleBooksSyncService {
         Author newAuthor = new Author();
         newAuthor.setName(authorName);
 
-        // If we have an Open Library author key, fetch additional data
         if (authorKey != null && !authorKey.isEmpty()) {
             try {
                 String url = "https://openlibrary.org" + authorKey + ".json";
@@ -199,7 +271,6 @@ public class GoogleBooksSyncService {
                 if (response.statusCode() == 200) {
                     Document authorData = Document.parse(response.body());
 
-                    // Biography
                     Object bio = authorData.get("bio");
                     if (bio != null) {
                         if (bio instanceof String) {
@@ -209,31 +280,27 @@ public class GoogleBooksSyncService {
                         }
                     }
 
-                    // Birth date
                     String birthDate = authorData.getString("birth_date");
                     if (birthDate != null) {
                         try {
                             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                             newAuthor.setDob(format.parse(birthDate));
                         } catch (Exception e) {
-                            // Try year only
                             try {
                                 SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
                                 newAuthor.setDob(yearFormat.parse(birthDate));
                             } catch (Exception ex) {
-                                // Ignore parse errors
                             }
                         }
                     }
 
-                    // Photo/image
                     List<Integer> photos = (List<Integer>) authorData.get("photos");
                     if (photos != null && !photos.isEmpty()) {
                         Integer photoId = photos.get(0);
                         newAuthor.setImage("https://covers.openlibrary.org/a/id/" + photoId + "-M.jpg");
                     }
                 }
-                Thread.sleep(100); // Rate limiting
+                Thread.sleep(100);
             } catch (Exception e) {
                 System.out.println("Error fetching author details: " + e.getMessage());
             }
@@ -245,15 +312,162 @@ public class GoogleBooksSyncService {
     private Genre createOrFindGenre(String name) {
         String genreName = (name == null || name.trim().isEmpty()) ? "Unknown Genre" : name;
 
-        //check if genre already exists
         Optional<Genre> existingGenre = gr.findByName(genreName);
         if (existingGenre.isPresent()) {
             return existingGenre.get();
         }
 
-        //create new genre otherwise
         Genre newGenre = new Genre();
         newGenre.setName(genreName);
         return gr.save(newGenre);
+    }
+
+    // ==================== GEMINI API CALL ====================
+
+    private String callGemini(String prompt) {
+        int maxRetries = 5;
+        int retryDelay = 5000;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Content-Type", "application/json");
+
+                Map<String, Object> request = new HashMap<>();
+
+                Map<String, Object> content = new HashMap<>();
+                List<Map<String, String>> parts = new ArrayList<>();
+                parts.add(Map.of("text", prompt));
+                content.put("parts", parts);
+
+                List<Map<String, Object>> contents = new ArrayList<>();
+                contents.add(content);
+                request.put("contents", contents);
+
+                Map<String, Object> generationConfig = new HashMap<>();
+                generationConfig.put("temperature", 0.7);
+                generationConfig.put("maxOutputTokens", 800);
+                request.put("generationConfig", generationConfig);
+
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+                String url = geminiApiUrl + "?key=" + geminiApiKey;
+
+                ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+
+                if (response.getBody() != null) {
+                    List<Map> candidates = (List<Map>) response.getBody().get("candidates");
+                    if (candidates != null && !candidates.isEmpty()) {
+                        Map candidate = candidates.get(0);
+                        Map contentResp = (Map) candidate.get("content");
+                        List<Map> partsResp = (List<Map>) contentResp.get("parts");
+                        if (partsResp != null && !partsResp.isEmpty()) {
+                            return (String) partsResp.get(0).get("text");
+                        }
+                    }
+                }
+                return null;
+
+            } catch (Exception e) {
+                String errorMsg = e.getMessage();
+                if (errorMsg.contains("429") || errorMsg.contains("rate_limit") || errorMsg.contains("RESOURCE_EXHAUSTED")) {
+                    System.err.println("Rate limit hit. Attempt " + attempt + " of " + maxRetries + ". Waiting " + retryDelay/1000 + " seconds...");
+                    try {
+                        Thread.sleep(retryDelay);
+                        retryDelay = retryDelay * 2;
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return null;
+                    }
+                } else {
+                    System.err.println("Gemini error: " + e.getMessage());
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String cleanAIResponse(String content) {
+        String cleaned = content.trim();
+        if (cleaned.startsWith("```html")) {
+            cleaned = cleaned.substring(7);
+        }
+        if (cleaned.startsWith("```")) {
+            cleaned = cleaned.substring(3);
+        }
+        if (cleaned.endsWith("```")) {
+            cleaned = cleaned.substring(0, cleaned.length() - 3);
+        }
+        return cleaned.trim();
+    }
+
+    private Room createCharacterAnalysisRoom(String parentRoomId, String bookId, String bookTitle) {
+        String prompt = String.format("""
+        Write a concise, well-formatted HTML character analysis for the book "%s".
+        
+        Requirements:
+        1. Use <h3> for the main title, <h4> for each character
+        2. Cover 3-5 main characters only
+        3. For each character: brief description, key traits, role in story
+        4. NO SPOILERS - talk about characters in general terms
+        5. Keep it under 500 words
+        6. Use <p> for paragraphs
+        7. Return ONLY clean HTML, no markdown
+        """, bookTitle);
+
+        String aiContent = callGemini(prompt);
+        if (aiContent == null) {
+            aiContent = "<p>Character analysis could not be generated at this time. Please check back later.</p>";
+        }
+
+        aiContent = cleanAIResponse(aiContent);
+
+        Room characterRoom = new Room();
+        characterRoom.setBookId(bookId);
+        characterRoom.setParentId(parentRoomId);
+        characterRoom.setName("Character Analysis");
+        characterRoom.setType(3);
+        characterRoom.setCreatorId("Pages & Parchment");
+        characterRoom.setDeleted(false);
+
+        Room savedRoom = rs.createNewSubRoom(characterRoom);
+        cs.PostComment(new Comment(savedRoom.getId(), "Pages & Parchment", aiContent));
+
+        return savedRoom;
+    }
+
+    private Room createPlotDevicesRoom(String parentRoomId, String bookId, String bookTitle) {
+        String prompt = String.format("""
+        Write a concise, well-formatted HTML analysis of plot structure and literary devices in "%s".
+        
+        Requirements:
+        1. Use <h3> for section titles
+        2. Cover: narrative structure, point of view, pacing, foreshadowing (generally)
+        3. Discuss literary devices used (metaphor, imagery, etc.) without revealing plot points
+        4. NO SPOILERS WHATSOEVER - talk about HOW the story is told, not WHAT happens
+        5. Keep it under 400 words
+        6. Return ONLY clean HTML, no markdown
+        """, bookTitle);
+
+        String aiContent = callGemini(prompt);
+        if (aiContent == null) {
+            aiContent = "<p>Plot and literary devices analysis could not be generated at this time. Please check back later.</p>";
+        }
+
+        aiContent = cleanAIResponse(aiContent);
+
+        Room plotRoom = new Room();
+        plotRoom.setBookId(bookId);
+        plotRoom.setParentId(parentRoomId);
+        plotRoom.setName("Plot & Literary Devices");
+        plotRoom.setType(3);
+        plotRoom.setCreatorId("Pages & Parchment");
+        plotRoom.setDeleted(false);
+
+        Room savedRoom = rs.createNewSubRoom(plotRoom);
+        cs.PostComment(new Comment(savedRoom.getId(), "Pages & Parchment", aiContent));
+
+        return savedRoom;
     }
 }

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
 
 import { Bell } from 'lucide-react';
+import Avatar from '@assets/avatar.jpeg';
 
 export const Topnav: React.FC = () => {
     const { user, pings, isLoggedIn } = useAuth();
@@ -58,29 +59,23 @@ export const Topnav: React.FC = () => {
                     <>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+                            
                             <div
                                 onClick={() => navigate('/profile')}
-                                className="flex gap-2 items-center cursor-pointer hover:underline"
-                            >
-                                <img
-                                    src={user?.profilePhoto || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=300"}
-                                    alt={user?.username}
-                                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#c9a394]/30"
-                                />
-                                <span className="font-medium text-[#5a4d41] hidden sm:block">{user?.username}</span>
+                                className="flex items-center gap-1">
+                                <div className="relative">
+                                    <img
+                                        src={user?.profilePhoto ?? "https://i.pinimg.com/1200x/90/06/53/9006532d34eafa61b2bb2510beebd30f.jpg"}
+                                        alt="Profile"
+                                        className="w-7 h-7 rounded-full object-cover ring-1 ring-[#B0C4D0]/30 hover:ring-[#c9a394] transition-all cursor-pointer"
+                                    />
+                                    {
+                                        messages > 0 &&
+                                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-[var(--olive-mist)] rounded-full border border-white" />
+                                    }
+
+                                </div>
                             </div>
-
-
-                            <button className="relative inline-flex items-center justify-center rounded-lg border-none bg-transparent p-2 cursor-pointer hover:scale-110 transition-all duration-300">
-                                <Bell size={20} className="text-[#c9a394] hover:text-[#8d6c45]" />
-                                {messages > 0 && (
-                                    <div className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] rounded-full bg-[var(--acorn)] border-[1.5px] border-white flex items-center justify-end">
-                                        <span className="text-[9px] font-bold text-white leading-none px-0.5">
-                                            {messages > 99 ? '99+' : messages}
-                                        </span>
-                                    </div>
-                                )}
-                            </button>
                         </div>
                     </>
                 )

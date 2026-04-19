@@ -14,6 +14,7 @@ import { isTokenvalid, getTimeLeft } from '@utils/auth';
 import { request } from "@utils/ApiRequest";
 
 {/* =============== models ============ */ }
+import type { Room } from '@models/Book';
 import type { User } from "@models/User";
 import type { Notification } from '@models/Notice';
 import { RelationshipType, type Book } from "@models/Book";
@@ -41,6 +42,9 @@ interface AuthContextType {
     recommends: Book[] | [],
     setRecommends: (book: Book[] | []) => void;
 
+    recommendRooms: Room[] | [],
+    setRecommendRooms: (room: Room[] | []) => void;
+
     pings: Notification[] | [];
     setPings: (pings: Notification[] | []) => void;
 
@@ -66,6 +70,7 @@ const AuthContext = createContext<AuthContextType>({
     trending: [],
     pings: [],
     recommends: [],
+    recommendRooms: [],
     isLoggedIn: false,
 
     logout: () => { },
@@ -77,6 +82,7 @@ const AuthContext = createContext<AuthContextType>({
     setWishlist: () => [],
     setDislike: () => [],
     setRecommends: () => [],
+    setRecommendRooms: () => [],
 
     loading: false,
     word: null,
@@ -118,6 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [author, setAuthor] = useState<Book[] | []>([]);
     const [trending, setTrending] = useState<Book[] | []>([]);
     const [recommends, setRecommends] = useState<Book[] | []>([]);
+    const [recommendRooms, setRecommendRooms] = useState<Room[] | []>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const hasShownExpiryToast = useRef(false);
 
@@ -238,7 +245,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     popularRes,
                     libraryRes,
                     wishlistRes,
-                    pingsRes
+                    pingsRes,
                 ] = await Promise.all([
                     WordOfTheDay(user.id),
                     QuoteOfTheDay(user.id),
@@ -262,6 +269,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 // Set book lists - ensure they're arrays
                 setDiscover(discoverRes?.books || []);
                 setRecommends(recommendsRes?.books || []);
+                setRecommendRooms(recommendsRes?.rooms || []); //console.log('recommened rooms: ', recommendsRes?.rooms)
                 setGenre(genreRes?.books || []);
                 setAuthor(authorRes?.books || []);
                 setTrending(trendsRes?.books || []);
@@ -275,6 +283,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 // Set empty arrays on error so components don't crash
                 setDiscover([]);
                 setRecommends([]);
+                setRecommendRooms([]);
                 setGenre([]);
                 setAuthor([]);
                 setTrending([]);
@@ -317,6 +326,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         <AuthContext.Provider value={{
             user, setUser,
             recommends, setRecommends,
+            recommendRooms, setRecommendRooms,
             wishlist, setWishlist,
             library, setLibrary,
             genre, setGenre,

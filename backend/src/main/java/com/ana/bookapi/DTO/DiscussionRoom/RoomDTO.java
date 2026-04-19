@@ -9,14 +9,19 @@ public class RoomDTO {
     private String name;
     private BookDTO book;
     private List<SubRoomDTO> subRooms;
+    private List<CommentDTO> comments;
+    private Integer members;
 
 
     private RoomDTO() {}
-    public RoomDTO(String id, String name, BookDTO book, List<SubRoomDTO> subRooms) {
+    // main room (general,  can bloody have comments bestie)
+    public RoomDTO(String id, String name, Integer members, BookDTO book, List<SubRoomDTO> subRooms,  List<CommentDTO> comments) {
         this.id = id;
         this.name = name;
         this.book = book;
+        this.members = members;
         this.subRooms = subRooms;
+        this.comments = comments;
     }
 
     public String getId() {return id;}
@@ -30,4 +35,7 @@ public class RoomDTO {
 
     public List<SubRoomDTO> getSubRooms() {return subRooms;}
     public void setSubRooms(List<SubRoomDTO> subRooms) {this.subRooms = subRooms;}
+
+    public List<CommentDTO> getComments() {return comments;}
+    public void setComments(List<CommentDTO> comments) {this.comments = comments;}
 }

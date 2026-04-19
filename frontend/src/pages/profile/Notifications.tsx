@@ -117,10 +117,10 @@ export default function NotificationsPage() {
 
                     if (e.deltaX > threshold) {
                         // Swiped RIGHT → Mark as read/unread
-                        if (NoticeStatus) NoticeStatus(ping.id);
+                        if (NoticeStatus) NoticeStatus(ping.id ?? "");
                     } else if (e.deltaX < -threshold) {
                         // Swiped LEFT → Delete / Archive
-                        if (onDelete) onDelete(ping.id);
+                        if (onDelete) onDelete(ping.id ?? "");
                     }
 
                     // Reset position with a nice spring feel
@@ -138,11 +138,11 @@ export default function NotificationsPage() {
                     return;
                 }
 
-                setSelectedNotificationId(ping.id);
+                setSelectedNotificationId(ping.id ?? "");
                 if (isMobile && mobileMenuOpen && setMobileMenuOpen) {
                     setMobileMenuOpen(false);
                 }
-                NoticeStatus(ping.id);
+                NoticeStatus(ping.id ?? "");
             };
 
             return (
@@ -285,7 +285,7 @@ export default function NotificationsPage() {
 
     const markAllAsRead = () => {
         for (const p of pings) {
-            NoticeStatus(p.id, true);
+            NoticeStatus(p.id ?? "", true);
         }
     };
 
@@ -426,7 +426,7 @@ export default function NotificationsPage() {
                                     key={notification.id}
                                     ping={notification}
                                     selectedNotificationId={selectedNotificationId || null}
-                                    setSelectedNotificationId={() => setSelectedNotificationId(notification.id)}
+                                    setSelectedNotificationId={() => setSelectedNotificationId(notification.id ?? "")}
                                     isMobile={isMobile}
                                     setMobileMenuOpen={() => setMobileMenuOpen(mobileMenuOpen)}
                                     onDelete={deleteNotification}

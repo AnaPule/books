@@ -14,6 +14,9 @@ public interface CommentRepo extends JpaRepository<Comment, String> {
     @Query("SELECT c FROM Comment c WHERE c.parentId = :parent_id")
     List<Comment> findByParentComment_Id(@Param("parent_id") String parentCommentId);
 
+        @Query("SELECT c FROM Comment c WHERE c.roomId = :room_id AND c.parentId IS NULL")
+    List<Comment> findAllRoomParentCommentsByRoomId(@Param("room_id") String roomId);
+
     List<Comment> findByRoomId(@Param("room_id") String roomId);
     List<Comment> findByUserId(String userId);
 

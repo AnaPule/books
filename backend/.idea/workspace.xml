@@ -4,15 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="it wants me to commit before checking out">
+    <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="posting notifications, and altered fetch notifications to include meta data where necessary.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/Auth/PingDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/Auth/PingDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/CommentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/CommentDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/RoomDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/RoomDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/SubRoomDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/SubRoomDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/RecommendationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/RecommendationController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/RoomController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/RoomController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/userService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/auth/userService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/BookService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/BookService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/book/DiscussionRoom/Comment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/book/DiscussionRoom/Comment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/book/DiscussionRoom/Room.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/book/DiscussionRoom/Room.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/UserBookRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/UserBookRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/MemberRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/MemberRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/RoomRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/RoomRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/CommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/CommentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/MemberService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/MemberService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/RoomService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/RoomService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/RecommendationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/RecommendationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/external/GoogleBooksSyncService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/external/GoogleBooksSyncService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/key.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/key.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/nav/Topnav.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/nav/Topnav.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/skeleton/shelves/Shelves.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/skeleton/shelves/Shelves.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/context/AuthContext.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/models/Book.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/models/Book.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/books/DiscussionHub.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/books/DiscussionHub.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/profile/Notifications.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/profile/Notifications.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,6 +108,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="it wants me to commit before checking out" />
-    <option name="LAST_COMMIT_MESSAGE" value="it wants me to commit before checking out" />
+    <MESSAGE value="invites to discussion rooms when book added to library" />
+    <MESSAGE value="posting notifications, and altered fetch notifications to include meta data where necessary." />
+    <option name="LAST_COMMIT_MESSAGE" value="posting notifications, and altered fetch notifications to include meta data where necessary." />
   </component>
 </project>

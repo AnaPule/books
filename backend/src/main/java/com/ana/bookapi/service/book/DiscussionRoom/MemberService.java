@@ -19,7 +19,7 @@ public class MemberService {
     }
 
     //count members
-    public Integer getNoOfMembers(String room_id){
+    public Integer getNoOfMembers(String room_id) {
         if (!rr.existsById(room_id)) {
             System.err.println("Room id not found - no of members");
             return 0;
@@ -28,15 +28,20 @@ public class MemberService {
         return count;
     }
 
+    public boolean isMemberInRoom(String user_id, String room_id) {
+        return mr.existsByUserIdAndRoomId(user_id, room_id);
+    }
+
     // add member
-    public Member addMember(String user_id, String room_id){
-        if (!rr.existsById(room_id)){
+    public Member addMember(String user_id, String room_id) {
+        if (!rr.existsById(room_id)) {
             throw new RuntimeException("Room id not found - no of members");
         }
         // check is user is a member
-        if (mr.existsByUserIdAndRoomId(user_id, room_id)) {
+        if (isMemberInRoom(user_id, room_id)) {
             throw new RuntimeException("User is already a member in this room - adding a member");
         }
+
         Member member = new Member(user_id, room_id);
         return mr.save(member);
     }

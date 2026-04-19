@@ -3,25 +3,31 @@ import styles from "./shelves.module.css";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import Tooltip from "@components/skeleton/ToolTip";
+
 interface ShelvesProps {
     shelf1: Bk[] | null;
     shelf1Caption: string;
+    shelf1SubCaption?:string;
     shelf1SeeAll?: () => void;
 
     shelf2?: Bk[] | null;
     shelf2Caption?: string;
+    shelf2SubCaption?:string;
     shelf2SeeAll?: () => void;
 
     shelf3?: Bk[] | null;
     shelf3Caption?: string;
+    shelf3SubCaption?:string;
     shelf3SeeAll?: () => void;
 
     shelf4?: Bk[] | null;
     shelf4Caption?: string;
+    shelf4SubCaption?:string;
     shelf4SeeAll?: () => void;
 
     shelf5?: Bk[] | null;
     shelf5Caption?: string;
+    shelf5SubCaption?:string;
     shelf5SeeAll?: () => void;
 }
 
@@ -193,49 +199,6 @@ export const TopBooksShelves: React.FC<TopThreeShelvesProps> = ({ books }) => {
 
 const Book: React.FC<BookProps> = ({ books }) => {
     const navigate = useNavigate();
-    /*
-    return (
-        <div
-            className={`${styles.book} group cursor-pointer transition-all duration-300 hover:-translate-y-1`}
-            onClick={() => navigate(`/book/${book.id}`)}
-            title={book.name}
-        >
-            {/* 3D Book Container *
-            <div className="
-            relative w-full h-full transform-style-preserve-3d 
-            transition-transform duration-300 
-            group-hover:translate-y-[-4px] group-hover:rotate-y-[-5deg]">
-                {/* Spine — left dark strip *
-                <div className="absolute left-0 top-0 w-[6px] h-full bg-[#3D2E1A] rounded-l-[2px] origin-left bg-gradient-to-r from-[#2a1f10] to-[#3D2E1A]"
-                    style={{ transform: 'rotateY(90deg)' }} />
-
-                {/* Cover face *
-                <div className="absolute inset-0 rounded-[2px_3px_3px_2px] overflow-hidden shadow-[inset_-2px_0_4px_rgba(0,0,0,0.15),inset_1px_0_2px_rgba(255,255,245,0.3)]">
-                    {book.coverArt ? (
-                        <div
-                            className="w-full h-full bg-cover bg-center"
-                            style={{ backgroundImage: `url(${book.coverArt})` }}
-                        />
-                    ) : (
-                        <div className={`w-full h-full ${getBookColor()} flex items-center justify-center p-1`}>
-                            <span className="text-[#5A4D41] text-[8px] font-serif text-center leading-tight line-clamp-3">
-                                {book.name}
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Book pages (right side) *
-                <div className="absolute right-[-4px] top-1 bottom-1 w-[3px] bg-[repeating-linear-gradient(90deg,#F5F0E8_0px,#F5F0E8_1px,#E8DFD4_1px,#E8DFD4_2px,#F5F0E8_2px)] rounded-r-sm shadow-[inset_-1px_0_1px_rgba(0,0,0,0.03),1px_0_2px_rgba(0,0,0,0.05)] z-1" />
-
-                {/* Top page edge *
-                <div className="absolute -top-[2px] left-1 right-0 h-[2px] bg-[#F5F0E8] bg-[repeating-linear-gradient(90deg,transparent,transparent_1px,rgba(180,170,155,0.3)_1px,rgba(180,170,155,0.3)_2px)] rounded-t-[1px] origin-top"
-                    style={{ transform: 'rotateX(90deg)' }} />
-            </div>
-        </div>
-    );
-    */
-
     return (
         <div className={styles.booksContainer}>
             {books.slice(0, 10).map((book, i) => (
@@ -291,18 +254,23 @@ const Book: React.FC<BookProps> = ({ books }) => {
 interface ShelfRowProps {
     books: Bk[];
     caption: string;
+    subCaption?: string;
     onSeeAll?: () => void;
 }
 
-const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption, onSeeAll }) => (
-    // In your ShelfRow component:
+const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption, subCaption, onSeeAll }) => (
     <div className={styles.shelfRow}>
-        <div className="flex items-center justify-between mb-4 border-b border-[#E2E9DC] pb-2">
-            <span className={styles.shelvesCaption}>{caption}</span>
+        <div className="flex items-center justify-between mb-4 border-b border-[#86868b]/10 pb-2">
+            <section>
+                <h2 className={`text-[20px] font-['SF_Pro_Display',_system-ui] font-semibold tracking-tight text-[#1d1d1f] leading-tight`}>{caption}</h2>
+                    <p className="text-[13px] text-[#86868b] mt-1">{subCaption || null}</p>
+                
+            </section>
+
             <button
                 onClick={onSeeAll}
-                className="text-[#9FB89F] hover:text-[#8AA88A] flex items-center gap-2 transition-colors text-xs sm:text-sm">
-                SEE ALL <ChevronRight size={14} />
+                className="text-[13px] text-[#0071e3] hover:text-[#0077ed] font-medium transition-colors">
+                See all →
             </button>
         </div>
         <Book books={books} />
@@ -311,17 +279,17 @@ const ShelfRow: React.FC<ShelfRowProps> = ({ books, caption, onSeeAll }) => (
 );
 
 export const Shelves: React.FC<ShelvesProps> = ({
-    shelf1, shelf1Caption, shelf1SeeAll,
-    shelf2 = null, shelf2Caption = "", shelf2SeeAll,
-    shelf3 = null, shelf3Caption = "", shelf3SeeAll,
-    shelf4 = null, shelf4Caption = "", shelf4SeeAll,
-    shelf5 = null, shelf5Caption = "", shelf5SeeAll,
+    shelf1, shelf1Caption, shelf1SubCaption = "", shelf1SeeAll,
+    shelf2 = null, shelf2Caption = "", shelf2SubCaption = "", shelf2SeeAll,
+    shelf3 = null, shelf3Caption = "", shelf3SubCaption = "", shelf3SeeAll,
+    shelf4 = null, shelf4Caption = "", shelf4SubCaption = "", shelf4SeeAll,
+    shelf5 = null, shelf5Caption = "", shelf5SubCaption = "", shelf5SeeAll,
 }) => (
     <div className={styles.shelves}>
-        {shelf1 && shelf1.length > 0 && <ShelfRow books={shelf1} caption={shelf1Caption} onSeeAll={shelf1SeeAll} />}
-        {shelf2 && shelf2.length > 0 && <ShelfRow books={shelf2} caption={shelf2Caption} onSeeAll={shelf2SeeAll} />}
-        {shelf3 && shelf3.length > 0 && <ShelfRow books={shelf3} caption={shelf3Caption} onSeeAll={shelf3SeeAll} />}
-        {shelf4 && shelf4.length > 0 && <ShelfRow books={shelf4} caption={shelf4Caption} onSeeAll={shelf4SeeAll} />}
-        {shelf5 && shelf5.length > 0 && <ShelfRow books={shelf5} caption={shelf5Caption} onSeeAll={shelf5SeeAll} />}
+        {shelf1 && shelf1.length > 0 && <ShelfRow books={shelf1} caption={shelf1Caption} subCaption={shelf1SubCaption} onSeeAll={shelf1SeeAll} />}
+        {shelf2 && shelf2.length > 0 && <ShelfRow books={shelf2} caption={shelf2Caption} subCaption={shelf2SubCaption} onSeeAll={shelf2SeeAll} />}
+        {shelf3 && shelf3.length > 0 && <ShelfRow books={shelf3} caption={shelf3Caption} subCaption={shelf3SubCaption} onSeeAll={shelf3SeeAll} />}
+        {shelf4 && shelf4.length > 0 && <ShelfRow books={shelf4} caption={shelf4Caption} subCaption={shelf4SubCaption} onSeeAll={shelf4SeeAll} />}
+        {shelf5 && shelf5.length > 0 && <ShelfRow books={shelf5} caption={shelf5Caption} subCaption={shelf5SubCaption} onSeeAll={shelf5SeeAll} />}
     </div>
 );

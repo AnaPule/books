@@ -22,12 +22,46 @@ export interface Genre{
     name: string;
 }
 
+/* --------------------- ROOM -----------------*/
 export interface Room{
     id: string;
     name: string;
     bookId: string;
     deleted: Boolean;
     parentId: String;
+    members?: number;
+    comments?: string[];
+    type: Number;
+}
+
+export interface Comment{
+    id: string;
+    likes: Number;
+    dislikes: Number;
+    reports: Report[];
+    deleted: Boolean;
+    content: string;
+    createdAt: Date;
+    user:{
+        user_id: string;
+        username: string;
+        profile: string;
+    }
+    commentInteractions: CommentInteraction[];
+    replies?: Comment[];
+}
+
+export interface Report{
+    id: string;
+    comment_id: string;
+    reason: string;
+}
+
+export interface CommentInteraction{
+    id: string;
+    comment_id: string;
+    user_id: string;
+    type: Number;
 }
 
 export const RelationshipType = {

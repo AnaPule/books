@@ -22,7 +22,8 @@ public class RoomService {
 
     //create new room
     public Room createNewMainRoom(String book_id, String room_name){
-        // check if room name already exists - that means this book already has a room
+        // check if room name already exists - and if its general and/or text
+        // conditions:
         if (rr.existsByName(room_name)){
             throw new RuntimeException("Room already exists");
         }
@@ -38,12 +39,19 @@ public class RoomService {
         }
 
         // check if room name is not duplicated
+            //1. type is (1 or 2) - no replicated names allowed
+            //2. type is 3 - they will all be the same names - just for different books
         if (rr.roomNameExists(room.getParentId(),  room.getName())) {
             System.err.println("Room name unavailable!!");
             throw new RuntimeException("Room name unavailable!!");
         }
         return rr.save(room);
 
+    }
+
+    //for subrooms
+    public Boolean roomExistsInParent(String parentId, String roomName){
+        return rr.roomNameExists(parentId,  roomName);
     }
 
     //change room name

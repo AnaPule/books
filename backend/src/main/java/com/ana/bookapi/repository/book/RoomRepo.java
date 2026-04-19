@@ -16,7 +16,7 @@ public interface RoomRepo extends JpaRepository<Room, String> {
     Optional<Room> findByName(String name);
     Optional<Room> findByParentId(String parentId);
 
-    @Query("SELECT r FROM Room r WHERE r.bookId = :book_id AND r.parentId IS NULL")
+    @Query("SELECT r FROM Room r WHERE r.bookId = :book_id AND r.type = 1 AND r.parentId IS NULL")
     Optional<Room> findBookMainRoom(@Param("book_id") String book_id);
 
     List<Room> findAllByParentId(String parentId);

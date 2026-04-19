@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import com.ana.bookapi.service.book.DiscussionRoom.RoomService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -66,49 +65,67 @@ public class RoomController {
     @GetMapping("/book/{bookId}")
     public ResponseEntity<?> getBookRoomsByBookId(@PathVariable String bookId) {
         try {
-            //1. get room
             Room rawRoom = rs.getBookMainRoom(bookId);
-            //2. map all details  to the main discussion room
-
-            // 2.1 get/map all book details
             Book rawBook = bs.getBookById(rawRoom.getBookId());
             Author author = as.getAuthorById(rawBook.getAuthorId());
             Genre genre = gs.getGenre(rawBook.getGenreId());
-            // full book
             BookDTO book = new BookDTO(rawBook, author, genre);
 
-            // 2.2 map sub rooms
             List<SubRoomDTO> subRooms = rs.getSubRoomsByRoomId(rawRoom.getId())
                     .stream()
                     .map(room -> {
-                        // 2.2.1 map sub room comments
-                        List<CommentDTO> comments = cs.getAllRoomComments(room.getId())
+                        List<CommentDTO> comments = cs.getAllRoomParentCommentsByRoomId(room.getId())
                                 .stream()
-                                .map(comment -> {
-                                    Integer likes = cs.getNoOfInteractionType(comment.getId(), 1);
-                                    Integer dislikes = cs.getNoOfInteractionType(comment.getId(), 2);
-                                    List<Report> reports = cs.getAllCommentReports(comment.getId());
-                                    List<CommentInteraction> interactions = cs.getAllcommentInteractions(comment.getId());
-
-                                    // 2.2.2.2 return rooms comments dto
-                                    return new CommentDTO(comment, interactions, reports, likes, dislikes);
-                                })
+                                .map(this::convertCommentToDTO)
                                 .collect(Collectors.toList());
-                        // 2.2.2 get number of members in room
-                        Integer memCount = ms.getNoOfMembers(room.getId());
-                        // 2.2.3 return sub room dto
-                        return new SubRoomDTO(room.getId(), room.getName(), memCount, comments, room.getParentId());
+
+                        return new SubRoomDTO(
+                                room.getId(),
+                                room.getName(),
+                                ms.getNoOfMembers(room.getId()),
+                                room.getType(),
+                                comments,
+                                room.getParentId());
                     })
                     .collect(Collectors.toList());
 
-            //3. create the main room dto
-            RoomDTO room = new RoomDTO(rawRoom.getId(), rawRoom.getName(), book, subRooms);
+            List<CommentDTO> comments = cs.getAllRoomParentCommentsByRoomId(rawRoom.getId())
+                    .stream()
+                    .map(this::convertCommentToDTO)
+                    .collect(Collectors.toList());
+
+            RoomDTO room = new RoomDTO(rawRoom.getId(), rawRoom.getName(), ms.getNoOfMembers(rawRoom.getId()), book, subRooms, comments);
             return ResponseEntity.ok(Map.of("room", room));
+
         } catch (Exception e) {
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             er.setMessage(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
         }
+    }
+
+    private CommentDTO convertCommentToDTO(Comment comment) {
+        // Get user info
+        CommentDTO.CommentUserDTO user;
+        if (comment.getUserId().equals("Pages & Parchment")) {
+            user = new CommentDTO.CommentUserDTO("system", "Pages ń Parchment", "");
+        } else {
+            User raw_user = us.getUserById(comment.getUserId());
+            user = new CommentDTO.CommentUserDTO(raw_user.getId(), raw_user.getUsername(), raw_user.getProfilePhoto());
+        }
+
+        Integer likes = cs.getNoOfInteractionType(comment.getId(), 1);
+        Integer dislikes = cs.getNoOfInteractionType(comment.getId(), 2);
+        List<Report> reports = cs.getAllCommentReports(comment.getId());
+        List<CommentInteraction> interactions = cs.getAllcommentInteractions(comment.getId());
+
+        // Get replies recursively
+        List<CommentDTO> replies = cs.getCommentReplies(comment.getId())
+                .stream()
+                .map(this::convertCommentToDTO)  // Recursive call
+                .collect(Collectors.toList());
+
+        return new CommentDTO(comment, interactions, reports, likes, dislikes, user, replies);
     }
 
     //create new sub room
@@ -154,6 +171,11 @@ public class RoomController {
     @PostMapping("/add-member/{userId}/{roomId}")
     public ResponseEntity<?> addMember(@PathVariable String userId, @PathVariable String roomId) {
         try {
+            //check if user is already a member
+            if (ms.isMemberInRoom(userId, roomId)) {
+                return ResponseEntity.ok(Map.of("message", "You already in this community, silly ;)"));
+            }
+
             ms.addMember(userId, roomId);
             User user = us.getUserById(userId);
             Room room = rs.findRoomById(roomId);
@@ -234,7 +256,24 @@ public class RoomController {
     @PostMapping("/post-comment")
     public ResponseEntity<?> postComment(@RequestBody Comment comment) {
         try {
-            cs.PostComment(comment);
+            System.out.println("comment Body room id: " + comment.getRoomId());
+            System.out.println("comment Body user: " + comment.getUserId());
+            System.out.println("comment Body parent id: " + comment.getParentId());
+            System.out.println("comment Body message: " + comment.getContent());
+            Comment NewComment = new Comment(
+                    comment.getRoomId(),
+                    comment.getUserId(),
+                    comment.getParentId(),
+                    comment.getContent()
+            );
+            Comment savedComment = cs.PostComment(NewComment);
+
+            if (savedComment == null) {
+                er.setStatus(HttpStatus.BAD_REQUEST.value());
+                er.setMessage("Failed to save comment - validation failed");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er);
+            }
+
             return ResponseEntity.ok(Map.of("message", "comment posted :)"));
         } catch (Exception e) {
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());

@@ -18,6 +18,8 @@ public class CommentDTO {
     private CommentUserDTO user;
     private List<CommentInteraction> commentInteractions;
     private List<CommentDTO> replies;
+    private Boolean isLikedByUser;
+    private Boolean isDislikedByUser;
 
     public CommentDTO() {
     }
@@ -30,10 +32,13 @@ public class CommentDTO {
             Comment comment,
             List<CommentInteraction> commentInteractions,
             List<Report> reports,
+            Boolean deleted,
             Integer likes,
             Integer dislikes,
             CommentUserDTO user,
-            List<CommentDTO> replies
+            List<CommentDTO> replies,
+            Boolean isLikedByUser,
+            Boolean isDislikedByUser
     ) {
         this.id = comment.getId();
         this.likes = likes;
@@ -44,6 +49,9 @@ public class CommentDTO {
         this.user = user;
         this.commentInteractions = commentInteractions;
         this.replies = replies;
+        this.createdAt = comment.getCreatedAt();
+        this.isLikedByUser = isLikedByUser;
+        this.isDislikedByUser = isDislikedByUser;
     }
 
     public CommentDTO(
@@ -52,7 +60,8 @@ public class CommentDTO {
             List<Report> subReports,
             Integer subLikes,
             Integer subDislikes,
-            CommentUserDTO subUser) {
+            CommentUserDTO subUser,
+            Boolean deleted) {
         this.id = comment.getId();
         this.likes = subLikes;
         this.dislikes = subDislikes;
@@ -61,7 +70,23 @@ public class CommentDTO {
         this.content = comment.getContent();
         this.user = subUser;
         this.commentInteractions = subInteractions;
+        this.deleted = deleted;
 
+    }
+
+    public <E> CommentDTO(
+            String id,
+            int i,
+            int i1,
+            List<E> of,
+            boolean b,
+            String s,
+            Date createdAt,
+            CommentUserDTO system,
+            List<E> of1,
+            List<E> of2,
+            boolean l,
+            boolean d) {
     }
 
     public String getId() {
@@ -142,6 +167,19 @@ public class CommentDTO {
 
     public void setReplies(List<CommentDTO> replies) {
         this.replies = replies;
+    }
+
+    public Boolean getIsLikedByUser() {
+        return isLikedByUser;
+    }
+    public void setIsLikedByUser(Boolean isLikedByUser) {
+        this.isLikedByUser = isLikedByUser;
+    }
+    public Boolean getIsDislikedByUser() {
+        return isDislikedByUser;
+    }
+    public void setIsDislikedByUser(Boolean isDislikedByUser) {
+        this.isDislikedByUser = isDislikedByUser;
     }
 
     //side quest

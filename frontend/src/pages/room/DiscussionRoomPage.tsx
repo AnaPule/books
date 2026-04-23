@@ -6,14 +6,18 @@ import { toast } from 'sonner';
 import {
     MessageSquare, Heart, ThumbsUp, ThumbsDown, Flag, Share2,
     Send, Users, Hash, DoorOpen, ChevronLeft, ChevronRight,
-    X, Maximize2, Minimize2, Volume2, VolumeX, Sparkles,
+    X, Maximize2, Minimize2, Volume2, Smile, Sparkles,
     BookOpen, Clock, Pin, Reply, MoreHorizontal, Image, Link2,
     CornerDownRight, Activity, Flame, Star, Music, Headphones,
-    Search, Bell, Settings, Plus, ChevronDown, Mic, MicOff
+    Search, Bell, Settings, Gift, ChevronDown, Mic, MicOff
 } from 'lucide-react';
 import Room2 from '@assets/quite_space/Room2.gif';
 import { request } from '@utils/ApiRequest';
 import type { Book, Room, Comment, } from '@models/Book';
+import type { Quote } from '@models/Word';
+import EmojiPicker from 'emoji-picker-react';
+import { GiphyFetch } from '@giphy/js-fetch-api';
+import { Grid } from '@giphy/react-components';
 
 interface BigRoom {
     id: string;
@@ -21,9 +25,11 @@ interface BigRoom {
     book: Book;
     members: number;
     comments: Comment[];
+    quietRoom: Comment[];
     subRooms: Room[];
 }
 
+const gf = new GiphyFetch('3badXghEvmM6yeAbWPgNYcyOBy6E82K1');
 // ─── Using your index.css blues directly ──────────────────────────
 // These match your CSS variables from index.css
 const colors = {
@@ -76,26 +82,6 @@ const MOCK_ROOM = {
     isUserMember: true,
 };
 
-const MOCK_CATEGORIES = [
-    {
-        id: 'cat-1', name: 'Text Channels',
-        subRooms: [
-            { id: 'sub-1', name: 'general', memberCount: 156, isActive: true, lastActive: 'just now' },
-            { id: 'sub-2', name: 'chapter-1-3', memberCount: 89, isActive: true, lastActive: '2 min ago' },
-            { id: 'sub-3', name: 'chapter-4-6', memberCount: 67, isActive: false, lastActive: '1 hr ago' },
-            { id: 'sub-4', name: 'chapter-7-9', memberCount: 54, isActive: false, lastActive: '3 hrs ago' },
-        ],
-    },
-    {
-        id: 'cat-2', name: 'Analysis',
-        subRooms: [
-            { id: 'sub-5', name: 'character-analysis', memberCount: 43, isActive: true, lastActive: '5 min ago' },
-            { id: 'sub-6', name: 'themes-symbolism', memberCount: 38, isActive: false, lastActive: 'yesterday' },
-            { id: 'sub-7', name: 'adaptations', memberCount: 29, isActive: false, lastActive: '2 days ago' },
-        ],
-    },
-];
-
 const MOCK_QUIET_COMMENTS = [
     { user: 'Clara', message: 'This is so peaceful…', time: new Date(Date.now() - 1000 * 60 * 5) },
     { user: 'Rowan', message: 'I could stay here forever', time: new Date(Date.now() - 1000 * 60 * 3) },
@@ -125,8 +111,8 @@ const getInitials = (name: string) => {
 export const DiscussionRoomPage: React.FC = () => {
     const { user } = useAuth();
     const [room] = useState(MOCK_ROOM);
+    const [isMember, setIsMember] = useState(false);
     const [testRoom, setRoom] = useState<BigRoom | null>(null);
-    const [categories] = useState(MOCK_CATEGORIES);
     const [activeSubRoom, setActiveSubRoom] = useState<Room | null>(null);
     const [newComment, setNewComment] = useState('');
     const [replyTo, setReplyTo] = useState<Comment | null>(null);
@@ -137,16 +123,28 @@ export const DiscussionRoomPage: React.FC = () => {
     const { book_id, room_id } = useParams();
 
     useEffect(() => {
+
+        const getIsMember = async () => {
+            if (!user?.id || !room_id) return;
+            try {
+                const res = await request.get<any>(`/rooms/member/${user?.id}/room/${activeSubRoom?.id}`);
+                setIsMember(res.member || false);
+                //console.log('member?: ',res.member)
+            } catch (error) {
+                console.error('Failed to check membership:', error);
+            }
+        };
+
         const fetchRoom = async () => {
             try {
-                const res = await request.get<any>(`/rooms/book/${book_id}`);
+                const res = await request.get<any>(`/rooms/book/${book_id}/${user?.id}`);
                 //console.log('room', res);
 
                 const fetchedRoom = res.room;
                 setRoom(fetchedRoom);
 
                 if (fetchedRoom?.id === room_id) {
-                    //console.log('selected room: ', fetchedRoom);
+                    console.log('selected room: ', fetchedRoom);
                     setActiveSubRoom(fetchedRoom);
                 } else {
                     const foundSubRoom = fetchedRoom?.subRooms?.find((r: any) => r.id === room_id);
@@ -160,29 +158,30 @@ export const DiscussionRoomPage: React.FC = () => {
             }
         };
 
+        getIsMember();
         fetchRoom();
-    }, [book_id, room_id]);
-    /*
-    useEffect(() => {
-        commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [comments]);
-    */
 
-    const handlePost = async () => {
-        if (!newComment.trim()) return;
+    }, [book_id, testRoom?.id, isMember]);
+
+    const handlePost = async (content?: string, quiet_room?: boolean) => {
+
+        //console.log('posting to the quite room: ',quiet_room)
+        const message = content || newComment;
+        if (!message.trim()) return;
 
         const commentData = {
-            roomId: activeSubRoom?.id,
+            roomId: quiet_room ? testRoom?.id : activeSubRoom?.id,
             userId: user?.id,
             parentId: replyTo?.id || null,
-            content: newComment,
+            content: message,
+            quietRoom: quiet_room ?? false
         };
 
         try {
-            await request.post(`/rooms/post-comment`, commentData);
+            await request.post<any>(`/rooms/post-comment`, commentData)
 
             // Refresh the room data to get the new comment with proper structure
-            const refreshedRoom = await request.get<any>(`/rooms/book/${book_id}`);
+            const refreshedRoom = await request.get<any>(`/rooms/book/${book_id}/${user?.id}`);
             setRoom(refreshedRoom.room);
 
             setNewComment('');
@@ -193,45 +192,66 @@ export const DiscussionRoomPage: React.FC = () => {
         }
     };
 
-    const handleLike = async (commentId: string) => {
+    const handleLike = async (comment: Comment) => {
         try {
-            await request.post(`/rooms/interact`, {
-                commentId: commentId,
+            const dto = {
+                commentId: comment.id,
                 userId: user?.id,
                 type: 1  // 1 = like
-            });
+            }
+
+            if (comment?.isLikedByUser) {
+                await request.delete<any>(`/rooms/delete-interact/comment/${dto.commentId}/user/${dto.userId}/type/${dto.type}`)
+            } else {
+                await request.post(`/rooms/interact`, dto);
+            }
 
             // Refresh to get updated likes
-            const refreshedRoom = await request.get<any>(`/rooms/book/${book_id}`);
+            const refreshedRoom = await request.get<any>(`/rooms/book/${book_id}/${user?.id}`);
             setRoom(refreshedRoom.room);
         } catch (error) {
             console.error('Failed to like comment:', error);
         }
     };
 
-    const handleDislike = async (commentId: string) => {
+    const handleDislike = async (comment: Comment) => {
+        console.log('Dislike comment action:', comment);
         try {
-            await request.post(`/rooms/interact`, {
-                commentId: commentId,
+            const dto = {
+                commentId: comment.id,
                 userId: user?.id,
                 type: 2  // 2 = dislike
-            });
+            };
 
-            const refreshedRoom = await request.get<any>(`/rooms/book/${book_id}`);
+            if (comment?.isDislikedByUser) {
+                await request.delete<any>(`/rooms/delete-interact/comment/${dto.commentId}/user/${dto.userId}/type/${dto.type}`) // remove the dislike
+            } else {
+                //console.log('dislike comment');
+                await request.post<any>(`/rooms/interact`, dto); //dislike the commet
+            }
+
+            const refreshedRoom = await request.get<any>(`/rooms/book/${book_id}/${user?.id}`);
             setRoom(refreshedRoom.room);
         } catch (error) {
             console.error('Failed to dislike comment:', error);
         }
     };
 
-    if (isQuietMode) return <QuietRoom room={room} onExit={() => setIsQuietMode(false)} />;
+    const handleMembers = () => {
+        let mem: number = 0;
+        testRoom?.subRooms.map((s) => {
+            mem = mem + Number(s.members);
+        })
+        return mem + Number(testRoom?.members || 0);
+    }
+
+    if (isQuietMode) return <QuietRoom room={testRoom || null} onExit={() => setIsQuietMode(false)} onSend={handlePost} book_id={book_id ?? ''} />;
 
     return (
         <div className="min-h-screen pt-16">
             <div className="flex h-screen overflow-hidden">
                 <SubRoomSidebar
                     room={testRoom || null}
-                    categories={categories}
                     activeSubRoom={activeSubRoom}
                     onSelect={setActiveSubRoom}
                     collapsed={sidebarCollapsed}
@@ -242,6 +262,7 @@ export const DiscussionRoomPage: React.FC = () => {
                     {/* header with notifications */}
                     <ChatHeader
                         room={testRoom || null}
+                        isMember={isMember}
                         activeSubRoom={activeSubRoom}
                         onQuietMode={() => setIsQuietMode(true)}
                         onToggleBookInfo={() => setShowBookInfo(v => !v)}
@@ -282,15 +303,17 @@ export const DiscussionRoomPage: React.FC = () => {
                                 ))}
 
                             {/* Subroom comments */}
-                            {activeSubRoom?.id !== testRoom?.id && testRoom?.subRooms?.find(s => s.id === activeSubRoom?.id)?.comments?.map(c => (
-                                <CommentThread
-                                    comment={c}
-                                    onLike={handleLike}
-                                    onDislike={handleDislike}
-                                    onReply={setReplyTo}
-                                    depth={0}
-                                />
-                            ))}
+                            {activeSubRoom?.id !== testRoom?.id &&
+                                testRoom?.subRooms?.find(s => s.id === activeSubRoom?.id)?.comments?.map((c, idx) => (
+                                    <CommentThread
+                                        key={c?.id}
+                                        comment={c}
+                                        onLike={handleLike}
+                                        onDislike={handleDislike}
+                                        onReply={setReplyTo}
+                                        depth={0}
+                                    />
+                                ))}
                         </div>
                     </div>
 
@@ -298,18 +321,29 @@ export const DiscussionRoomPage: React.FC = () => {
                         <div className="px-4 py-1.5 flex items-center justify-between" style={{ backgroundColor: `${colors.dustyBlue}10`, borderTop: `1px solid ${colors.periwinkle}` }}>
                             <div className="flex items-center gap-2 text-xs" style={{ color: colors.text.secondary }}>
                                 <CornerDownRight size={13} />
-                                Replying to <strong className="" style={{ color: colors.text.primary }}>{replyTo?.user?.username}</strong>
+                                Replying to <strong className="" style={{ color: colors.text.primary }}>{replyTo?.user?.name}</strong>
                             </div>
                             <button onClick={() => setReplyTo(null)} className="hover:opacity-70" style={{ color: colors.text.muted }}>
                                 <X size={14} />
                             </button>
                         </div>
                     )}
-
-                    <ChatInput value={newComment} onChange={setNewComment} onSend={handlePost} channelName={activeSubRoom?.name} />
+                    {isMember &&
+                        <ChatInput
+                            value={newComment}
+                            onChange={setNewComment}
+                            onSend={handlePost}
+                            channelName={activeSubRoom?.name} />}
                 </div>
 
-                <BookInfoSidebar room={testRoom || null} isOpen={showBookInfo} onClose={() => setShowBookInfo(false)} />
+                <BookInfoSidebar
+                    user_id={user?.id || ''}
+                    room_id={room_id || ''}
+                    isMember={isMember}
+                    room={testRoom || null}
+                    isOpen={showBookInfo}
+                    members={handleMembers()}
+                    onClose={() => setShowBookInfo(false)} />
             </div>
         </div>
     );
@@ -318,7 +352,6 @@ export const DiscussionRoomPage: React.FC = () => {
 // Sidebar component - uses your blues
 const SubRoomSidebar: React.FC<{
     room: BigRoom | null,
-    categories: any,
     activeSubRoom: any
     onSelect: any,
     collapsed: any,
@@ -468,52 +501,83 @@ const SubRoomSidebar: React.FC<{
 };
 
 // Header component
-const ChatHeader: React.FC<{ room: BigRoom | null, activeSubRoom: any, onQuietMode: any, onToggleBookInfo: any }> = ({ room, activeSubRoom, onQuietMode, onToggleBookInfo }) => (
-    <div className="h-13 flex items-center justify-between px-4 border-b flex-shrink-0 bg-white/40" style={{ borderColor: colors.periwinkle }}>
-        <div className="flex items-center gap-2">
-            <Hash size={18} style={{ color: colors.dustyBlue }} />
-            <span className="font-bold text-base" style={{ color: colors.text.primary }}>{activeSubRoom?.type == 1 ? 'general' : activeSubRoom?.name}</span>
-            <div className="w-px h-5 mx-1" style={{ backgroundColor: colors.periwinkle }} />
-            <span className="text-sm" style={{ color: colors.text.secondary }}>{room?.name}</span>
-            {activeSubRoom?.isActive && (
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: `${colors.dustyBlue}10` }}>
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.dustyBlue }} />
-                    <span className="text-xs" style={{ color: colors.dustyBlue }}>{activeSubRoom?.memberCount} online</span>
-                </div>
-            )}
-        </div>
+const ChatHeader: React.FC<{ room: BigRoom | null, activeSubRoom: any, onQuietMode: any, onToggleBookInfo: any, isMember: boolean }> = ({ room, activeSubRoom, onQuietMode, onToggleBookInfo, isMember }) => {
+    const navigate = useNavigate();
 
-        <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
-                <Bell size={18} />
-            </button>
-            <button className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
-                <Search size={18} />
-            </button>
-            <button onClick={onToggleBookInfo} className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
-                <BookOpen size={18} />
-            </button>
-            <button
-                onClick={onQuietMode}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all hover:opacity-80"
-                style={{ backgroundColor: `${colors.dustyBlue}15`, color: colors.dustyBlue, border: `1px solid ${colors.dustyBlue}30` }}
-            >
-                <Headphones size={14} />
-                Quiet Room
-            </button>
+    return (
+        <div className="h-13 flex items-center justify-between px-4 border-b flex-shrink-0 bg-white/40" style={{ borderColor: colors.periwinkle }}>
+            <div className="flex items-center gap-2">
+                {/* Back Button */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="p-1.5 rounded-md transition-opacity hover:opacity-70 mr-1"
+                    style={{ color: colors.text.muted }}
+                    title="Go back"
+                >
+                    <ChevronLeft size={18} />
+                </button>
+                <Hash size={18} style={{ color: colors.dustyBlue }} />
+                <span className="font-bold text-base" style={{ color: colors.text.primary }}>{activeSubRoom?.type == 1 ? 'general' : activeSubRoom?.name}</span>
+                <div className="w-px h-5 mx-1" style={{ backgroundColor: colors.periwinkle }} />
+                <span className="text-sm" style={{ color: colors.text.secondary }}>{room?.name}</span>
+                {activeSubRoom?.isActive && (
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: `${colors.dustyBlue}10` }}>
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.dustyBlue }} />
+                        <span className="text-xs" style={{ color: colors.dustyBlue }}>{activeSubRoom?.memberCount} online</span>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex items-center gap-1">
+                <button className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
+                    <Bell size={18} />
+                </button>
+                <button className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
+                    <Search size={18} />
+                </button>
+                <button onClick={onToggleBookInfo} className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
+                    <BookOpen size={18} />
+                </button>
+
+                {isMember && <button
+                    onClick={onQuietMode}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all hover:opacity-80"
+                    style={{ backgroundColor: `${colors.dustyBlue}15`, color: colors.dustyBlue, border: `1px solid ${colors.dustyBlue}30` }}
+                >
+                    <Headphones size={14} />
+                    Quiet Room
+                </button>}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 // Comment thread component
-const CommentThread: React.FC<any> = ({ comment, onLike, onDislike, onReply, depth }) => {
+const CommentThread: React.FC<{ comment: Comment, onLike: any, onDislike: any, onReply: any, depth: any }> = ({ comment, onLike, onDislike, onReply, depth }) => {
     const [showReplies, setShowReplies] = useState(true);
     const [hovered, setHovered] = useState(false);
 
     // Handle both possible data structures
-    const username = comment.user?.name || comment.username || 'Unknown';
+    const username = comment.user ? (comment.user.name ? comment.user.name : 'Pp') : 'Pages ń Parchment';
     const avatarInitial = username[0]?.toUpperCase() || '?';
     const isSystemUser = comment.user?.user_id === 'system' || comment.user?.name === 'Pages ń Parchment';
+
+
+    // If comment is deleted, show generic message instead of normal content
+    if (comment.deleted) {
+        return (
+            <div className="py-2 px-3 rounded-md my-2" style={{ backgroundColor: `${colors.dustyBlue}05`, borderLeft: `3px solid ${colors.dustyBlue}` }}>
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs" style={{ backgroundColor: colors.dustyBlue, color: colors.powderBlue }}>
+                        📖
+                    </div>
+                    <span className="text-xs italic" style={{ color: colors.text.muted }}>
+                        This comment has been removed due to community guidelines violations.
+                    </span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`${depth > 0 ? 'ml-4' : ''}`}>
@@ -523,36 +587,56 @@ const CommentThread: React.FC<any> = ({ comment, onLike, onDislike, onReply, dep
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
             >
-                {comment.user?.user_id != 'system' && (<div className="flex gap-3">
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5" style={{ backgroundColor: isSystemUser ? colors.dustyBlue : avatarColor(username), color: colors.powderBlue }}>
-                        {isSystemUser ? '📖' : avatarInitial}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline gap-2 flex-wrap">
-                            <span className="font-bold text-sm" style={{ color: colors.text.primary }}>{username}</span>
-                            <span className="text-xs" style={{ color: colors.text.muted }}>{timeAgo(comment.createdAt || new Date().toISOString())}</span>
-                        </div>
-                        <div className="mt-0.5 text-sm leading-relaxed" style={{ color: colors.text.primary }} dangerouslySetInnerHTML={{ __html: comment.content }} />
-                        {!isSystemUser && (
-                            <div className={`flex items-center gap-3 mt-1.5 transition-opacity ${hovered ? 'opacity-100' : 'opacity-50'}`}>
-                                <button onClick={() => onLike(comment.id)} className="flex items-center gap-1 text-xs hover:opacity-70" style={{ color: colors.text.muted }}>
-                                    <ThumbsUp size={13} /> {comment.likes || 0}
-                                </button>
-                                <button onClick={() => onDislike(comment.id)} className="flex items-center gap-1 text-xs hover:opacity-70" style={{ color: colors.text.muted }}>
-                                    <ThumbsDown size={13} /> {comment.dislikes || 0}
-                                </button>
-                                <button
-                                    onClick={() => onReply(comment)}
-                                    className="flex items-center gap-1 text-xs hover:opacity-70" style={{ color: colors.text.muted }}>
-                                    <Reply size={13} /> Reply
-                                </button>
+                {
+                    comment.deleted ? (
+                        <div className="flex gap-3">
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5" style={{ backgroundColor: isSystemUser ? colors.dustyBlue : avatarColor(username), color: colors.powderBlue }}>
+                                Pp
                             </div>
-                        )}
-                    </div>
-                </div>)}
+                            <div>This comment has been removed due to community guidelines violations.</div>
+                        </div>
+                    ) : (
+                        <>
+                            {comment.user?.user_id != 'system' && (
+                                <div className="flex gap-3">
+                                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5" style={{ backgroundColor: isSystemUser ? colors.dustyBlue : avatarColor(username), color: colors.powderBlue }}>
+                                        {isSystemUser ? '📖' : avatarInitial}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-baseline gap-2 flex-wrap">
+                                            <span className="font-bold text-sm" style={{ color: colors.text.primary }}>{username}</span>
+                                            <span className="text-xs" style={{ color: colors.text.muted }}>{timeAgo(new Date(comment.createdAt).toISOString() || new Date().toISOString())}</span>
+                                        </div>
+                                        <div className="mt-0.5 text-sm leading-relaxed" style={{ color: colors.text.primary }} dangerouslySetInnerHTML={{ __html: comment.content }} />
+
+                                        {!isSystemUser && (
+                                            <div className={`text-[${colors.text.secondary}] flex items-center gap-3 mt-1.5 transition-opacity ${hovered ? 'opacity-100' : 'opacity-50'}`}>
+                                                <button
+                                                    onClick={() => onLike(comment)}
+                                                    className="flex items-center gap-1 text-xs hover:opacity-70">
+                                                    <ThumbsUp size={14} color={colors.text.secondary} fill={comment.isLikedByUser ? colors.dustyBlue : 'transparent'} /> {comment.likes || 0}
+                                                </button>
+                                                <button
+                                                    onClick={() => onDislike(comment)}
+                                                    className="flex items-center gap-1 text-xs hover:opacity-70">
+                                                    <ThumbsDown size={13} color={colors.text.secondary} fill={comment.isDislikedByUser ? colors.dustyBlue : 'transparent'} /> {comment.dislikes || 0}
+                                                </button>
+                                                <button
+                                                    onClick={() => onReply(comment)}
+                                                    className="flex items-center gap-1 text-xs hover:opacity-70" style={{ color: colors.text.muted }}>
+                                                    <Reply size={13} /> Reply
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>)}
+                        </>
+                    )
+                }
+
             </div>
 
-            {comment.replies && comment.replies.length > 0 && (
+            {!comment.deleted && comment.replies && comment.replies.length > 0 && (
                 <div className="ml-12">
                     <button onClick={() => setShowReplies(v => !v)} className="flex items-center gap-1.5 text-xs mb-1 hover:opacity-70" style={{ color: colors.dustyBlue }}>
                         <ChevronRight size={12} className={`transition-transform ${showReplies ? 'rotate-90' : ''}`} />
@@ -573,16 +657,128 @@ const CommentThread: React.FC<any> = ({ comment, onLike, onDislike, onReply, dep
 
 // Input component
 const ChatInput: React.FC<any> = ({ value, onChange, onSend, channelName }) => {
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [showGifPicker, setShowGifPicker] = useState(false);
+    const [gifSearch, setGifSearch] = useState('');
+    const emojiPickerRef = useRef<HTMLDivElement>(null);
+    const gifPickerRef = useRef<HTMLDivElement>(null);
+
     const handleKey = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend(); }
+    };
+
+    const onEmojiClick = (emojiObject: any) => {
+        onChange(value + emojiObject.emoji);
+        setShowEmojiPicker(false);
+    };
+
+    const onGifClick = (gif: any) => {
+        // Insert GIF as markdown image or HTML
+        const gifMarkdown = `![gif](${gif.images.original.url})`;
+        onChange(value + gifMarkdown);
+        setShowGifPicker(false);
+        setGifSearch('');
+    };
+
+    // Close pickers when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+                setShowEmojiPicker(false);
+            }
+            if (gifPickerRef.current && !gifPickerRef.current.contains(event.target as Node)) {
+                setShowGifPicker(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Fetch GIFs based on search
+    const fetchGifs = (offset: number) => {
+        if (gifSearch.trim()) {
+            return gf.search(gifSearch, { offset, limit: 12 });
+        }
+        return gf.trending({ offset, limit: 12 });
     };
 
     return (
         <div className="p-4 flex-shrink-0">
             <div className="flex items-center gap-2 rounded-xl px-3" style={{ backgroundColor: colors.powderBlue, border: `1px solid ${colors.periwinkle}` }}>
-                <button className="p-2 hover:opacity-70" style={{ color: colors.text.muted }}>
-                    <Sparkles size={10} />
-                </button>
+                {/* Emoji Picker Button */}
+                <div className="relative" ref={emojiPickerRef}>
+                    <button
+                        onClick={() => {
+                            setShowEmojiPicker(!showEmojiPicker);
+                            setShowGifPicker(false);
+                        }}
+                        className="p-2 hover:opacity-70 transition-all hover:scale-110"
+                        style={{ color: colors.text.muted }}
+                        type="button"
+                        title="Add emoji"
+                    >
+                        <Smile size={16} />
+                    </button>
+                    {showEmojiPicker && (
+                        <div className="absolute bottom-full left-0 mb-2 z-50">
+                            <EmojiPicker
+                                onEmojiClick={onEmojiClick}
+                                width={300}
+                                height={400}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* GIF Picker Button */}
+                <div className="relative" ref={gifPickerRef}>
+                    <button
+                        onClick={() => {
+                            setShowGifPicker(!showGifPicker);
+                            setShowEmojiPicker(false);
+                        }}
+                        className="p-2 hover:opacity-70 transition-all hover:scale-110"
+                        style={{ color: colors.text.muted }}
+                        type="button"
+                        title="Add GIF"
+                    >
+                        <Gift size={16} />
+                    </button>
+                    {showGifPicker && (
+                        <div className="absolute bottom-full left-0 mb-2 z-50 bg-white rounded-xl shadow-xl border border-[#e9e9ef] w-80 overflow-hidden" style={{ maxHeight: '400px' }}>
+                            {/* Search Header */}
+                            <div className="p-2 border-b border-[#e9e9ef] flex items-center gap-2">
+                                <Search size={14} className="text-[#86868b]" />
+                                <input
+                                    type="text"
+                                    placeholder="Search GIFs..."
+                                    value={gifSearch}
+                                    onChange={(e) => setGifSearch(e.target.value)}
+                                    className="flex-1 bg-transparent border-none outline-none text-sm"
+                                    autoFocus
+                                />
+                                {gifSearch && (
+                                    <button onClick={() => setGifSearch('')} className="p-1 hover:opacity-70">
+                                        <X size={14} />
+                                    </button>
+                                )}
+                            </div>
+                            {/* GIF Grid */}
+                            <div className="overflow-y-auto" style={{ maxHeight: '350px' }}>
+                                <Grid
+                                    key={gifSearch}
+                                    width={320}
+                                    columns={2}
+                                    fetchGifs={fetchGifs}
+                                    onGifClick={onGifClick}
+                                    hideAttribution={true}
+                                    noLink={true}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <textarea
                     value={value}
                     onChange={e => onChange(e.target.value)}
@@ -592,6 +788,7 @@ const ChatInput: React.FC<any> = ({ value, onChange, onSend, channelName }) => {
                     className="flex-1 bg-transparent border-none outline-none resize-none py-3 text-sm"
                     style={{ color: colors.text.primary }}
                 />
+
                 <button
                     onClick={onSend}
                     disabled={!value.trim()}
@@ -602,76 +799,108 @@ const ChatInput: React.FC<any> = ({ value, onChange, onSend, channelName }) => {
                 </button>
             </div>
             <p className="text-xs mt-1.5 pl-1" style={{ color: colors.text.muted }}>
-                Press <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ backgroundColor: `${colors.dustyBlue}20` }}>Enter</kbd> to send · <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ backgroundColor: `${colors.dustyBlue}20` }}>Shift+Enter</kbd> for new line
+                <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ backgroundColor: `${colors.dustyBlue}20` }}>Enter</kbd> to send ·
+                <kbd className="px-1.5 py-0.5 rounded text-[10px] ml-1" style={{ backgroundColor: `${colors.dustyBlue}20` }}>Shift+Enter</kbd> for new line
             </p>
         </div>
     );
 };
 
 // Book sidebar
-const BookInfoSidebar: React.FC<{ room: BigRoom | null, isOpen: boolean, onClose: any }> = ({ room, isOpen, onClose }) => (
-    <aside className={`flex flex-col border-l transition-all duration-200 ${isOpen ? 'w-72' : 'w-0'}`} style={{ backgroundColor: colors.skyMist, borderColor: colors.periwinkle, overflow: 'hidden' }}>
-        {isOpen && (
-            <>
-                <div className="relative h-44 flex-shrink-0">
-                    <img src={room?.book.coverArt} alt={room?.book.name} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#2C3E4E] via-transparent to-transparent" />
-                    <button onClick={onClose} className="absolute top-2 right-2 bg-black/40 rounded-full w-7 h-7 flex items-center justify-center hover:bg-black/60">
-                        <X size={14} className="text-white" />
-                    </button>
-                    <div className="absolute bottom-3 left-3">
-                        <div className="font-bold text-white">{room?.book.name}</div>
-                        <div className="text-xs text-white/65">{room?.book.author.name}</div>
-                    </div>
-                </div>
+const BookInfoSidebar: React.FC<{
+    user_id: string;
+    room_id: string;
+    room: BigRoom | null,
+    isOpen: boolean, onClose: any,
+    isMember: boolean
+    members: number;
+}> = ({ room, isOpen, onClose, isMember, user_id, room_id, members }) => {
+    const onJoinRoom = async (user_id: string, room_id: string) => {
+        await request.post(`/rooms/add-member/${user_id}/${room_id}`)
+            .then(
+                (res: any) => {
+                    console.log(res.message)
+                    //showNewMessageToast();
+                    toast("New Message", {
+                        description: res.message
+                    })
+                }
+            )
+            .catch(
+                (err: any) => {
+                    console.log(err.message)
+                }
+            )
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    <div className="flex gap-2">
-                        <div className="flex-1 text-center p-2 rounded-lg" style={{ backgroundColor: `${colors.dustyBlue}10` }}>
-                            <div className="text-lg font-bold" style={{ color: colors.text.primary }}>{room?.members ?? 0}</div>
-                            <div className="text-xs" style={{ color: colors.text.muted }}>Members</div>
-                        </div>
-                        <div className="flex-1 text-center p-2 rounded-lg" style={{ backgroundColor: `${colors.dustyBlue}10` }}>
-                            <div className="text-lg font-bold" style={{ color: colors.text.primary }}>{room?.comments.length}</div>
-                            <div className="text-xs" style={{ color: colors.text.muted }}>Posts</div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: colors.text.muted }}>About</div>
-                        <p className="text-sm leading-relaxed" style={{ color: colors.text.secondary }}>{room?.book.synopsis}</p>
-                    </div>
-
-                    {/* feature is still under debate */}
-                    <div>
-                        <div className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: colors.text.muted }}>Your Progress</div>
-                        <div className="flex justify-between text-xs mb-1.5" style={{ color: colors.text.secondary }}>
-                            <span>Chapters 1–3</span><span>33%</span>
-                        </div>
-                        <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: `${colors.dustyBlue}20` }}>
-                            <div className="h-full w-1/3 rounded-full" style={{ backgroundColor: colors.dustyBlue }} />
+    }
+    return (
+        <aside className={`flex flex-col border-l transition-all duration-200 ${isOpen ? 'w-72' : 'w-0'}`} style={{ backgroundColor: colors.skyMist, borderColor: colors.periwinkle, overflow: 'hidden' }}>
+            {isOpen && (
+                <>
+                    <div className="relative h-44 flex-shrink-0">
+                        <img src={room?.book.coverArt} alt={room?.book.name} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#2C3E4E] via-transparent to-transparent" />
+                        <button onClick={onClose} className="absolute top-2 right-2 bg-black/40 rounded-full w-7 h-7 flex items-center justify-center hover:bg-black/60">
+                            <X size={14} className="text-white" />
+                        </button>
+                        <div className="absolute bottom-3 left-3">
+                            <div className="font-bold text-white">{room?.book.name}</div>
+                            <div className="text-xs text-white/65">{room?.book.author.name}</div>
                         </div>
                     </div>
 
-                    <div>
-                        <div className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: colors.text.muted }}>Quick Links</div>
-                        {['Get the book', 'Author biography', 'Reading guide'].map(link => (
-                            <button key={link} className="block w-full text-left text-sm py-1 transition-opacity hover:opacity-70" style={{ color: colors.dustyBlue }}>
-                                {link} →
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div className="flex gap-2">
+                            <div className="flex-1 text-center p-2 rounded-lg" style={{ backgroundColor: `${colors.dustyBlue}10` }}>
+                                <div className="text-lg font-bold" style={{ color: colors.text.primary }}>{members ?? 0}</div>
+                                <div className="text-xs" style={{ color: colors.text.muted }}>Members</div>
+                            </div>
+                            <div className="flex-1 text-center p-2 rounded-lg" style={{ backgroundColor: `${colors.dustyBlue}10` }}>
+                                <div className="text-lg font-bold" style={{ color: colors.text.primary }}>{room?.comments.length}</div>
+                                <div className="text-xs" style={{ color: colors.text.muted }}>Posts</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: colors.text.muted }}>About</div>
+                            <p className="text-sm leading-relaxed" style={{ color: colors.text.secondary }}>{room?.book.synopsis}</p>
+                        </div>
+
+                        {/* feature is still under debate */}
+                        <div>
+                            <div className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: colors.text.muted }}>Your Progress</div>
+                            <div className="flex justify-between text-xs mb-1.5" style={{ color: colors.text.secondary }}>
+                                <span>Chapters 1–3</span><span>33%</span>
+                            </div>
+                            <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: `${colors.dustyBlue}20` }}>
+                                <div className="h-full w-1/3 rounded-full" style={{ backgroundColor: colors.dustyBlue }} />
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: colors.text.muted }}>Quick Links</div>
+                            {['Get the book', 'Author biography', 'Reading guide'].map(link => (
+                                <button key={link} className="block w-full text-left text-sm py-1 transition-opacity hover:opacity-70" style={{ color: colors.dustyBlue }}>
+                                    {link} →
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {!isMember ? (
+                        <div className="p-3 border-t" style={{ borderColor: colors.periwinkle }}>
+                            <button
+                                onClick={() => onJoinRoom(user_id, room_id)}
+                                className="w-full py-2 rounded-lg font-bold text-sm transition-opacity hover:opacity-80" style={{ backgroundColor: colors.dustyBlue, color: colors.powderBlue }}>
+                                {'Join discussion'}
                             </button>
-                        ))}
-                    </div>
-                </div>
+                        </div>) : null}
+                </>
+            )}
+        </aside>
+    )
 
-                <div className="p-3 border-t" style={{ borderColor: colors.periwinkle }}>
-                    <button className="w-full py-2 rounded-lg font-bold text-sm transition-opacity hover:opacity-80" style={{ backgroundColor: colors.dustyBlue, color: colors.powderBlue }}>
-                        {'Join discussion'}
-                    </button>
-                </div>
-            </>
-        )}
-    </aside>
-);
+};
 
 // Quiet Room component
 const PLAYLIST = [
@@ -680,20 +909,26 @@ const PLAYLIST = [
     { title: 'Nocturne in E♭ Major', artist: 'Chopin' },
 ];
 
-const QuietRoom: React.FC<any> = ({ room, onExit }) => {
-    const [liveComments, setLiveComments] = useState(MOCK_QUIET_COMMENTS);
+const QuietRoom: React.FC<{ room: BigRoom | null, onExit: any, onSend: (content: string, quiet_room: boolean) => void, book_id: String }> = ({ room, onExit, onSend, book_id }) => {
+    const { quote } = useAuth();
     const [liveComment, setLiveComment] = useState('');
     const [trackIdx, setTrackIdx] = useState(0);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [liveComments]);
+    }, [room?.quietRoom]);
 
-    const postWhisper = () => {
+    const postWhisper = async () => {
         if (!liveComment.trim()) return;
-        setLiveComments(prev => [...prev, { user: 'You', message: liveComment, time: new Date() }]);
-        setLiveComment('');
+
+        try {
+            await onSend(liveComment, true);
+            setLiveComment('');
+        } catch (error) {
+            console.error('Failed to post comment:', error);
+            toast.error('Failed to post comment');
+        }
     };
 
     const track = PLAYLIST[trackIdx];
@@ -718,9 +953,9 @@ const QuietRoom: React.FC<any> = ({ room, onExit }) => {
                     <Sparkles size={12} className="text-blue-300" />
                     <span className="text-xs text-blue-300 font-semibold tracking-wide">Quiet Reading Room</span>
                 </div>
-                <h1 className="font-serif text-5xl md:text-7xl font-light text-white mb-4">{room.bookName}</h1>
-                <p className="italic text-lg text-white/55 max-w-md">"So we beat on, boats against the current…"</p>
-                <p className="text-xs text-white/30 mt-2">— F. Scott Fitzgerald</p>
+                <h1 className="font-serif text-5xl md:text-7xl font-light text-white mb-4">{room?.name}</h1>
+                <p className="italic text-lg text-white/55 max-w-md">"{quote?.quote}</p>
+                <p className="text-xs text-white/30 capitialize mt-2">— {quote?.author}</p>
             </div>
 
             <div className="absolute bottom-6 left-6 right-6 flex gap-4">
@@ -753,15 +988,17 @@ const QuietRoom: React.FC<any> = ({ room, onExit }) => {
                     <div className="px-3 py-2 border-b border-white/10 flex items-center gap-2">
                         <Activity size={13} className="text-blue-300" />
                         <span className="text-[11px] font-bold tracking-wide text-blue-300 uppercase">Whispers</span>
-                        <span className="text-xs text-white/50 ml-auto">{liveComments.length} messages</span>
+                        <span className="text-xs text-white/50 ml-auto">{room?.quietRoom.length} messages</span>
                     </div>
                     <div className="h-40 overflow-y-auto p-3 space-y-1.5">
-                        {liveComments.map((c: any, i: number) => (
-                            <div key={i} className="text-sm flex gap-2">
-                                <span className="text-blue-300 font-semibold flex-shrink-0">{c.user}</span>
-                                <span className="text-white/70">{c.message}</span>
-                            </div>
-                        ))}
+                        {room?.quietRoom
+                            .sort((a: Comment, b: Comment) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+                            .map((c, idx) => (
+                                <div key={idx} className="text-sm flex gap-2">
+                                    <span className="text-blue-300 font-semibold flex-shrink-0">{c.user.name}</span>
+                                    <span className="text-white/70">{c.content}</span>
+                                </div>
+                            ))}
                         <div ref={chatEndRef} />
                     </div>
                     <div className="p-2 border-t border-white/10 flex gap-2">

@@ -30,25 +30,28 @@ export interface Room{
     deleted: Boolean;
     parentId: String;
     members?: number;
-    comments?: string[];
+    comments?: Comment[];
+    quietRoom?: Comment[];
     type: Number;
 }
 
 export interface Comment{
     id: string;
-    likes: Number;
-    dislikes: Number;
+    likes: number;
+    dislikes: number;
     reports: Report[];
     deleted: Boolean;
     content: string;
     createdAt: Date;
     user:{
-        user_id: string;
-        username: string;
+        name: string;
         profile: string;
+        user_id: string;
     }
     commentInteractions: CommentInteraction[];
     replies?: Comment[];
+    isLikedByUser?: Boolean;
+    isDislikedByUser?: Boolean;
 }
 
 export interface Report{

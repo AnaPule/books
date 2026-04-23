@@ -28,8 +28,11 @@ public class RecommendationService {
     private final UserBookRepo ur;
     private final BookService bs;
 
-    @Value("${gemini.ai.key}") private String geminiApiKey;
-    @Value("${gemini.api.url}") private String geminiApiUrl;
+    @Value("${groq.ai.key}")
+    private String groqApiKey;
+
+    @Value("${groq.api.url}")
+    private String groqApiUrl;
 
     public RecommendationService(
             BookRepo br,
@@ -351,7 +354,7 @@ public class RecommendationService {
         return scored.stream().limit(20).collect(Collectors.toList());
     }
 
-    // ==================== AI METHODS CONVERTED TO GEMINI ====================
+    // ==================== GROQ AI METHODS (Recommendations & Classics) ====================
 
     public List<Book> getAIRecommendations(String userId, String triggeredBookId) {
         try {
@@ -380,8 +383,8 @@ public class RecommendationService {
                     .limit(50)
                     .collect(Collectors.toList());
 
-            String prompt = buildGeminiPrompt(likedBooks, triggeredBook, candidates);
-            List<String> recommendedIds = callGemini(prompt);
+            String prompt = buildGroqPrompt(likedBooks, triggeredBook, candidates);
+            List<String> recommendedIds = callGroq(prompt);
 
             return recommendedIds.stream()
                     .map(id -> br.findById(id).orElse(null))
@@ -403,7 +406,7 @@ public class RecommendationService {
             Example: ["Book Name", "Book Name", "Book Name"]
             """;
 
-            List<String> classicTitles = callGeminiForTitles(prompt);
+            List<String> classicTitles = callGroqForTitles(prompt);
 
             List<Book> classicBooks = new ArrayList<>();
             for (String title : classicTitles) {
@@ -419,7 +422,37 @@ public class RecommendationService {
         }
     }
 
-    private String buildGeminiPrompt(List<Book> likedBooks, Book triggeredBook, List<Book> candidates) {
+    public List<Book> getClassicsByUserGenre(String userId) {
+        try {
+            String favoriteGenre = getUserFavoriteGenre(userId);
+            if (favoriteGenre == null) {
+                return Collections.emptyList();
+            }
+
+            String prompt = String.format("""
+            You are a literary mastermind that recommends essential classic books.
+            List the 30 most essential classic books in the %s genre.
+            Return ONLY a JSON array of book titles.
+            Example: ["Book Name", "Book Name", "Book Name"]
+            """, favoriteGenre);
+
+            List<String> classicTitles = callGroqForTitles(prompt);
+
+            List<Book> classicBooks = new ArrayList<>();
+            for (String title : classicTitles) {
+                Book book = br.findByNameIgnoreCase(title);
+                if (book != null) {
+                    classicBooks.add(book);
+                }
+            }
+            return classicBooks;
+        } catch (Exception e) {
+            System.err.println("AI classics failed: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    private String buildGroqPrompt(List<Book> likedBooks, Book triggeredBook, List<Book> candidates) {
         StringBuilder sb = new StringBuilder();
         sb.append("You are a book recommendation expert. The user likes these books:\n\n");
 
@@ -444,39 +477,9 @@ public class RecommendationService {
         return sb.toString();
     }
 
-    public List<Book> getClassicsByUserGenre(String userId) {
-        try {
-            String favoriteGenre = getUserFavoriteGenre(userId);
-            if (favoriteGenre == null) {
-                return Collections.emptyList();
-            }
+    // ==================== GROQ API CALLS ====================
 
-            String prompt = String.format("""
-            You are a literary mastermind that recommends essential classic books.
-            List the 30 most essential classic books in the %s genre.
-            Return ONLY a JSON array of book titles.
-            Example: ["Book Name", "Book Name", "Book Name"]
-            """, favoriteGenre);
-
-            List<String> classicTitles = callGeminiForTitles(prompt);
-
-            List<Book> classicBooks = new ArrayList<>();
-            for (String title : classicTitles) {
-                Book book = br.findByNameIgnoreCase(title);
-                if (book != null) {
-                    classicBooks.add(book);
-                }
-            }
-            return classicBooks;
-        } catch (Exception e) {
-            System.err.println("AI classics failed: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
-    // ==================== GEMINI API CALLS ====================
-
-    private List<String> callGemini(String prompt) {
+    private List<String> callGroq(String prompt) {
         int maxRetries = 5;
         int retryDelay = 5000;
 
@@ -484,46 +487,34 @@ public class RecommendationService {
             try {
                 RestTemplate restTemplate = new RestTemplate();
                 HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer " + groqApiKey);
                 headers.set("Content-Type", "application/json");
 
                 Map<String, Object> request = new HashMap<>();
+                request.put("model", "llama-3.3-70b-versatile");
+                request.put("temperature", 0.7);
+                request.put("max_tokens", 800);
 
-                Map<String, Object> content = new HashMap<>();
-                List<Map<String, String>> parts = new ArrayList<>();
-                parts.add(Map.of("text", prompt));
-                content.put("parts", parts);
-
-                List<Map<String, Object>> contents = new ArrayList<>();
-                contents.add(content);
-                request.put("contents", contents);
-
-                Map<String, Object> generationConfig = new HashMap<>();
-                generationConfig.put("temperature", 0.7);
-                generationConfig.put("maxOutputTokens", 800);
-                request.put("generationConfig", generationConfig);
+                List<Map<String, String>> messages = new ArrayList<>();
+                messages.add(Map.of("role", "user", "content", prompt));
+                request.put("messages", messages);
 
                 HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-                String url = geminiApiUrl + "?key=" + geminiApiKey;
-
-                ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+                ResponseEntity<Map> response = restTemplate.postForEntity(groqApiUrl, entity, Map.class);
 
                 if (response.getBody() != null) {
-                    List<Map> candidates = (List<Map>) response.getBody().get("candidates");
-                    if (candidates != null && !candidates.isEmpty()) {
-                        Map candidate = candidates.get(0);
-                        Map contentResp = (Map) candidate.get("content");
-                        List<Map> partsResp = (List<Map>) contentResp.get("parts");
-                        if (partsResp != null && !partsResp.isEmpty()) {
-                            String text = (String) partsResp.get(0).get("text");
-                            return extractBookIdsFromText(text);
-                        }
+                    List<Map> choices = (List<Map>) response.getBody().get("choices");
+                    if (choices != null && !choices.isEmpty()) {
+                        Map message = (Map) choices.get(0).get("message");
+                        String content = (String) message.get("content");
+                        return extractBookIdsFromText(content);
                     }
                 }
                 return Collections.emptyList();
 
             } catch (Exception e) {
                 String errorMsg = e.getMessage();
-                if (errorMsg.contains("429") || errorMsg.contains("rate_limit") || errorMsg.contains("RESOURCE_EXHAUSTED")) {
+                if (errorMsg.contains("429") || errorMsg.contains("rate_limit")) {
                     System.err.println("Rate limit hit. Attempt " + attempt + " of " + maxRetries + ". Waiting " + retryDelay/1000 + " seconds...");
                     try {
                         Thread.sleep(retryDelay);
@@ -533,7 +524,7 @@ public class RecommendationService {
                         return Collections.emptyList();
                     }
                 } else {
-                    System.err.println("Gemini error: " + e.getMessage());
+                    System.err.println("Groq error: " + e.getMessage());
                     return Collections.emptyList();
                 }
             }
@@ -541,7 +532,7 @@ public class RecommendationService {
         return Collections.emptyList();
     }
 
-    private List<String> callGeminiForTitles(String prompt) {
+    private List<String> callGroqForTitles(String prompt) {
         int maxRetries = 5;
         int retryDelay = 5000;
 
@@ -549,46 +540,34 @@ public class RecommendationService {
             try {
                 RestTemplate restTemplate = new RestTemplate();
                 HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer " + groqApiKey);
                 headers.set("Content-Type", "application/json");
 
                 Map<String, Object> request = new HashMap<>();
+                request.put("model", "llama-3.3-70b-versatile");
+                request.put("temperature", 0.3);
+                request.put("max_tokens", 500);
 
-                Map<String, Object> content = new HashMap<>();
-                List<Map<String, String>> parts = new ArrayList<>();
-                parts.add(Map.of("text", prompt));
-                content.put("parts", parts);
-
-                List<Map<String, Object>> contents = new ArrayList<>();
-                contents.add(content);
-                request.put("contents", contents);
-
-                Map<String, Object> generationConfig = new HashMap<>();
-                generationConfig.put("temperature", 0.3);
-                generationConfig.put("maxOutputTokens", 500);
-                request.put("generationConfig", generationConfig);
+                List<Map<String, String>> messages = new ArrayList<>();
+                messages.add(Map.of("role", "user", "content", prompt));
+                request.put("messages", messages);
 
                 HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-                String url = geminiApiUrl + "?key=" + geminiApiKey;
-
-                ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+                ResponseEntity<Map> response = restTemplate.postForEntity(groqApiUrl, entity, Map.class);
 
                 if (response.getBody() != null) {
-                    List<Map> candidates = (List<Map>) response.getBody().get("candidates");
-                    if (candidates != null && !candidates.isEmpty()) {
-                        Map candidate = candidates.get(0);
-                        Map contentResp = (Map) candidate.get("content");
-                        List<Map> partsResp = (List<Map>) contentResp.get("parts");
-                        if (partsResp != null && !partsResp.isEmpty()) {
-                            String text = (String) partsResp.get(0).get("text");
-                            return extractTitlesFromResponse(text);
-                        }
+                    List<Map> choices = (List<Map>) response.getBody().get("choices");
+                    if (choices != null && !choices.isEmpty()) {
+                        Map message = (Map) choices.get(0).get("message");
+                        String content = (String) message.get("content");
+                        return extractTitlesFromResponse(content);
                     }
                 }
                 return Collections.emptyList();
 
             } catch (Exception e) {
                 String errorMsg = e.getMessage();
-                if (errorMsg.contains("429") || errorMsg.contains("rate_limit") || errorMsg.contains("RESOURCE_EXHAUSTED")) {
+                if (errorMsg.contains("429") || errorMsg.contains("rate_limit")) {
                     System.err.println("Rate limit hit. Attempt " + attempt + " of " + maxRetries + ". Waiting " + retryDelay/1000 + " seconds...");
                     try {
                         Thread.sleep(retryDelay);
@@ -598,7 +577,7 @@ public class RecommendationService {
                         return Collections.emptyList();
                     }
                 } else {
-                    System.err.println("Gemini error: " + e.getMessage());
+                    System.err.println("Groq error: " + e.getMessage());
                     return Collections.emptyList();
                 }
             }

@@ -40,11 +40,11 @@ public class GoogleBooksSyncService {
     private final OpenLibrary obl;
     private final MongoTemplate mongo;
 
-    @Value("${gemini.ai.key}")
-    private String geminiApiKey;
+    @Value("${groq.ai.key}")
+    private String groqApiKey;
 
-    @Value("${gemini.api.url}")
-    private String geminiApiUrl;
+    @Value("${groq.api.url}")
+    private String groqApiUrl;
 
     public GoogleBooksSyncService(
             BookRepo br,
@@ -146,10 +146,9 @@ public class GoogleBooksSyncService {
             try {
                 Book b = convertMongoGoogleBookToBook(book);
 
-                // ADD THIS NULL CHECK
                 if (b == null) {
                     System.out.println("Book skipped - conversion returned null");
-                    continue;  // Skip this book and move to next
+                    continue;
                 }
 
                 if (!br.existsByIsbn(b.getIsbn())) {
@@ -184,33 +183,35 @@ public class GoogleBooksSyncService {
             cs.PostComment(new Comment(
                     room.getId(),
                     "Pages & Parchment",
+                    null,
+                    false,
                     String.format("""
-                <div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; padding: 8px 0;">
-                    <p style="font-size: 15px; line-height: 1.5; color: #1d1d1f; margin: 0 0 12px 0;">
-                        Dearest gentle reader.<br />
-                        Welcome to <strong>%s</strong>.
-                    </p>
-                    <p style="font-size: 15px; line-height: 1.5; color: #1d1d1f; margin: 0 0 20px 0;">
-                        We're glad to have you here. Before you join the conversation, here are a few gentle reminders.
-                    </p>
-                    <p style="font-size: 15px; font-weight: 600; color: #1d1d1f; margin: 0 0 10px 0;">
-                        📖 Room Guidelines
-                    </p>
-                    <ol style="margin: 0 0 20px 0; padding-left: 20px; color: #1d1d1f; font-size: 14px; line-height: 1.6;">
-                        <li style="margin-bottom: 6px;">Be kind. Every reader is on their own journey.</li>
-                        <li style="margin-bottom: 6px;">No spoilers without warning. Use spoiler tags when needed.</li>
-                        <li style="margin-bottom: 6px;">Respect differing interpretations. That's what makes reading beautiful.</li>
-                        <li style="margin-bottom: 6px;">Stay on topic. Each subroom has its own focus.</li>
-                        <li style="margin-bottom: 6px;">Report don't engage. If something feels off, let us know.</li>
-                    </ol>
-                    <p style="font-size: 14px; color: #86868b; margin: 0 0 8px 0;">
-                        That's all. Now, go on — share your thoughts, ask questions, and enjoy the discussion.
-                    </p>
-                    <p style="font-size: 14px; color: #c9a394; margin: 0; font-style: italic;">
-                        — The Pages & Parchment team
-                    </p>
-                </div>
-                """, room.getName())
+                            <div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; padding: 8px 0;">
+                                <p style="font-size: 15px; line-height: 1.5; color: #1d1d1f; margin: 0 0 12px 0;">
+                                    Dearest gentle reader.<br />
+                                    Welcome to <strong>%s</strong>.
+                                </p>
+                                <p style="font-size: 15px; line-height: 1.5; color: #1d1d1f; margin: 0 0 20px 0;">
+                                    We're glad to have you here. Before you join the conversation, here are a few gentle reminders.
+                                </p>
+                                <p style="font-size: 15px; font-weight: 600; color: #1d1d1f; margin: 0 0 10px 0;">
+                                    📖 Room Guidelines
+                                </p>
+                                <ol style="margin: 0 0 20px 0; padding-left: 20px; color: #1d1d1f; font-size: 14px; line-height: 1.6;">
+                                    <li style="margin-bottom: 6px;">Be kind. Every reader is on their own journey.</li>
+                                    <li style="margin-bottom: 6px;">No spoilers without warning. Use spoiler tags when needed.</li>
+                                    <li style="margin-bottom: 6px;">Respect differing interpretations. That's what makes reading beautiful.</li>
+                                    <li style="margin-bottom: 6px;">Stay on topic. Each subroom has its own focus.</li>
+                                    <li style="margin-bottom: 6px;">Report don't engage. If something feels off, let us know.</li>
+                                </ol>
+                                <p style="font-size: 14px; color: #86868b; margin: 0 0 8px 0;">
+                                    That's all. Now, go on — share your thoughts, ask questions, and enjoy the discussion.
+                                </p>
+                                <p style="font-size: 14px; color: #c9a394; margin: 0; font-style: italic;">
+                                    — The Pages & Parchment team
+                                </p>
+                            </div>
+                            """, room.getName())
             ));
 
             Book book = br.findById(book_id).orElse(null);
@@ -232,11 +233,13 @@ public class GoogleBooksSyncService {
 
             Thread.sleep(1500);
 
+            /*
             try {
                 createPlotDevicesRoom(room.getId(), book_id, book_title);
             } catch (Exception e) {
                 System.err.println("Failed to create Plot Devices room: " + e.getMessage());
             }
+             */
 
             return room;
 
@@ -322,9 +325,9 @@ public class GoogleBooksSyncService {
         return gr.save(newGenre);
     }
 
-    // ==================== GEMINI API CALL ====================
+    // ==================== GROQ API CALL ====================
 
-    private String callGemini(String prompt) {
+    private String callGroq(String prompt) {
         int maxRetries = 5;
         int retryDelay = 5000;
 
@@ -332,46 +335,35 @@ public class GoogleBooksSyncService {
             try {
                 RestTemplate restTemplate = new RestTemplate();
                 HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer " + groqApiKey);
                 headers.set("Content-Type", "application/json");
 
                 Map<String, Object> request = new HashMap<>();
+                request.put("model", "llama-3.3-70b-versatile");
+                request.put("temperature", 0.7);
+                request.put("max_tokens", 800);
 
-                Map<String, Object> content = new HashMap<>();
-                List<Map<String, String>> parts = new ArrayList<>();
-                parts.add(Map.of("text", prompt));
-                content.put("parts", parts);
-
-                List<Map<String, Object>> contents = new ArrayList<>();
-                contents.add(content);
-                request.put("contents", contents);
-
-                Map<String, Object> generationConfig = new HashMap<>();
-                generationConfig.put("temperature", 0.7);
-                generationConfig.put("maxOutputTokens", 800);
-                request.put("generationConfig", generationConfig);
+                List<Map<String, String>> messages = new ArrayList<>();
+                messages.add(Map.of("role", "user", "content", prompt));
+                request.put("messages", messages);
 
                 HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-                String url = geminiApiUrl + "?key=" + geminiApiKey;
-
-                ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+                ResponseEntity<Map> response = restTemplate.postForEntity(groqApiUrl, entity, Map.class);
 
                 if (response.getBody() != null) {
-                    List<Map> candidates = (List<Map>) response.getBody().get("candidates");
-                    if (candidates != null && !candidates.isEmpty()) {
-                        Map candidate = candidates.get(0);
-                        Map contentResp = (Map) candidate.get("content");
-                        List<Map> partsResp = (List<Map>) contentResp.get("parts");
-                        if (partsResp != null && !partsResp.isEmpty()) {
-                            return (String) partsResp.get(0).get("text");
-                        }
+                    List<Map> choices = (List<Map>) response.getBody().get("choices");
+                    if (choices != null && !choices.isEmpty()) {
+                        Map message = (Map) choices.get(0).get("message");
+                        String content = (String) message.get("content");
+                        return content;
                     }
                 }
                 return null;
 
             } catch (Exception e) {
                 String errorMsg = e.getMessage();
-                if (errorMsg.contains("429") || errorMsg.contains("rate_limit") || errorMsg.contains("RESOURCE_EXHAUSTED")) {
-                    System.err.println("Rate limit hit. Attempt " + attempt + " of " + maxRetries + ". Waiting " + retryDelay/1000 + " seconds...");
+                if (errorMsg.contains("429") || errorMsg.contains("rate_limit")) {
+                    System.err.println("Rate limit hit. Attempt " + attempt + " of " + maxRetries + ". Waiting " + retryDelay / 1000 + " seconds...");
                     try {
                         Thread.sleep(retryDelay);
                         retryDelay = retryDelay * 2;
@@ -380,7 +372,7 @@ public class GoogleBooksSyncService {
                         return null;
                     }
                 } else {
-                    System.err.println("Gemini error: " + e.getMessage());
+                    System.err.println("Groq error: " + e.getMessage());
                     return null;
                 }
             }
@@ -404,19 +396,19 @@ public class GoogleBooksSyncService {
 
     private Room createCharacterAnalysisRoom(String parentRoomId, String bookId, String bookTitle) {
         String prompt = String.format("""
-        Write a concise, well-formatted HTML character analysis for the book "%s".
-        
-        Requirements:
-        1. Use <h3> for the main title, <h4> for each character
-        2. Cover 3-5 main characters only
-        3. For each character: brief description, key traits, role in story
-        4. NO SPOILERS - talk about characters in general terms
-        5. Keep it under 500 words
-        6. Use <p> for paragraphs
-        7. Return ONLY clean HTML, no markdown
-        """, bookTitle);
+                Write a concise, well-formatted HTML character analysis for the book "%s".
+                
+                Requirements:
+                1. Use <h3> for the main title, <h4> for each character
+                2. Cover 3-5 main characters only
+                3. For each character: brief description, key traits, role in story
+                4. NO SPOILERS - talk about characters in general terms
+                5. Keep it under 500 words
+                6. Use <p> for paragraphs
+                7. Return ONLY clean HTML, no markdown
+                """, bookTitle);
 
-        String aiContent = callGemini(prompt);
+        String aiContent = callGroq(prompt);
         if (aiContent == null) {
             aiContent = "<p>Character analysis could not be generated at this time. Please check back later.</p>";
         }
@@ -432,25 +424,25 @@ public class GoogleBooksSyncService {
         characterRoom.setDeleted(false);
 
         Room savedRoom = rs.createNewSubRoom(characterRoom);
-        cs.PostComment(new Comment(savedRoom.getId(), "Pages & Parchment", aiContent));
+        cs.PostComment(new Comment(savedRoom.getId(), "Pages & Parchment", null,false, aiContent));
 
         return savedRoom;
     }
 
     private Room createPlotDevicesRoom(String parentRoomId, String bookId, String bookTitle) {
         String prompt = String.format("""
-        Write a concise, well-formatted HTML analysis of plot structure and literary devices in "%s".
-        
-        Requirements:
-        1. Use <h3> for section titles
-        2. Cover: narrative structure, point of view, pacing, foreshadowing (generally)
-        3. Discuss literary devices used (metaphor, imagery, etc.) without revealing plot points
-        4. NO SPOILERS WHATSOEVER - talk about HOW the story is told, not WHAT happens
-        5. Keep it under 400 words
-        6. Return ONLY clean HTML, no markdown
-        """, bookTitle);
+                Write a concise, well-formatted HTML analysis of plot structure and literary devices in "%s".
+                
+                Requirements:
+                1. Use <h3> for section titles
+                2. Cover: narrative structure, point of view, pacing, foreshadowing (generally)
+                3. Discuss literary devices used (metaphor, imagery, etc.) without revealing plot points
+                4. NO SPOILERS WHATSOEVER - talk about HOW the story is told, not WHAT happens
+                5. Keep it under 400 words
+                6. Return ONLY clean HTML, no markdown
+                """, bookTitle);
 
-        String aiContent = callGemini(prompt);
+        String aiContent = callGroq(prompt);
         if (aiContent == null) {
             aiContent = "<p>Plot and literary devices analysis could not be generated at this time. Please check back later.</p>";
         }
@@ -466,7 +458,7 @@ public class GoogleBooksSyncService {
         plotRoom.setDeleted(false);
 
         Room savedRoom = rs.createNewSubRoom(plotRoom);
-        cs.PostComment(new Comment(savedRoom.getId(), "Pages & Parchment", aiContent));
+        cs.PostComment(new Comment(savedRoom.getId(), "Pages & Parchment", null,false, aiContent));
 
         return savedRoom;
     }

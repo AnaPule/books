@@ -62,8 +62,8 @@ public class RoomController {
     }
 
     //get book main room
-    @GetMapping("/book/{bookId}")
-    public ResponseEntity<?> getBookRoomsByBookId(@PathVariable String bookId) {
+    @GetMapping("/book/{bookId}/{userId}")
+    public ResponseEntity<?> getBookRoomsByBookId(@PathVariable String bookId, @PathVariable String userId) {
         try {
             Room rawRoom = rs.getBookMainRoom(bookId);
             Book rawBook = bs.getBookById(rawRoom.getBookId());
@@ -76,7 +76,7 @@ public class RoomController {
                     .map(room -> {
                         List<CommentDTO> comments = cs.getAllRoomParentCommentsByRoomId(room.getId())
                                 .stream()
-                                .map(this::convertCommentToDTO)
+                                .map(comment -> convertCommentToDTO(comment, userId))
                                 .collect(Collectors.toList());
 
                         return new SubRoomDTO(
@@ -91,10 +91,15 @@ public class RoomController {
 
             List<CommentDTO> comments = cs.getAllRoomParentCommentsByRoomId(rawRoom.getId())
                     .stream()
-                    .map(this::convertCommentToDTO)
+                    .map(comment -> convertCommentToDTO(comment, userId))
                     .collect(Collectors.toList());
 
-            RoomDTO room = new RoomDTO(rawRoom.getId(), rawRoom.getName(), ms.getNoOfMembers(rawRoom.getId()), book, subRooms, comments);
+            List<CommentDTO> quietroom = cs.getQuietRoomCommentsByRoomId(rawRoom.getId())
+                    .stream()
+                    .map(quiet -> convertCommentToDTO(quiet, userId))
+                    .collect(Collectors.toList());
+
+            RoomDTO room = new RoomDTO(rawRoom.getId(), rawRoom.getName(), ms.getNoOfMembers(rawRoom.getId()), book, subRooms, comments, quietroom);
             return ResponseEntity.ok(Map.of("room", room));
 
         } catch (Exception e) {
@@ -104,7 +109,26 @@ public class RoomController {
         }
     }
 
-    private CommentDTO convertCommentToDTO(Comment comment) {
+    private CommentDTO convertCommentToDTO(Comment comment, String user_id) {
+        // Check if comment is deleted (50+ dislikes)
+        boolean isDeleted = cs.isCommentDeleted(comment.getId());
+
+        // If comment is deleted, return a special DTO with empty replies and generic content
+        if (isDeleted) {
+            return new CommentDTO(
+                    comment.getId(),  // id
+                    0, 0,  // likes, dislikes
+                    List.of(),  // reports
+                    true,  // deleted
+                    "<em>This comment has been removed due to community guidelines violations.</em>",  // generic content
+                    comment.getCreatedAt(),  // createdAt
+                    new CommentDTO.CommentUserDTO("system", "Pages & Parchment", ""),  // system user
+                    List.of(),  // interactions
+                    List.of(),  // replies
+                    false, false  // isLikedByUser, isDislikedByUser
+            );
+        }
+
         // Get user info
         CommentDTO.CommentUserDTO user;
         if (comment.getUserId().equals("Pages & Parchment")) {
@@ -116,16 +140,18 @@ public class RoomController {
 
         Integer likes = cs.getNoOfInteractionType(comment.getId(), 1);
         Integer dislikes = cs.getNoOfInteractionType(comment.getId(), 2);
+        Boolean isLikedByUser = cs.hasUserInteracted(comment.getId(), user_id, 1);
+        Boolean isDislikedByUser = cs.hasUserInteracted(comment.getId(), user_id, 2);
         List<Report> reports = cs.getAllCommentReports(comment.getId());
         List<CommentInteraction> interactions = cs.getAllcommentInteractions(comment.getId());
 
-        // Get replies recursively
+        // Get replies recursively - PASS user_id down
         List<CommentDTO> replies = cs.getCommentReplies(comment.getId())
                 .stream()
-                .map(this::convertCommentToDTO)  // Recursive call
+                .map(reply -> convertCommentToDTO(reply, user_id))
                 .collect(Collectors.toList());
 
-        return new CommentDTO(comment, interactions, reports, likes, dislikes, user, replies);
+        return new CommentDTO(comment, interactions, reports, false, likes, dislikes, user, replies, isLikedByUser, isDislikedByUser);
     }
 
     //create new sub room
@@ -161,6 +187,18 @@ public class RoomController {
             rs.deleteRoomById(room.getId());
             return ResponseEntity.ok(Map.of("message", "room deleted :("));
         } catch (Exception e) {
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            er.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
+    //find out if user is a member
+    @GetMapping("/member/{user_id}/room/{room_id}")
+    public ResponseEntity<?> isMember(@PathVariable("user_id") String user_id, @PathVariable("room_id") String room_id) {
+        try{
+            return ResponseEntity.ok(Map.of("member", ms.isMemberInRoom(user_id, room_id)));
+        }catch (Exception e){
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             er.setMessage(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
@@ -256,14 +294,16 @@ public class RoomController {
     @PostMapping("/post-comment")
     public ResponseEntity<?> postComment(@RequestBody Comment comment) {
         try {
-            System.out.println("comment Body room id: " + comment.getRoomId());
-            System.out.println("comment Body user: " + comment.getUserId());
-            System.out.println("comment Body parent id: " + comment.getParentId());
-            System.out.println("comment Body message: " + comment.getContent());
+            //System.out.println("comment Body room id: " + comment.getRoomId());
+            //System.out.println("comment Body user: " + comment.getUserId());
+            //System.out.println("comment Body parent id: " + comment.getParentId());
+            //System.out.println("comment Body message: " + comment.getContent());
+            //System.out.println("comment quite room: "+ comment.getQuietRoom());
             Comment NewComment = new Comment(
                     comment.getRoomId(),
                     comment.getUserId(),
                     comment.getParentId(),
+                    comment.getQuietRoom(),
                     comment.getContent()
             );
             Comment savedComment = cs.PostComment(NewComment);
@@ -312,7 +352,14 @@ public class RoomController {
     @PostMapping("/interact")
     public ResponseEntity<?> interact(@RequestBody CommentInteraction dto) {
         try {
+            // post the interaction
             cs.postCommentInteraction(dto);
+
+            // if its dislike, then check if threshold applies
+            if (cs.isCommentDeleted(dto.getCommentId())) {
+                // if its deleted
+                cs.deleteComment(dto.getCommentId());
+            }
             return ResponseEntity.ok(Map.of("message", "comment interaction posted :)"));
         } catch (Exception e) {
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -322,10 +369,21 @@ public class RoomController {
     }
 
     // remove member comment interaction
-    @PutMapping("/delete-interact")
-    public ResponseEntity<?> deleteInteract(@RequestBody CommentInteraction dto) {
+    @DeleteMapping("/delete-interact/comment/{commentId}/user/{userId}/type/{type}")
+    public ResponseEntity<?> deleteInteract(@PathVariable String commentId, @PathVariable String userId, @PathVariable Integer type) {
         try {
+            CommentInteraction dto = new CommentInteraction(
+                    commentId,
+                    userId,
+                    type
+            );
             cs.deleteCommentInteraction(dto);
+
+            // if its dislike, then check if threshold applies
+            if (cs.isCommentDeleted(dto.getCommentId())) {
+                // if its deleted
+                cs.deleteComment(dto.getCommentId());
+            }
             return ResponseEntity.ok(Map.of("message", "comment interaction deleted :)"));
         } catch (Exception e) {
             er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());

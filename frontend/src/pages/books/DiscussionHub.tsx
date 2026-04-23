@@ -185,10 +185,8 @@ const MobileMenuDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 };
 
 // DISCOVER CONTENT
-
 const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) => {
     const { library, user, recommendRooms } = useAuth();
-    const { showNewMessageToast } = useNewMessage();
     const navigate = useNavigate();
     const topRooms = [...popularRooms].slice(0, 6);
 
@@ -246,7 +244,9 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
                                 </div>
                                 <div className="flex-1 min-w-0 pt-1">
                                     <h3
-                                        onClick={() => navigate(`/book/${room.bookId}/room/${room.id}`)}
+                                        onClick={() => {
+                                            //console.log('url:', `/book/${room.bookId}/room/${room.id}`)
+                                            navigate(`/book/${room.bookId}/room/${room.id}`)}}
                                         className="font-['SF_Pro_Display',_system-ui] font-semibold text-[#1d1d1f] text-base truncate hover:underline cursor-pointer">
                                         {room.name}
                                     </h3>

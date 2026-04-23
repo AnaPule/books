@@ -18,16 +18,20 @@ public class Comment {
     @Column(name="content", length = 3000, nullable = false) private String content;
     @Column(name="deleted", nullable = false) private Boolean deleted = false; // if a comment is reported 5 times or disliked by 10 users, no matter the reason, then the app 'deletes' it - meaning no user can see the comment or any replies to the comment if any.
     @Column(name="created_at", nullable = false) private Date createdAt;
+    @Column(name="quiet_room", nullable = false) private Boolean quietRoom;
 
     public Comment() {
         this.id = UUID.randomUUID().toString();
         this.createdAt = new Date();
+        this.quietRoom = false;
     }
 
     // new comment
     public Comment(
             String room_id,
             String user_id,
+            String parent_id,
+            Boolean quietRoom,
             String message
     ){
         this.id = UUID.randomUUID().toString();
@@ -36,8 +40,9 @@ public class Comment {
 
         this.roomId = room_id;
         this.userId = user_id;
-        this.parentId = null;
+        this.parentId = parent_id;
         this.content = message;
+        this.quietRoom = quietRoom;
     }
 
     // new subcomment - thread (or from frontend)
@@ -75,5 +80,11 @@ public class Comment {
 
     public Boolean getDeleted() {return deleted;}
     public void setDeleted(Boolean deleted) {this.deleted = deleted;}
+
+    public Date getCreatedAt() {return createdAt;}
+    public void setCreatedAt(Date createdAt) {this.createdAt = createdAt;}
+
+    public Boolean getQuietRoom() {return quietRoom;}
+    public void setQuietRoom(Boolean quietRoom) {this.quietRoom = quietRoom;}
 
 }

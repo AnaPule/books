@@ -30,6 +30,12 @@ public class CommentInteraction {
         this.createdAt = new Date();
     }
 
+    public CommentInteraction(String commentId, String userId, Integer type) {
+        this.commentId = commentId;
+        this.userId = userId;
+        this.type = type;
+    }
+
     //methods
     public String getId() {return id;}
     public void setId(String id) {this.id = id;}

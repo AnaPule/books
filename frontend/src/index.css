@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Arimo&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -82,6 +85,62 @@
   --slate-pastel: #8098A8;
   /* soft slate - deeper accents */
 
+  --lavender-mist: #E8E0F0;
+  /* lightest lavender - backgrounds */
+  --wisteria: #D8CFE8;
+  /* soft wisteria - cards, overlays */
+  --lilac: #C8BBE0;
+  /* gentle lilac - borders */
+  --purple-pastel: #B8A8D4;
+  /* soft purple - accents */
+  --dusty-lavender: #A894C4;
+  /* muted lavender - buttons, highlights */
+  --violet-mist: #947EB0;
+  /* deeper violet - headers, depth */
+  --plum-soft: #806A99;
+  /* soft plum - special accents */
+  --amethyst: #6B5580;
+  /* rich amethyst - deep accents */
+  --grape: #574268;
+  /* dark grape - deepest accents */
+
+  --periwinkle: #B5B9E8;
+  /* blue-purple blend - fresh accent */
+  --purple-haze: #A28BBF;
+  /* hazy purple - hover states */
+  --orchid: #D0B8E8;
+  /* soft orchid - highlights */
+  --lavender-blush: #E8D8F0;
+  /* lavender pink mix - backgrounds */
+
+  --turquoise-mist: #D0F0E8;
+  /* lightest turquoise - backgrounds */
+  --seafoam-teal: #C0E8E0;
+  /* soft teal - cards, overlays */
+  --aqua-haze: #B0E0D8;
+  /* gentle aqua - borders */
+  --turquoise-pastel: #9CD4CC;
+  /* soft turquoise - accents */
+  --teal-mist: #84C4BC;
+  /* muted teal - buttons, highlights */
+  --lagoon: #6CB0A8;
+  /* deeper lagoon - headers, depth */
+  --sea-glass: #589C94;
+  /* sea glass - special accents */
+  --deep-teal: #42847C;
+  /* rich teal - deep accents */
+  --ocean: #2E6B64;
+  /* dark ocean - deepest accents */
+
+  --cyan-light: #A8E0E0;
+  /* light cyan - fresh accent */
+  --mint-teal: #B8E8E0;
+  /* mint-teal blend - hover states */
+  --turquoise-bright: #7CD4CC;
+  /* bright turquoise - highlights */
+  --teal-pastel: #A8D4CC;
+  /* pastel teal - backgrounds */
+
   --butter-cream: #FFF3DC;
   /* warm cream-yellow - backgrounds */
   --vanilla-mist: #FFE9C9;
@@ -135,11 +194,15 @@
   --victorian-marble: #E8DFD4;
 
 
-  /* combinations */
+  /* combinations - updated with new colors */
   --pink-to-peach: linear-gradient(135deg, var(--blush-accent), var(--coral-blush));
   --green-to-sage: linear-gradient(135deg, var(--seafoam), var(--sage-mist));
   --blue-to-lavender: linear-gradient(135deg, var(--powder-blue), var(--misty-lavender));
   --yellow-to-honey: linear-gradient(135deg, var(--butter-cream), var(--honey-pastel));
+  
+  --lavender-to-purple: linear-gradient(135deg, var(--lavender-mist), var(--purple-pastel));
+  --turquoise-to-teal: linear-gradient(135deg, var(--turquoise-mist), var(--teal-mist));
+  --periwinkle-blend: linear-gradient(135deg, var(--periwinkle), var(--dusty-lavender));
 
   --holiday-reading-dot: var(--leaf);
   --holiday-christian-dot: var(--deep-rosewood);
@@ -150,6 +213,11 @@
   --warning-yellow: var(--honey-pastel);
   --error-pink: var(--deep-rosewood);
 
+  --romantic-purple: var(--amethyst);
+  --calm-teal: var(--lagoon);
+  --spiritual-lavender: var(--dusty-lavender);
+  --ocean-turquoise: var(--deep-teal);
+  --twilight: var(--grape);
 }
 
 a {

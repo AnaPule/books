@@ -30,6 +30,7 @@ const getInitials = (name: string) => {
     return name[0].toUpperCase();
 };
 
+
 export function DiscussionHubPage() {
     const [activeTab, setActiveTab] = useState<'discover' | 'my-rooms' | 'messages'>('discover');
     const [popularRooms, setPopularRooms] = useState<Room[]>([]);
@@ -194,7 +195,7 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
         await request.post(`/rooms/add-member/${user_id}/${room_id}`)
             .then(
                 (res: any) => {
-                    console.log(res.message)
+                    //console.log(res.message)
                     //showNewMessageToast();
                     toast("New Message", {
                         description: res.message
@@ -234,7 +235,7 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-7">
-                    {topRooms.map((room) => (
+                    {topRooms.splice(0,6).map((room) => (
                         <div
                             key={room.id}
                             className="group relative bg-white rounded-2xl border border-[#e9e9ef] p-5 hover:shadow-md transition-all duration-300">
@@ -278,12 +279,15 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
             <Board
                 title="Recommended for You"
                 subtitle="based on your reading"
-                items={recommendRooms.map(room => ({
+                items={recommendRooms.splice(0,20).map(room => ({
                     heading: room.name,
                     subheading: `${room.members || 0} members`,
                     action: {
                         label: 'Join →',
-                        onClick: () => onJoinRoom(user?.id || '', room.id),
+                        onClick: () => {
+                            onJoinRoom(user?.id || '', room.id);
+                            navigate(`/book/${room.bookId}/room/${room.id}`)
+                        },
                     },
                 }))}
             />

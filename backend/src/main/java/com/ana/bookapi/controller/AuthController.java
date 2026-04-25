@@ -350,7 +350,7 @@ public class AuthController {
 
                         // if room interaction (comment, like, reply) or invite
                         if (
-                                ping.getType() == 3 ||
+
                                         ping.getType() == 4 ||
                                         ping.getType() == 5 ||
                                         ping.getType() == 6) {
@@ -1173,6 +1173,13 @@ public class AuthController {
     //notifications
     @PostMapping("/notice")
     public ResponseEntity<?> postNotification(@RequestBody PingDTO ping) {
+        /*System.out.println("id=" + ping.getId() +
+                ", type=" + ping.getType() +
+                ", title=" + ping.getTitle() +
+                ", preview=" + ping.getPreview() +
+                ", read=" + ping.getRead() +
+                ", from=" + (ping.getFrom() != null ? ping.getFrom().getUsername() : "null"));*/
+
         try {
             //make sure receiver exists
             if (!us.doesUserExist(ping.getRecipient())) {

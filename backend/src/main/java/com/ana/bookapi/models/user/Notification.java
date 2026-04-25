@@ -17,7 +17,7 @@ public class Notification {
     @Column(name="sender_id", length = 80, nullable = false) private String senderId; // FK: user
     @Column(name="receive_id",  length = 80, nullable = false) private String receiveId; // FK: user
     //@Column(name="room_id", length = 80, nullable = true) private String roomId; // FK:
-    @Column(name="subject", length = 30, nullable = false) private String subject;
+    @Column(name="subject", length = 90, nullable = false) private String subject;
     @Column(name="read", nullable = false) private Boolean read = false; // if the user read the message
     @Column(name="content", columnDefinition = "TEXT", nullable = false) private String content; // the actual message
     @Column(name="post_time", nullable = false) private Date postTime;

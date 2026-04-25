@@ -6,18 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="posting notifications, and altered fetch notifications to include meta data where necessary.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/CommentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/CommentDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/RoomDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/DTO/DiscussionRoom/RoomDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/RoomController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/RoomController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/book/DiscussionRoom/Comment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/book/DiscussionRoom/Comment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/book/DiscussionRoom/CommentInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/book/DiscussionRoom/CommentInteraction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentInteractionRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentInteractionRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/repository/book/CommentRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/CommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/DiscussionRoom/CommentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/RecommendationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/book/RecommendationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/external/GoogleBooksSyncService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/service/external/GoogleBooksSyncService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/key.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/key.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/models/Book.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/models/Book.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ana/bookapi/models/user/Notification.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/pages/books/DiscussionHub.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/books/DiscussionHub.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/pages/room/DiscussionRoomPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/room/DiscussionRoomPage.tsx" afterDir="false" />
     </list>

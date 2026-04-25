@@ -1,7 +1,6 @@
 import type { Book as Bk } from "@models/Book";
 import styles from "./shelves.module.css";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
 import Tooltip from "@components/skeleton/ToolTip";
 
 interface ShelvesProps {
@@ -201,8 +200,9 @@ const Book: React.FC<BookProps> = ({ books }) => {
     const navigate = useNavigate();
     return (
         <div className={styles.booksContainer}>
-            {books.slice(0, 10).map((book, i) => (
+            {books.slice(0, 10).map((book, idx) => (
                 <div
+                    key={idx}
                     onClick={() => navigate(`/book/${book.id}`)}
                     className={`${styles.bookCard}
                         relative 

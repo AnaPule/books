@@ -9,16 +9,39 @@ import {
     X, Maximize2, Minimize2, Volume2, Smile, Sparkles,
     BookOpen, Clock, Pin, Reply, MoreHorizontal, Image, Link2,
     CornerDownRight, Activity, Flame, Star, Music, Headphones,
-    Search, Bell, Settings, Gift, ChevronDown, Mic, MicOff
+    Search, Bell, Gift, ChevronDown, Mic, MicOff
 } from 'lucide-react';
-import Room2 from '@assets/quite_space/Room2.gif';
+
+/*
+import city from "@assets/quite_space/City.gif";
+import fire from "@assets/quite_space/fire.gif";
+import fire2 from "@assets/quite_space/fire2.gif";
+import fire3 from "@assets/quite_space/firework.gif";
+import porch from "@assets/quite_space/porch.gif";
+import rain1 from "@assets/quite_space/rain.gif";
+import rain2 from "@assets/quite_space/rain2.gif";
+import rain3 from "@assets/quite_space/rain3.gif"
+import room1 from "@assets/quite_space/Room.gif?url";
+import room2 from '@assets/quite_space/Room2.gif';
+import stars from "@assets/quite_space/starts.gif";
+import street1 from "@assets/quite_space/street.gif";
+import street2 from "@assets/quite_space/street2.gif";
+import van from "@assets/quite_space/van.gif";
+import water1 from "@assets/quite_space/water.gif";
+import water2 from "@assets/quite_space/water2.gif";
+import window from "@assets/quite_space/window.jpeg";
+*/
+
 import { request } from '@utils/ApiRequest';
-import type { Book, Room, Comment, } from '@models/Book';
+import type { Book, Room, Comment } from '@models/Book';
 import type { Quote } from '@models/Word';
 import EmojiPicker from 'emoji-picker-react';
 import { GiphyFetch } from '@giphy/js-fetch-api';
 import { Grid } from '@giphy/react-components';
+import { NoticeType } from '@models/Notice';
 
+import { PLAYLIST } from '@models/Song';
+import AudioPlayer from './AudioPlayer';
 interface BigRoom {
     id: string;
     name: string;
@@ -82,14 +105,6 @@ const MOCK_ROOM = {
     isUserMember: true,
 };
 
-const MOCK_QUIET_COMMENTS = [
-    { user: 'Clara', message: 'This is so peaceful…', time: new Date(Date.now() - 1000 * 60 * 5) },
-    { user: 'Rowan', message: 'I could stay here forever', time: new Date(Date.now() - 1000 * 60 * 3) },
-    { user: 'Theo', message: 'The perfect reading atmosphere', time: new Date(Date.now() - 1000 * 60 * 2) },
-    { user: 'Elise', message: 'Has anyone read chapter 7 yet? 😭', time: new Date(Date.now() - 1000 * 60 * 1) },
-    { user: 'Marcus', message: 'The confrontation scene is devastating', time: new Date(Date.now() - 1000 * 30) },
-];
-
 function timeAgo(ts: string) {
     const s = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
     if (s < 60) return `${s}s ago`;
@@ -109,13 +124,13 @@ const getInitials = (name: string) => {
 };
 
 export const DiscussionRoomPage: React.FC = () => {
-    const { user } = useAuth();
+    const { user, setPings } = useAuth();
     const [room] = useState(MOCK_ROOM);
     const [isMember, setIsMember] = useState(false);
     const [testRoom, setRoom] = useState<BigRoom | null>(null);
     const [activeSubRoom, setActiveSubRoom] = useState<Room | null>(null);
     const [newComment, setNewComment] = useState('');
-    const [replyTo, setReplyTo] = useState<Comment | null>(null);
+    const [replyTo, setReplyTo] = useState<Comment | null>(testRoom?.comments[1] || null);
     const [isQuietMode, setIsQuietMode] = useState(false);
     const [showBookInfo, setShowBookInfo] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -185,6 +200,126 @@ export const DiscussionRoomPage: React.FC = () => {
             setRoom(refreshedRoom.room);
 
             setNewComment('');
+
+            //if this is a reply, then send a message to the original commenter
+            if (replyTo) {
+                const ping = {
+                    type: NoticeType.ROOM_ACTIVITY,
+                    title: 'Someone replied to your comment',
+                    preview: `${user?.username} replied to your comment in ${activeSubRoom?.name}`,
+                    message:
+                        `<div style="display: flex; flex-direction: column; background: #f5f5f5; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;">
+                            <div style="padding: 16px 16px 40px 16px;">
+                                <div style="background: white; border: 1px solid #d4d4d4; border-radius: 10px; overflow: hidden; width: 80%; margin: 5rem auto;">
+
+                                    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 14px 20px; border-bottom: 1px solid #ececec;">
+                                        <div style="width: 34px; height: 34px; border-radius: 50%; background: #b0b0b0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: white; flex-shrink: 0; margin-top: 2px;">pP</div>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <p style="font-size: 13px; font-weight: 500; color: #1d1d1f; margin: 0;">Pages &amp; Parchment <span style="color: #888; font-weight: normal;">&lt;noreply@pagesparchment.com&gt;</span></p>
+                                            <p style="font-size: 12px; color: #555; margin: 4px 0 0 0;">Pages &amp; Parchment 2026: Someone replied to your comment</p>
+                                            <p style="font-size: 11px; color: #999; margin: 4px 0 0 0;">Reply-To: Pages &amp; Parchment — help@pagesparchment.com</p>
+                                        </div>
+                                        <div style="text-align: right; flex-shrink: 0;">
+                                            <p style="font-size: 11px; color: #888; white-space: nowrap; margin: 0;">Inbox · Discussion &nbsp; Tue, 14 Apr 2026</p>
+                                            <span style="display: inline-block; margin-top: 4px; font-size: 10px; background: #ebebeb; color: #555; border-radius: 4px; padding: 2px 6px;">pages_parchment_2026</span>
+                                            <p style="color: #947EB0; font-size: 13px; margin-top: 6px; margin-bottom: 0;">⚑</p>
+                                        </div>
+                                    </div>
+
+                                    <div style="padding: 32px 56px;">
+                                        <!-- Purple whimsical divider -->
+                                        <div style="text-align: center; margin-bottom: 20px;">
+                                            <span style="display: inline-block; width: 40px; height: 1px; background: #d4d4d4;"></span>
+                                            <span style="display: inline-block; margin: 0 8px; font-size: 12px; color: #947EB0;">✦</span>
+                                            <span style="display: inline-block; width: 40px; height: 1px; background: #d4d4d4;"></span>
+                                        </div>
+
+                                        <p style="text-align: center; font-size: 12px; font-weight: 600; color: #999; letter-spacing: 0.2px; margin: 0 0 4px 0;">pages_parchment_2026</p>
+                                        <p style="text-align: center; font-size: 22px; color: #bbb; font-weight: 300; margin: 0 0 16px 0;">Pages &amp; Parchment 2026</p>
+                                        <h1 style="text-align: center; font-size: 18px; font-weight: 700; color: #1d1d1f; margin: 0 0 20px 0;">Someone replied to your comment</h1>
+                                        
+                                        <!-- Avatar -->
+                                        <div style="text-align: center; margin-bottom: 16px;">
+                                            <div style="display: inline-block; position: relative;">
+                                                <div style="width: 64px; height: 64px; border-radius: 50%; background: #E8E0F0; border: 3px solid white; box-shadow: 0 2px 8px rgba(148, 126, 176, 0.3); text-align: center; line-height: 58px; font-size: 22px; font-weight: 400; color: black; overflow: hidden;">
+                                                    ${replyTo?.user?.profile
+                            ? `<img src="${replyTo.user.profile}" style="width: 100%; height: 100%; object-fit: cover; display: block;" />`
+                            : replyTo?.user?.name?.[0]?.toUpperCase() || '?'
+                        }
+                                                </div>
+                                            </div>
+                                            <div style="display: inline-block; position: relative; margin-left: -20px;">
+                                                <div style="width: 64px; height: 64px; border-radius: 50%; background: #D8CFE8; border: 3px solid white; box-shadow: 0 2px 8px rgba(148, 126, 176, 0.3); text-align: center; line-height: 58px; font-size: 22px; font-weight: 600; color: black; overflow: hidden;">
+                                                    ${user?.profilePhoto
+                            ? `<img src="${user.profilePhoto}" style="width: 100%; height: 100%; object-fit: cover; display: block;" />`
+                            : user?.username?.[0]?.toUpperCase() || '?'
+                        }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <p style="font-size:17px;font-weight:600;color:#1d1d1f; text-align: center; text-transform: uppercase;">${user?.username}</p>
+                                        <p style="font-size:13px;color:#6e6e73;margin:0 0 20px; text-align: center;">replied to your comment in <strong style="font-weight:600; color:#947EB0;">${activeSubRoom?.name}</strong> discussion room</p>
+
+                                    <div style="max-width: 500px; margin: 0 auto;">
+                                            <!-- Your comment box -->
+                                            <div style="border-radius: 10px; padding: 14px 16px; margin: 0 0 12px 0;">
+                                                <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
+                                                    <span style="font-size: 11px; font-weight: 500; color: black; text-transform: uppercase; letter-spacing: 0.3px;">You</span>
+                                                    <span style="width: 3px; height: 3px; background: var(--orchid); border-radius: 50%;"></span>
+                                                    <span style="font-size: 11px; color: gray;">said</span>
+                                                </div>
+                                                <p style="margin-left: 30px; font-size: 14px; color: black; line-height: 1.45; margin: 0 0 0 0; font-size:12px;">"${replyTo?.content}"</p>
+                                            </div>
+
+                                            <!-- Reply box -->
+                                            <div style="border-radius: 10px; padding: 14px 16px; margin: 0 0 28px 0;">
+                                                <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
+                                                    <span style="font-size: 11px; font-weight: 500; color: black; text-transform: uppercase; letter-spacing: 0.3px;">${user?.username}</span>
+                                                    <span style="width: 3px; height: 3px; background: var(--dusty-lavender); border-radius: 50%;"></span>
+                                                    <span style="font-size: 11px; color: gray;">replied</span>
+                                                </div>
+                                                <p style="font-size: 14px; color: black; line-height: 1.45; margin: 0; font-size: 12px;">"${message}"</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Purple button -->
+                                        <div style="text-align: center; margin-bottom: 16px;">
+                                            <a href="/book/${book_id}/room/${activeSubRoom?.id}" style="display: inline-block; background: #1d1d1f; color: white; text-decoration: none; padding: 13px 80px; font-size: 15px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">View reply</a>
+                                        </div>
+
+                                        <!-- Whimsical closing -->
+                                        <div style="text-align: center; margin-top: 8px;">
+                                            <span style="font-size: 11px; color: #947EB0;">✦</span>
+                                            <span style="margin: 0 4px; font-size: 10px; color: var(--wisteria);">✧</span>
+                                            <span style="font-size: 11px; color: #947EB0;">✦</span>
+                                        </div>
+                                        <p style="text-align: center; font-size: 13px; color: #999; font-style: italic; margin: 8px 0 0;">The fellowship grows with every reader</p>
+                                    </div>
+
+                                    <div style="background: #f0f0f0; border-top: 1px solid #e0e0e0; padding: 20px 56px;">
+                                        <p style="font-size: 12px; color: #999; margin: 0 0 2px 0;">Email brought to you by</p>
+                                        <p style="font-size: 15px; font-weight: 700; color: #1d1d1f; margin: 0 0 12px 0;">Pages &amp; Parchment</p>
+                                        <p style="font-size: 13px; font-weight: 500; color: #1d1d1f; margin: 0 0 2px 0;">Need help with your account? *</p>
+                                        <p style="font-size: 13px; color: #666; margin: 0 0 12px 0;">Contact support at help@pagesparchment.com</p>
+                                        <p style="font-size: 11px; color: #999; line-height: 1.5; margin: 0;">*This message supports account security and member records. It doesn't offer the option to be removed from the recipients list.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`,
+                    recipient: replyTo?.user.user_id,
+                    timestamp: new Date(),
+                    read: false,
+                    from: {
+                        id: user?.id,
+                        username: user?.username
+                    }
+                }
+                await request.post(`/auth/notice`, ping);
+                const pings = await request.get<any>(`/auth/notice/user/${user?.id}`)
+                setPings(pings.pings);
+            }
+
             setReplyTo(null);
         } catch (error) {
             console.error('Failed to post comment:', error);
@@ -245,107 +380,110 @@ export const DiscussionRoomPage: React.FC = () => {
         return mem + Number(testRoom?.members || 0);
     }
 
-    if (isQuietMode) return <QuietRoom room={testRoom || null} onExit={() => setIsQuietMode(false)} onSend={handlePost} book_id={book_id ?? ''} />;
+    {/* if (isQuietMode) return <QuietRoom room={testRoom || null} onExit={() => setIsQuietMode(false)} onSend={handlePost} book_id={book_id ?? ''} />; */}
 
     return (
-        <div className="min-h-screen pt-16">
-            <div className="flex h-screen overflow-hidden">
-                <SubRoomSidebar
-                    room={testRoom || null}
-                    activeSubRoom={activeSubRoom}
-                    onSelect={setActiveSubRoom}
-                    collapsed={sidebarCollapsed}
-                    onToggle={() => setSidebarCollapsed(v => !v)}
-                />
-
-                <div className="flex-1 flex flex-col overflow-hidden">
-                    {/* header with notifications */}
-                    <ChatHeader
+        <>
+            <div className="min-h-screen pt-16">
+                <div className="flex h-screen overflow-hidden">
+                    <SubRoomSidebar
                         room={testRoom || null}
-                        isMember={isMember}
                         activeSubRoom={activeSubRoom}
-                        onQuietMode={() => setIsQuietMode(true)}
-                        onToggleBookInfo={() => setShowBookInfo(v => !v)}
+                        onSelect={setActiveSubRoom}
+                        collapsed={sidebarCollapsed}
+                        onToggle={() => setSidebarCollapsed(v => !v)}
                     />
 
-                    {/* system rules and guidlines */}
-                    <div className="flex-1 overflow-y-auto px-4">
-                        {(() => {
-                            const pinnedComment = testRoom?.comments.find(c => c.user.user_id == 'system');
-                            if (!pinnedComment) return null;
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                        {/* header with notifications */}
+                        <ChatHeader
+                            room={testRoom || null}
+                            isMember={isMember}
+                            activeSubRoom={activeSubRoom}
+                            onQuietMode={() => setIsQuietMode(true)}
+                            onToggleBookInfo={() => setShowBookInfo(v => !v)}
+                        />
 
-                            return (
-                                <div className="mb-6 rounded-xl border" style={{ borderColor: `${colors.dustyBlue}25`, backgroundColor: `${colors.dustyBlue}05` }}>
-                                    <div className="flex items-center gap-2 px-4 py-2 rounded-t-xl" style={{ backgroundColor: `${colors.dustyBlue}10`, borderBottom: `1px solid ${colors.dustyBlue}15` }}>
-                                        <Pin size={12} color={colors.dustyBlue} />
-                                        <span className="text-xs font-medium" style={{ color: colors.dustyBlue }}>Welcome to {testRoom?.name}</span>
+                        {/* system rules and guidlines */}
+                        <div className="flex-1 overflow-y-auto px-4">
+                            {(() => {
+                                const pinnedComment = testRoom?.comments.find(c => c.user.user_id == 'system');
+                                if (!pinnedComment) return null;
+
+                                return (
+                                    <div className="mb-6 rounded-xl border" style={{ borderColor: `${colors.dustyBlue}25`, backgroundColor: `${colors.dustyBlue}05` }}>
+                                        <div className="flex items-center gap-2 px-4 py-2 rounded-t-xl" style={{ backgroundColor: `${colors.dustyBlue}10`, borderBottom: `1px solid ${colors.dustyBlue}15` }}>
+                                            <Pin size={12} color={colors.dustyBlue} />
+                                            <span className="text-xs font-medium" style={{ color: colors.dustyBlue }}>Welcome to {testRoom?.name}</span>
+                                        </div>
+                                        <div className="px-4 py-3">
+                                            <div dangerouslySetInnerHTML={{ __html: pinnedComment?.content || '' }} />
+                                        </div>
                                     </div>
-                                    <div className="px-4 py-3">
-                                        <div dangerouslySetInnerHTML={{ __html: pinnedComment?.content || '' }} />
-                                    </div>
-                                </div>
-                            );
-                        })()}
+                                );
+                            })()}
 
-                        {/* room comments */}
-                        <div className="space-y-1">
-                            {/* Main room comments */}
-                            {activeSubRoom?.id === testRoom?.id &&
-                                testRoom?.comments?.map(c => (
-                                    <CommentThread
-                                        key={c.id}
-                                        comment={c}
-                                        onLike={handleLike}
-                                        onDislike={handleDislike}
-                                        onReply={setReplyTo}
-                                        depth={0}
-                                    />
-                                ))}
+                            {/* room comments */}
+                            <div className="space-y-1">
+                                {/* Main room comments */}
+                                {activeSubRoom?.id === testRoom?.id &&
+                                    testRoom?.comments?.map(c => (
+                                        <CommentThread
+                                            key={c.id}
+                                            comment={c}
+                                            onLike={handleLike}
+                                            onDislike={handleDislike}
+                                            onReply={setReplyTo}
+                                            depth={0}
+                                        />
+                                    ))}
 
-                            {/* Subroom comments */}
-                            {activeSubRoom?.id !== testRoom?.id &&
-                                testRoom?.subRooms?.find(s => s.id === activeSubRoom?.id)?.comments?.map((c, idx) => (
-                                    <CommentThread
-                                        key={c?.id}
-                                        comment={c}
-                                        onLike={handleLike}
-                                        onDislike={handleDislike}
-                                        onReply={setReplyTo}
-                                        depth={0}
-                                    />
-                                ))}
+                                {/* Subroom comments */}
+                                {activeSubRoom?.id !== testRoom?.id &&
+                                    testRoom?.subRooms?.find(s => s.id === activeSubRoom?.id)?.comments?.map((c, idx) => (
+                                        <CommentThread
+                                            key={c?.id}
+                                            comment={c}
+                                            onLike={handleLike}
+                                            onDislike={handleDislike}
+                                            onReply={setReplyTo}
+                                            depth={0}
+                                        />
+                                    ))}
+                            </div>
                         </div>
+
+                        {replyTo && (
+                            <div className="px-4 py-1.5 flex items-center justify-between" style={{ backgroundColor: `${colors.dustyBlue}10`, borderTop: `1px solid ${colors.periwinkle}` }}>
+                                <div className="flex items-center gap-2 text-xs" style={{ color: colors.text.secondary }}>
+                                    <CornerDownRight size={13} />
+                                    Replying to <strong className="" style={{ color: colors.text.primary }}>{replyTo?.user?.name}</strong>
+                                </div>
+                                <button onClick={() => setReplyTo(null)} className="hover:opacity-70" style={{ color: colors.text.muted }}>
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        )}
+                        {isMember &&
+                            <ChatInput
+                                value={newComment}
+                                onChange={setNewComment}
+                                onSend={handlePost}
+                                channelName={activeSubRoom?.name} />}
                     </div>
 
-                    {replyTo && (
-                        <div className="px-4 py-1.5 flex items-center justify-between" style={{ backgroundColor: `${colors.dustyBlue}10`, borderTop: `1px solid ${colors.periwinkle}` }}>
-                            <div className="flex items-center gap-2 text-xs" style={{ color: colors.text.secondary }}>
-                                <CornerDownRight size={13} />
-                                Replying to <strong className="" style={{ color: colors.text.primary }}>{replyTo?.user?.name}</strong>
-                            </div>
-                            <button onClick={() => setReplyTo(null)} className="hover:opacity-70" style={{ color: colors.text.muted }}>
-                                <X size={14} />
-                            </button>
-                        </div>
-                    )}
-                    {isMember &&
-                        <ChatInput
-                            value={newComment}
-                            onChange={setNewComment}
-                            onSend={handlePost}
-                            channelName={activeSubRoom?.name} />}
+                    <BookInfoSidebar
+                        user_id={user?.id || ''}
+                        room_id={room_id || ''}
+                        isMember={isMember}
+                        room={testRoom || null}
+                        isOpen={showBookInfo}
+                        members={handleMembers()}
+                        onClose={() => setShowBookInfo(false)} />
                 </div>
-
-                <BookInfoSidebar
-                    user_id={user?.id || ''}
-                    room_id={room_id || ''}
-                    isMember={isMember}
-                    room={testRoom || null}
-                    isOpen={showBookInfo}
-                    members={handleMembers()}
-                    onClose={() => setShowBookInfo(false)} />
             </div>
-        </div>
+        </>
+
     );
 };
 
@@ -785,6 +923,7 @@ const ChatInput: React.FC<any> = ({ value, onChange, onSend, channelName }) => {
                     onKeyDown={handleKey}
                     placeholder={`Message #${channelName}`}
                     rows={1}
+                    cols={20}
                     className="flex-1 bg-transparent border-none outline-none resize-none py-3 text-sm"
                     style={{ color: colors.text.primary }}
                 />
@@ -903,17 +1042,34 @@ const BookInfoSidebar: React.FC<{
 };
 
 // Quiet Room component
-const PLAYLIST = [
-    { title: 'Clair de Lune', artist: 'Debussy' },
-    { title: 'Gymnopédie No.1', artist: 'Satie' },
-    { title: 'Nocturne in E♭ Major', artist: 'Chopin' },
-];
 
+{/*
 const QuietRoom: React.FC<{ room: BigRoom | null, onExit: any, onSend: (content: string, quiet_room: boolean) => void, book_id: String }> = ({ room, onExit, onSend, book_id }) => {
     const { quote } = useAuth();
     const [liveComment, setLiveComment] = useState('');
     const [trackIdx, setTrackIdx] = useState(0);
     const chatEndRef = useRef<HTMLDivElement>(null);
+    const backgrounds: string[] = [
+        city,
+        fire, fire2, fire3,
+        porch,
+        rain1, rain2, rain3,
+        room1, room2,
+        stars,
+        street1, street2,
+        van,
+        water1, water2,
+        window
+    ].filter(Boolean);
+
+    const [backgroundImage, setBackgroundImage] = useState<string>(backgrounds[0] || water1);
+
+    useEffect(() => {
+        if (backgrounds.length > 0) {
+            const randomIndex = Math.floor(Math.random() * backgrounds.length);
+            setBackgroundImage(backgrounds[randomIndex]);
+        }
+    }, []);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -930,12 +1086,9 @@ const QuietRoom: React.FC<{ room: BigRoom | null, onExit: any, onSend: (content:
             toast.error('Failed to post comment');
         }
     };
-
-    const track = PLAYLIST[trackIdx];
-
     return (
         <div className="fixed inset-0 z-[999]">
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${Room2})` }} />
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
             <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
@@ -958,32 +1111,13 @@ const QuietRoom: React.FC<{ room: BigRoom | null, onExit: any, onSend: (content:
                 <p className="text-xs text-white/30 capitialize mt-2">— {quote?.author}</p>
             </div>
 
-            <div className="absolute bottom-6 left-6 right-6 flex gap-4">
-                <div className="w-64 bg-black/60 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden">
-                    <div className="px-3 py-2 border-b border-white/10 flex items-center gap-2">
-                        <Music size={13} className="text-blue-300" />
-                        <span className="text-[11px] font-bold tracking-wide text-blue-300 uppercase">Now playing</span>
-                    </div>
-                    <div className="p-3">
-                        <div className="font-semibold text-white text-sm">{track.title}</div>
-                        <div className="text-xs text-white/50 mb-3">{track.artist}</div>
-                        <div className="h-0.5 bg-white/10 rounded-full mb-3 overflow-hidden">
-                            <div className="h-full w-2/5 bg-blue-400 rounded-full" />
-                        </div>
-                        <div className="flex justify-center gap-4">
-                            <button onClick={() => setTrackIdx((i) => (i - 1 + PLAYLIST.length) % PLAYLIST.length)} className="text-white/60 hover:text-white transition-colors">
-                                <ChevronLeft size={20} />
-                            </button>
-                            <button className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-black hover:bg-blue-300 transition-colors">
-                                <Volume2 size={14} />
-                            </button>
-                            <button onClick={() => setTrackIdx((i) => (i + 1) % PLAYLIST.length)} className="text-white/60 hover:text-white transition-colors">
-                                <ChevronRight size={20} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
+
+            <div className="absolute bottom-6 left-6 right-6 flex gap-4">
+                {/*
+                <AudioPlayer
+                    playlist={PLAYLIST} />
+                    
                 <div className="flex-1 bg-black/60 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden">
                     <div className="px-3 py-2 border-b border-white/10 flex items-center gap-2">
                         <Activity size={13} className="text-blue-300" />
@@ -1015,8 +1149,10 @@ const QuietRoom: React.FC<{ room: BigRoom | null, onExit: any, onSend: (content:
                     </div>
                 </div>
             </div>
+
         </div>
     );
 };
+*/}
 
 export default DiscussionRoomPage;

@@ -23,6 +23,15 @@ export interface Genre{
 }
 
 /* --------------------- ROOM -----------------*/
+export interface BigRoom {
+    id: string;
+    name: string;
+    book: Book;
+    members: number;
+    comments: Comment[];
+    quietRoom: Comment[];
+    subRooms: Room[];
+}
 export interface Room{
     id: string;
     name: string;

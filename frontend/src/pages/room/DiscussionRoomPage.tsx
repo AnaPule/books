@@ -4,53 +4,21 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
 import { toast } from 'sonner';
 import {
-    MessageSquare, Heart, ThumbsUp, ThumbsDown, Flag, Share2,
-    Send, Users, Hash, DoorOpen, ChevronLeft, ChevronRight,
-    X, Maximize2, Minimize2, Volume2, Smile, Sparkles,
-    BookOpen, Clock, Pin, Reply, MoreHorizontal, Image, Link2,
-    CornerDownRight, Activity, Flame, Star, Music, Headphones,
-    Search, Bell, Gift, ChevronDown, Mic, MicOff
+   ThumbsUp, ThumbsDown, 
+    Send, Hash, ChevronLeft, ChevronRight,
+    X, Smile, BookOpen, Pin, Reply,
+    CornerDownRight, Headphones,
+    Search, Bell, Gift, ChevronDown
 } from 'lucide-react';
 
-/*
-import city from "@assets/quite_space/City.gif";
-import fire from "@assets/quite_space/fire.gif";
-import fire2 from "@assets/quite_space/fire2.gif";
-import fire3 from "@assets/quite_space/firework.gif";
-import porch from "@assets/quite_space/porch.gif";
-import rain1 from "@assets/quite_space/rain.gif";
-import rain2 from "@assets/quite_space/rain2.gif";
-import rain3 from "@assets/quite_space/rain3.gif"
-import room1 from "@assets/quite_space/Room.gif?url";
-import room2 from '@assets/quite_space/Room2.gif';
-import stars from "@assets/quite_space/starts.gif";
-import street1 from "@assets/quite_space/street.gif";
-import street2 from "@assets/quite_space/street2.gif";
-import van from "@assets/quite_space/van.gif";
-import water1 from "@assets/quite_space/water.gif";
-import water2 from "@assets/quite_space/water2.gif";
-import window from "@assets/quite_space/window.jpeg";
-*/
-
 import { request } from '@utils/ApiRequest';
-import type { Book, Room, Comment } from '@models/Book';
-import type { Quote } from '@models/Word';
+import type { BigRoom, Room, Comment } from '@models/Book';
 import EmojiPicker from 'emoji-picker-react';
 import { GiphyFetch } from '@giphy/js-fetch-api';
 import { Grid } from '@giphy/react-components';
 import { NoticeType } from '@models/Notice';
+import { quiet as QuietRoom } from './quiet';
 
-import { PLAYLIST } from '@models/Song';
-import AudioPlayer from './AudioPlayer';
-interface BigRoom {
-    id: string;
-    name: string;
-    book: Book;
-    members: number;
-    comments: Comment[];
-    quietRoom: Comment[];
-    subRooms: Room[];
-}
 
 const gf = new GiphyFetch('3badXghEvmM6yeAbWPgNYcyOBy6E82K1');
 // ─── Using your index.css blues directly ──────────────────────────
@@ -113,10 +81,6 @@ function timeAgo(ts: string) {
     return `${Math.floor(s / 86400)}d ago`;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// MAIN COMPONENT - NO BACKGROUND COLOR SET
-// ═══════════════════════════════════════════════════════════════
-
 const getInitials = (name: string) => {
     const words = name.trim().split(/\s+/);
     if (words.length === 2) return (words[0][0] + words[1][0]).toUpperCase();
@@ -134,7 +98,6 @@ export const DiscussionRoomPage: React.FC = () => {
     const [isQuietMode, setIsQuietMode] = useState(false);
     const [showBookInfo, setShowBookInfo] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-    //const commentsEndRef = useRef<HTMLDivElement>(null);
     const { book_id, room_id } = useParams();
 
     useEffect(() => {
@@ -380,7 +343,7 @@ export const DiscussionRoomPage: React.FC = () => {
         return mem + Number(testRoom?.members || 0);
     }
 
-    {/* if (isQuietMode) return <QuietRoom room={testRoom || null} onExit={() => setIsQuietMode(false)} onSend={handlePost} book_id={book_id ?? ''} />; */}
+    if (isQuietMode) return <QuietRoom room={testRoom || null} onExit={() => setIsQuietMode(false)} onSend={handlePost} />; 
 
     return (
         <>
@@ -440,7 +403,7 @@ export const DiscussionRoomPage: React.FC = () => {
 
                                 {/* Subroom comments */}
                                 {activeSubRoom?.id !== testRoom?.id &&
-                                    testRoom?.subRooms?.find(s => s.id === activeSubRoom?.id)?.comments?.map((c, idx) => (
+                                    testRoom?.subRooms?.find(s => s.id === activeSubRoom?.id)?.comments?.map((c) => (
                                         <CommentThread
                                             key={c?.id}
                                             comment={c}

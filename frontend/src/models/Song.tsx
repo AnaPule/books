@@ -5,7 +5,6 @@ export interface Song {
     cover?: string;
 }
 
-import InTheSea from "@assets/music/movie/in the sea.mp3";
 import Cinderella from "@assets/music/movie/La Valse de L'Amour.mp3";
 import LoversOath from "@assets/music/movie/Lovers' Oath.mp3";
 import Liz from "@assets/music/movie/Marianelli_ Liz On Top Of The World (From Pride & Prejudice Soundtrack).mp3";
@@ -20,7 +19,7 @@ import dragon from "@assets/music/movie/Romantic Flight (How To Train Your Drago
 
 import Gymnopedie from "@assets/music/classical/Gymnopédie No. 1.mp3";
 import No8 from "@assets/music/classical/Nocturne P 2 No. 8 in C minor.mp3";
-import arabesque from "@assets/music/classical/Arabesque.mp3";
+import arabesque from "@assets/music/classical/Debussy_ Deux arabesques, L. 66 - No. 1 Andante con moto.mp3";
 import No20 from "@assets/music/classical/Chopin_ Nocturne No. 20 in C-Sharp Minor, Op. Posth. (Rousseau Felt Piano Version).mp3";
 import consolations from "@assets/music/classical/Consolations, S. 172_ No. 3, Lento placido.mp3";
 import bergamasquw from "@assets/music/classical/Debussy_ Suite bergamasque, CD 82_ III. Clair de lune.mp3";
@@ -32,7 +31,6 @@ import waltz from "@assets/music/classical/Waltz No.2.mp3";
 
 export const PLAYLIST: Song[] = [
     // Movies & Shows
-    { title: 'In the sea', artist: 'Kensuke Ushio', file: InTheSea },
     { title: `La Valse de L'Amour`, artist: 'Patrick Doyle', file: Cinderella },
     { title: `Lover's Oath`, artist: 'Shenghai symphony', file: LoversOath },
     { title: `Liz on top of the world (From Pride & Prejudice)`, artist: 'Dario Marianelli', file: Liz },

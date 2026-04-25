@@ -10,7 +10,7 @@ export const useNewMessage = () => {
         
         toast.promise(promise, {
             loading: 'Please wait...',
-            success: (data) => {
+            success: () => {
                 playMessageSendSound();
                 return {
                     message: 'New Message',

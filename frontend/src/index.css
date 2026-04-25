@@ -1116,3 +1116,24 @@ input::placeholder {
     grid-template-columns: 1fr;
   }
 }
+
+/* --------- QUIET ROOM ------------- */
+@keyframes float-glimmer {
+    0%, 100% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translateY(-40px) translateX(20px) scale(1.5);
+        opacity: 0.9;
+    }
+}
+
+@keyframes float-slow {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+    }
+    50% {
+        transform: translateY(-30px) translateX(15px);
+    }
+}

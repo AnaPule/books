@@ -215,6 +215,7 @@ public class GoogleBooksSyncService {
             ));
 
             Book book = br.findById(book_id).orElse(null);
+            /*
             String authorName = "Unknown Author";
             if (book != null) {
                 Author author = ar.findById(book.getAuthorId()).orElse(null);
@@ -222,8 +223,9 @@ public class GoogleBooksSyncService {
                     authorName = author.getName();
                 }
             }
+             */
 
-            Thread.sleep(1000);
+            Thread.sleep(2000);
 
             try {
                 createCharacterAnalysisRoom(room.getId(), book_id, book_title);

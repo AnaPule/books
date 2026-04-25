@@ -19,7 +19,6 @@ import { Grid } from '@giphy/react-components';
 import { NoticeType } from '@models/Notice';
 import { quiet as QuietRoom } from './quiet';
 
-
 const gf = new GiphyFetch('3badXghEvmM6yeAbWPgNYcyOBy6E82K1');
 // ─── Using your index.css blues directly ──────────────────────────
 // These match your CSS variables from index.css

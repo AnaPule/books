@@ -114,8 +114,6 @@ export const quiet: React.FC<props> = ({ room, onSend, onExit }) => {
                     <p className="text-xs text-white/30 capitialize mt-2">— {quote?.author}</p>
                 </div>
 
-
-
                 <div className="absolute bottom-6 left-6 right-6 flex gap-4">
 
                     <AudioPlayer

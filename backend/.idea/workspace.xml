@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="posting notifications, and altered fetch notifications to include meta data where necessary.">
-      <change beforePath="$PROJECT_DIR$/../frontend/src/models/Book.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/models/Book.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/room/DiscussionRoomPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/room/DiscussionRoomPage.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="6752d9c3-94a4-476a-a75f-28fbbe33a3c4" name="Changes" comment="posting notifications, and altered fetch notifications to include meta data where necessary." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

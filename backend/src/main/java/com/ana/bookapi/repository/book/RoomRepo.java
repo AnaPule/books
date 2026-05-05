@@ -21,6 +21,10 @@ public interface RoomRepo extends JpaRepository<Room, String> {
 
     List<Room> findAllByParentId(String parentId);
     List<Room> findAllByBookId(String bookId);
+    @Query("select r from Member m\n" +
+            "inner join Room r on m.roomId = r.id\n" +
+            "where m.userId = :user_id")
+    List<Room> findUserRooms(@Param("user_id") String userId);
 
     boolean existsById(String id);
     boolean existsByName(String name);

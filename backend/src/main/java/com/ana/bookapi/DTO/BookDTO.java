@@ -23,6 +23,12 @@ public class BookDTO {
 
     // Default constructor
     public BookDTO() {}
+    public BookDTO(Book book) {
+        this.id = book.getId();
+        this.name = book.getName();
+        this.coverArt = book.getCoverArt();
+        this.isbn = book.getIsbn();
+    }
 
     // Constructor from Book entity
     public BookDTO(Book book, Author author, Genre genre, Room room) {

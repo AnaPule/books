@@ -2,18 +2,15 @@
 import React, { useState, useEffect } from 'react';
 
 {/* =============== MODELS ============ */ }
-import type { Room } from '@models/Book';
-import type { User } from '@models/User';
+import { type BigRoom, type Room, RelationshipType } from '@models/Book';
 {/* =============== COMPONENTS ============ */ }
 import { toast } from 'sonner';
 import {
     Search, Compass, MessageSquare,
-    Users, Bell, Settings, LogOut,
-    X, Menu, Home, Flame, Star,
-    Plus, BookOpen
+    Users, X, Menu,
 } from "lucide-react";
 import Board from '@components/skeleton/board';
-import { useNewMessage } from "@hooks/useMessage";
+import { NoResults } from '@components/skeleton/noResults';
 import { Shelves } from '@components/skeleton/shelves/Shelves';
 
 {/* =============== SERVICES ============ */ }
@@ -23,6 +20,7 @@ import { useAuth } from "@context/AuthContext";
 
 {/* =============== IMAGES ============ */ }
 import Avatar from '@assets/avatar.jpeg';
+import type { Notification } from '@models/Notice';
 
 const getInitials = (name: string) => {
     const words = name.trim().split(/\s+/);
@@ -32,14 +30,18 @@ const getInitials = (name: string) => {
 
 
 export function DiscussionHubPage() {
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'discover' | 'my-rooms' | 'messages'>('discover');
     const [popularRooms, setPopularRooms] = useState<Room[]>([]);
+    const [userRooms, setUserRooms] = useState<BigRoom[]>([]);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const getPopularRooms = async () => {
             const popular = await request.get<any>(`/recs/popular-rooms`);
-            setPopularRooms(popular.rooms)
+            const user_rooms = await request.get<any>(`/rooms/${user?.id}`);
+            setPopularRooms(popular.rooms);
+            setUserRooms(user_rooms.rooms);
         }
         getPopularRooms();
     }, []);
@@ -52,7 +54,7 @@ export function DiscussionHubPage() {
 
             <main className="max-w-7xl mx-auto px-5 py-6">
                 {activeTab === 'discover' && <DiscoverContent popularRooms={popularRooms} />}
-                {activeTab === 'my-rooms' && <MyRoomsContent />}
+                {activeTab === 'my-rooms' && <MyRoomsContent rooms={userRooms} onTabChange={setActiveTab} />}
                 {activeTab === 'messages' && <MessagesContent />}
             </main>
         </div>
@@ -140,7 +142,7 @@ const TopNavBar: React.FC<{
     );
 };
 
-// MOBILE MENU DRAWER
+
 const MobileMenuDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const { user, setUser } = useAuth();
     const navigate = useNavigate();
@@ -212,7 +214,7 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
 
     return (
         <div className="space-y-20">
-            {/* Library Section - Original Apple Style */}
+            {/* Library Section */}
             <div>
                 <Shelves
                     shelf1Caption='Currently Reading'
@@ -235,7 +237,7 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-7">
-                    {topRooms.splice(0,6).map((room) => (
+                    {topRooms.splice(0, 6).map((room) => (
                         <div
                             key={room.id}
                             className="group relative bg-white rounded-2xl border border-[#e9e9ef] p-5 hover:shadow-md transition-all duration-300">
@@ -247,7 +249,8 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
                                     <h3
                                         onClick={() => {
                                             //console.log('url:', `/book/${room.bookId}/room/${room.id}`)
-                                            navigate(`/book/${room.bookId}/room/${room.id}`)}}
+                                            navigate(`/book/${room.bookId}/room/${room.id}`)
+                                        }}
                                         className="font-['SF_Pro_Display',_system-ui] font-semibold text-[#1d1d1f] text-base truncate hover:underline cursor-pointer">
                                         {room.name}
                                     </h3>
@@ -279,7 +282,7 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
             <Board
                 title="Recommended for You"
                 subtitle="based on your reading"
-                items={recommendRooms.splice(0,20).map(room => ({
+                items={recommendRooms.map(room => ({
                     heading: room.name,
                     subheading: `${room.members || 0} members`,
                     action: {
@@ -295,20 +298,149 @@ const DiscoverContent: React.FC<{ popularRooms: Room[] }> = ({ popularRooms }) =
     );
 };
 
-const MyRoomsContent: React.FC = () => (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#C0D4E0]/30 p-12 text-center">
-        <div className="text-6xl mb-4">📚</div>
-        <h2 className="text-xl font-serif font-semibold text-[#5a4d41] mb-2">My Rooms</h2>
-        <p className="text-[#7e6957]">Your joined rooms will appear here. Join rooms from Discover to get started!</p>
-    </div>
-);
+const MyRoomsContent: React.FC<{ rooms: BigRoom[], onTabChange: any }> = ({ rooms, onTabChange }) => {
+    const navigate = useNavigate();
 
-const MessagesContent: React.FC = () => (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#C0D4E0]/30 p-12 text-center">
-        <div className="text-6xl mb-4">💬</div>
-        <h2 className="text-xl font-serif font-semibold text-[#5a4d41] mb-2">Messages</h2>
-        <p className="text-[#7e6957]">Select a conversation from the left panel to start messaging.</p>
-    </div>
-);
+    if (rooms.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                <NoResults
+                    WarningLabel='Your joined rooms will appear here. Join rooms from Discover to get started!'
+                    actionLabel='Explore Rooms →'
+                    action={() => onTabChange('discover')} />
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-5">
+                <div>
+                    <h2 className="text-xl font-serif font-semibold text-[#5a4d41]">My Rooms</h2>
+                    <p className="text-xs text-[#7e6957] mt-0.5">where you belong</p>
+                </div>
+            </div>
+
+            {/* Rooms Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {rooms.map((room) => (
+                    <div
+                        key={room.id}
+                        onClick={() => {
+                            navigate(`/book/${room.book?.id}/room/${room.id}`)
+                        }}
+                        className="group bg-white/80 backdrop-blur-sm rounded-xl border border-[#C0D4E0]/30 hover:border-[#c9a394]/40 hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer"
+                    >
+                        <div className="h-1 w-full bg-gradient-to-r from-[#c9a394]/0 via-[#c9a394]/50 to-[#c9a394]/0 group-hover:via-[#c9a394]/70 transition-all" />
+                        <div className="p-4">
+                            <div className="flex items-start gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c9a394]/15 to-[#b58b7c]/15 flex items-center justify-center text-xl flex-shrink-0">
+                                    {getInitials(room.name)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-sans font-semibold text-[#5a4d41] truncate">
+                                        {room.name}
+                                    </h3>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-xs text-[#7e6957] flex items-center gap-1">
+                                            <span className="w-1 h-1 rounded-full bg-[#9FB89F]" />
+                                            {room.members} members
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#C0D4E0]/20">
+                                <div className="flex -space-x-1">
+                                    {[...Array(3)].map((_, i) => (
+                                        <div key={i} className="w-5 h-5 rounded-full bg-[#c9a394]/20 border border-white flex items-center justify-center text-[8px] text-[#5a4d41]">
+                                            {String.fromCharCode(65 + i)}
+                                        </div>
+                                    ))}
+                                    <div className="w-5 h-5 rounded-full bg-[#C0D4E0]/30 border border-white flex items-center justify-center text-[8px] text-[#5a4d41]">
+                                        +{room.members - 3}
+                                    </div>
+                                </div>
+                                <button className="px-3 py-1 text-xs font-medium text-[#c9a394] border border-[#c9a394]/30 rounded-full hover:bg-[#c9a394] hover:text-white transition-all">
+                                    Visit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Whimsical footer */}
+            <div className="text-center pt-4">
+                <p className="text-[10px] text-[#c9a394]/50 flex items-center justify-center gap-2">
+                    <span>✦</span>
+                    <span>join more rooms to see them here</span>
+                    <span>✦</span>
+                </p>
+            </div>
+        </div>
+    );
+};
+
+const MessagesContent: React.FC = () => {
+    const {pings} = useAuth();
+    const conversations = [
+        { id: 1, name: 'Clara', lastMessage: 'Have you reached chapter 7 yet?', time: '2m ago', unread: true, avatar: 'C' },
+        { id: 2, name: 'Rowan', lastMessage: 'Sending you that essay…', time: '1h ago', unread: false, avatar: 'R' },
+        { id: 3, name: 'Theo', lastMessage: 'Did you vote?', time: 'yesterday', unread: true, avatar: 'T' },
+    ];
+    const filteredPings: Notification[] = pings.filter(p => p.type == RelationshipType.INTERACTION) || [];
+
+    if (filteredPings?.length === 0) {
+        return (
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#C0D4E0]/30 p-12 text-center">
+                <div className="text-6xl mb-4">💬</div>
+                <h2 className="text-xl font-serif font-semibold text-[#5a4d41] mb-2">Messages</h2>
+                <p className="text-[#7e6957]">Select a conversation from the left panel to start messaging.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-xl font-serif font-semibold text-[#5a4d41]">Messages</h2>
+                <p className="text-xs text-[#7e6957] mt-0.5">your conversations</p>
+            </div>
+
+            <div className="space-y-2">
+                {conversations.map((chat) => (
+                    <div
+                        key={chat.id}
+                        className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#C0D4E0]/30 p-3 hover:shadow-sm transition-all cursor-pointer group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a394] to-[#b58b7c] flex items-center justify-center text-white text-sm font-medium">
+                                    {chat.avatar}
+                                </div>
+                                {chat.unread && (
+                                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#c9a394]" />
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-medium text-[#5a4d41] text-sm group-hover:text-[#c9a394] transition-colors">
+                                        {chat.name}
+                                    </h3>
+                                    <span className="text-xs text-[#7e6957]">{chat.time}</span>
+                                </div>
+                                <p className={`text-xs truncate ${chat.unread ? 'text-[#5a4d41] font-medium' : 'text-[#7e6957]'}`}>
+                                    {chat.lastMessage}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 export default DiscussionHubPage;

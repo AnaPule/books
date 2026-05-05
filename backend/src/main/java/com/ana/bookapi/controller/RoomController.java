@@ -205,6 +205,31 @@ public class RoomController {
         }
     }
 
+    // get user rooms
+    @GetMapping("/{user_id}")
+    public ResponseEntity<?> getUserRooms(@PathVariable("user_id") String user_id) {
+        try{
+            List<RoomDTO> user_rooms = rs.getUserRooms(user_id)
+                    .stream()
+                    .map(
+                            room -> {
+                                return new RoomDTO(
+                                        room.getId(),
+                                        room.getName(),
+                                        new BookDTO(bs.getBookById(room.getBookId())),
+                                        ms.getNoOfMembers(room.getId())
+                                );
+                            }
+                    )
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(Map.of("rooms",user_rooms));
+        }catch (Exception e){
+            er.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            er.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(er);
+        }
+    }
+
     // add member to room
     @PostMapping("/add-member/{userId}/{roomId}")
     public ResponseEntity<?> addMember(@PathVariable String userId, @PathVariable String roomId) {

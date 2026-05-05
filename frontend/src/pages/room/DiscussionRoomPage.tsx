@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
 import { toast } from 'sonner';
 import {
-   ThumbsUp, ThumbsDown, 
+    ThumbsUp, ThumbsDown, Menu,
     Send, Hash, ChevronLeft, ChevronRight,
     X, Smile, BookOpen, Pin, Reply,
     CornerDownRight, Headphones,
@@ -20,8 +20,7 @@ import { NoticeType } from '@models/Notice';
 import { quiet as QuietRoom } from './quiet';
 
 const gf = new GiphyFetch('3badXghEvmM6yeAbWPgNYcyOBy6E82K1');
-// ─── Using your index.css blues directly ──────────────────────────
-// These match your CSS variables from index.css
+
 const colors = {
     // Your blues from index.css
     powderBlue: '#E0E9F0',
@@ -59,19 +58,6 @@ function avatarColor(name: string) {
     return AVATAR_COLORS[n % AVATAR_COLORS.length];
 }
 
-// ─── mock data (same as before) ─────────────────────────────────
-const MOCK_ROOM = {
-    id: 'room-1',
-    name: 'The Great Gatsby',
-    bookId: 'book-1',
-    bookName: 'The Great Gatsby',
-    bookAuthor: 'F. Scott Fitzgerald',
-    bookCover: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=300',
-    description: "Diving deep into Fitzgerald's masterpiece — themes of wealth, love, and the American Dream.",
-    memberCount: 234,
-    isUserMember: true,
-};
-
 function timeAgo(ts: string) {
     const s = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
     if (s < 60) return `${s}s ago`;
@@ -88,16 +74,17 @@ const getInitials = (name: string) => {
 
 export const DiscussionRoomPage: React.FC = () => {
     const { user, setPings } = useAuth();
-    const [room] = useState(MOCK_ROOM);
     const [isMember, setIsMember] = useState(false);
-    const [testRoom, setRoom] = useState<BigRoom | null>(null);
+    const [room, setRoom] = useState<BigRoom | null>(null);
     const [activeSubRoom, setActiveSubRoom] = useState<Room | null>(null);
     const [newComment, setNewComment] = useState('');
-    const [replyTo, setReplyTo] = useState<Comment | null>(testRoom?.comments[1] || null);
+    const [replyTo, setReplyTo] = useState<Comment | null>(null);
     const [isQuietMode, setIsQuietMode] = useState(false);
     const [showBookInfo, setShowBookInfo] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { book_id, room_id } = useParams();
+
 
     useEffect(() => {
 
@@ -137,8 +124,9 @@ export const DiscussionRoomPage: React.FC = () => {
 
         getIsMember();
         fetchRoom();
+        //console.log('Active room', activeSubRoom?.id);
 
-    }, [book_id, testRoom?.id, isMember]);
+    }, [book_id, room?.id, isMember]);
 
     const handlePost = async (content?: string, quiet_room?: boolean) => {
 
@@ -147,7 +135,7 @@ export const DiscussionRoomPage: React.FC = () => {
         if (!message.trim()) return;
 
         const commentData = {
-            roomId: quiet_room ? testRoom?.id : activeSubRoom?.id,
+            roomId: quiet_room ? room?.id : activeSubRoom?.id,
             userId: user?.id,
             parentId: replyTo?.id || null,
             content: message,
@@ -336,63 +324,82 @@ export const DiscussionRoomPage: React.FC = () => {
 
     const handleMembers = () => {
         let mem: number = 0;
-        testRoom?.subRooms.map((s) => {
+        room?.subRooms.map((s) => {
             mem = mem + Number(s.members);
         })
-        return mem + Number(testRoom?.members || 0);
+        return mem + Number(room?.members || 0);
     }
 
-    if (isQuietMode) return <QuietRoom room={testRoom || null} onExit={() => setIsQuietMode(false)} onSend={handlePost} />; 
+    if (isQuietMode) return <QuietRoom room={room || null} onExit={() => setIsQuietMode(false)} onSend={handlePost} />;
 
     return (
         <>
-            <div className="min-h-screen pt-16">
-                <div className="flex h-screen overflow-hidden">
-                    <SubRoomSidebar
-                        room={testRoom || null}
-                        activeSubRoom={activeSubRoom}
-                        onSelect={setActiveSubRoom}
-                        collapsed={sidebarCollapsed}
-                        onToggle={() => setSidebarCollapsed(v => !v)}
-                    />
+            {/* Mobile Menu Button */}
+            <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden fixed top-20 left-4 z-50 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center text-[#5a4d41] border border-[#C0D4E0]/30"
+            >
+                <Menu size={20} />
+            </button>
 
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        {/* header with notifications */}
+            {/* Mobile Overlay */}
+            {isMobileMenuOpen && (
+                <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+            )}
+
+            <div className="min-h-screen pt-16 sm:pt-20">
+                <div className="flex h-screen overflow-hidden">
+                    {/* Sidebar - responsive */}
+                    <div className={`
+                        fixed lg:relative z-50 h-full transition-transform duration-300
+                        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                    `}>
+                        <SubRoomSidebar
+                            room={room || null}
+                            activeSubRoom={activeSubRoom}
+                            onSelect={setActiveSubRoom}
+                            collapsed={sidebarCollapsed}
+                            onToggle={() => setSidebarCollapsed(v => !v)}
+                            onCloseMobile={() => setIsMobileMenuOpen(false)}
+                        />
+                    </div>
+
+                    <div className="flex-1 flex flex-col overflow-hidden w-full">
                         <ChatHeader
-                            room={testRoom || null}
+                            room={room || null}
                             isMember={isMember}
                             activeSubRoom={activeSubRoom}
                             onQuietMode={() => setIsQuietMode(true)}
                             onToggleBookInfo={() => setShowBookInfo(v => !v)}
+                            onMenuClick={() => setIsMobileMenuOpen(true)}
                         />
 
-                        {/* system rules and guidlines */}
-                        <div className="flex-1 overflow-y-auto px-4">
+                        <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-20 lg:pb-0">
+                            {/* Welcome message - responsive */}
                             {(() => {
-                                const pinnedComment = testRoom?.comments.find(c => c.user.user_id == 'system');
+                                const pinnedComment = room?.comments.find(c => c.user?.user_id === 'system');
                                 if (!pinnedComment) return null;
-
                                 return (
-                                    <div className="mb-6 rounded-xl border" style={{ borderColor: `${colors.dustyBlue}25`, backgroundColor: `${colors.dustyBlue}05` }}>
-                                        <div className="flex items-center gap-2 px-4 py-2 rounded-t-xl" style={{ backgroundColor: `${colors.dustyBlue}10`, borderBottom: `1px solid ${colors.dustyBlue}15` }}>
+                                    <div className="mb-4 sm:mb-6 rounded-xl border border-[#C0D4E0]/25 bg-[#C0D4E0]/05 mt-3 sm:mt-5">
+                                        <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-t-xl bg-[#C0D4E0]/10 border-b border-[#C0D4E0]/15">
                                             <Pin size={12} color={colors.dustyBlue} />
-                                            <span className="text-xs font-medium" style={{ color: colors.dustyBlue }}>Welcome to {testRoom?.name}</span>
+                                            <span className="text-xs font-medium text-[#5a4d41]">Welcome to {room?.name}</span>
                                         </div>
-                                        <div className="px-4 py-3">
+                                        <div className="px-3 sm:px-4 py-3 text-sm">
                                             <div dangerouslySetInnerHTML={{ __html: pinnedComment?.content || '' }} />
                                         </div>
                                     </div>
                                 );
                             })()}
 
-                            {/* room comments */}
-                            <div className="space-y-1">
-                                {/* Main room comments */}
-                                {activeSubRoom?.id === testRoom?.id &&
-                                    testRoom?.comments?.map(c => (
+                            {/* Comments */}
+                            <div className="space-y-2 sm:space-y-1 pb-4">
+                                {activeSubRoom?.id === room?.id &&
+                                    room?.comments?.map(c => (
                                         <CommentThread
                                             key={c.id}
                                             comment={c}
+                                            roomType={activeSubRoom?.type || null}
                                             onLike={handleLike}
                                             onDislike={handleDislike}
                                             onReply={setReplyTo}
@@ -400,12 +407,12 @@ export const DiscussionRoomPage: React.FC = () => {
                                         />
                                     ))}
 
-                                {/* Subroom comments */}
-                                {activeSubRoom?.id !== testRoom?.id &&
-                                    testRoom?.subRooms?.find(s => s.id === activeSubRoom?.id)?.comments?.map((c) => (
+                                {activeSubRoom?.id !== room?.id &&
+                                    room?.subRooms?.find(s => s.id === activeSubRoom?.id)?.comments?.map((c) => (
                                         <CommentThread
                                             key={c?.id}
                                             comment={c}
+                                            roomType={activeSubRoom?.type || null}
                                             onLike={handleLike}
                                             onDislike={handleDislike}
                                             onReply={setReplyTo}
@@ -415,185 +422,148 @@ export const DiscussionRoomPage: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Reply indicator - responsive */}
                         {replyTo && (
-                            <div className="px-4 py-1.5 flex items-center justify-between" style={{ backgroundColor: `${colors.dustyBlue}10`, borderTop: `1px solid ${colors.periwinkle}` }}>
-                                <div className="flex items-center gap-2 text-xs" style={{ color: colors.text.secondary }}>
+                            <div className="px-3 sm:px-4 py-1.5 flex items-center justify-between bg-[#C0D4E0]/10 border-t border-[#C0D4E0]/30">
+                                <div className="flex items-center gap-2 text-xs text-[#5A6E7E]">
                                     <CornerDownRight size={13} />
-                                    Replying to <strong className="" style={{ color: colors.text.primary }}>{replyTo?.user?.name}</strong>
+                                    Replying to <strong className="text-[#2C3E4E]">{replyTo?.user?.name}</strong>
                                 </div>
-                                <button onClick={() => setReplyTo(null)} className="hover:opacity-70" style={{ color: colors.text.muted }}>
+                                <button onClick={() => setReplyTo(null)} className="hover:opacity-70 text-[#8A9AAA]">
                                     <X size={14} />
                                 </button>
                             </div>
                         )}
-                        {isMember &&
-                            <ChatInput
-                                value={newComment}
-                                onChange={setNewComment}
-                                onSend={handlePost}
-                                channelName={activeSubRoom?.name} />}
+
+                        {/* Chat input - sticky on mobile */}
+                        {isMember && activeSubRoom?.type !== 3 && (
+                            <div className="sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-[#C0D4E0]/30">
+                                <ChatInput
+                                    value={newComment}
+                                    onChange={setNewComment}
+                                    onSend={handlePost}
+                                    channelName={activeSubRoom?.name}
+                                />
+                            </div>
+                        )}
                     </div>
 
+                    {/* Book info sidebar - responsive */}
                     <BookInfoSidebar
                         user_id={user?.id || ''}
                         room_id={room_id || ''}
                         isMember={isMember}
-                        room={testRoom || null}
+                        room={room || null}
                         isOpen={showBookInfo}
                         members={handleMembers()}
-                        onClose={() => setShowBookInfo(false)} />
+                        onClose={() => setShowBookInfo(false)}
+                    />
                 </div>
             </div>
         </>
-
     );
 };
 
-// Sidebar component - uses your blues
+// Sidebar component
 const SubRoomSidebar: React.FC<{
     room: BigRoom | null,
-    activeSubRoom: any
+    activeSubRoom: any,
     onSelect: any,
     collapsed: any,
-    onToggle: any
-}> = ({ room, activeSubRoom, onSelect, collapsed, onToggle }) => {
+    onToggle: any,
+    onCloseMobile?: () => void
+}> = ({ room, activeSubRoom, onSelect, collapsed, onToggle, onCloseMobile }) => {
     const { room_id } = useParams();
     const { user } = useAuth();
     const [collapsedCats, setCollapsedCats] = useState<Record<string, boolean>>({});
     const toggleCat = (id: string) => setCollapsedCats(v => ({ ...v, [id]: !v[id] }));
 
+    const handleSelect = (room: any) => {
+        onSelect(room);
+        if (window.innerWidth < 1024 && onCloseMobile) onCloseMobile();
+    };
+
     return (
-        <aside className={`flex flex-col border-r transition-all duration-200 ${collapsed ? 'w-[72px]' : 'w-60'} bg-white/40`} style={{ borderColor: colors.periwinkle }}>
-            {/* ----------- BOOK NAME - HEADER ---------- */}
-            <div className="p-3 border-b flex items-center justify-between cursor-pointer" style={{ borderColor: colors.periwinkle }}>
+        <aside className={`flex flex-col border-r transition-all duration-200 ${collapsed ? 'w-[72px]' : 'w-64'} bg-white/95 backdrop-blur-md h-full`} style={{ borderColor: colors.periwinkle }}>
+            <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.periwinkle }}>
                 {!collapsed ? (
-                    <span className="font-bold text-sm truncate" style={{ color: colors.text.primary }}>{room?.name}</span>
+                    <span className="font-bold text-sm truncate text-[#2C3E4E]">{room?.name}</span>
                 ) : (
-                    <span className="font-bold text-sm mx-auto" style={{ color: colors.text.primary }}>{room?.name[0]}</span>
+                    <span className="font-bold text-sm mx-auto text-[#2C3E4E]">{room?.name?.[0]}</span>
                 )}
-                <button onClick={onToggle} className="hover:opacity-70" style={{ color: colors.text.muted }}>
+                <button onClick={onToggle} className="hover:opacity-70 text-[#8A9AAA]">
                     {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
                 </button>
             </div>
 
-            {/* ----- SEARCH BAR -------*/}
+            {/* Search - hide when collapsed */}
             {!collapsed && (
                 <div className="p-2">
-                    <div className="flex items-center gap-1.5 rounded-md px-2 py-1" style={{ backgroundColor: colors.powderBlue }}>
-                        <Search size={13} style={{ color: colors.text.muted }} />
-                        <span className="text-xs" style={{ color: colors.text.muted }}>Search channels</span>
+                    <div className="flex items-center gap-1.5 rounded-md px-2 py-1 bg-[#E0E9F0]">
+                        <Search size={13} className="text-[#8A9AAA]" />
+                        <span className="text-xs text-[#8A9AAA]">Search channels</span>
                     </div>
                 </div>
             )}
 
-            {/* ----- CHANNELS -------*/}
             <nav className="flex-1 overflow-y-auto p-2 space-y-2">
-                {/* ----- TEXT CHANNELS -------*/}
+                {/* Text Channels */}
                 {!collapsed && (
-                    <button onClick={() => toggleCat('cat-1')} className="w-full flex items-center gap-1 px-1 py-1.5 text-xs font-bold uppercase tracking-wide" style={{ color: colors.text.muted }}>
+                    <button onClick={() => toggleCat('cat-1')} className="w-full flex items-center gap-1 px-1 py-1.5 text-xs font-bold uppercase tracking-wide text-[#8A9AAA]">
                         <ChevronDown size={12} className={`transition-transform ${collapsedCats['cat-1'] ? '-rotate-90' : ''}`} />
                         text channels
                     </button>
                 )}
-                {/* general */}
-                {
-                    !collapsedCats['cat-1']
-                    && room
-                    && (
+                {!collapsedCats['cat-1'] && room && (
+                    <>
                         <button
-                            key={room.id}
-                            onClick={() => onSelect(room)}
-                            className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5`}
-                            style={{
-                                backgroundColor: activeSubRoom?.id === room?.id ? `${colors.dustyBlue}20` : 'transparent',
-                                color: activeSubRoom.id === room?.id ? colors.text.primary : colors.text.secondary,
-                            }}
+                            onClick={() => handleSelect(room)}
+                            className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === room?.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}
                         >
-                            <Hash size={12} className="flex-shrink-0" style={{ color: colors.text.muted }} />
-                            {!collapsed && (
-                                <>
-                                    <span className="flex-1 truncate text-sm">general</span>
-                                    {room?.id == room_id && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.dustyBlue }} />}
-                                </>
-                            )}
+                            <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
+                            <span className="flex-1 truncate text-sm">general</span>
+                            {room?.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
                         </button>
-                    )
-                }
-                {/* the rest of the sub rooms */}
-                {
-                    !collapsedCats['cat-1']
-                    && room?.subRooms.filter(s => s.type == 2)
-                        .map((s) => (
-                            <button
-                                key={s.id}
-                                onClick={() => onSelect(s)}
-                                className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5`}
-                                style={{
-                                    backgroundColor: activeSubRoom?.id === s.id ? `${colors.dustyBlue}20` : 'transparent',
-                                    color: activeSubRoom.id === s.id ? colors.text.primary : colors.text.secondary,
-                                }}
-                            >
-                                <Hash size={12} className="flex-shrink-0" style={{ color: colors.text.muted }} />
-                                {!collapsed && (
-                                    <>
-                                        <span className="flex-1 truncate text-sm">{s.name}</span>
-                                        {s.id == room_id && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.dustyBlue }} />}
-                                    </>
-                                )}
+                        {room?.subRooms.filter(s => s.type === 2).map((s) => (
+                            <button key={s.id} onClick={() => handleSelect(s)} className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === s.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}>
+                                <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
+                                <span className="flex-1 truncate text-sm">{s.name}</span>
+                                {s.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
                             </button>
-                        ))
-                }
+                        ))}
+                    </>
+                )}
 
-                {/* ----- ANALYSIS CHANNELS -------*/}
+                {/* Analysis Channels */}
                 {!collapsed && (
-                    <button onClick={() => toggleCat('cat-2')} className="w-full flex items-center gap-1 px-1 py-1.5 text-xs font-bold uppercase tracking-wide" style={{ color: colors.text.muted }}>
+                    <button onClick={() => toggleCat('cat-2')} className="w-full flex items-center gap-1 px-1 py-1.5 text-xs font-bold uppercase tracking-wide text-[#8A9AAA]">
                         <ChevronDown size={12} className={`transition-transform ${collapsedCats['cat-2'] ? '-rotate-90' : ''}`} />
                         analysis channels
                     </button>
                 )}
-                {
-                    !collapsedCats['cat-2']
-                    && room?.subRooms.filter(s => s.type == 3)
-                        .map((s) => (
-                            <button
-                                key={s.id}
-                                onClick={() => onSelect(s)}
-                                className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5`}
-                                style={{
-                                    backgroundColor: activeSubRoom?.id === s.id ? `${colors.dustyBlue}20` : 'transparent',
-                                    color: activeSubRoom?.id === s.id ? colors.text.primary : colors.text.secondary,
-                                }}
-                            >
-                                <Hash size={12} className="flex-shrink-0" style={{ color: colors.text.muted }} />
-                                {!collapsed && (
-                                    <>
-                                        <span className="flex-1 truncate text-sm">{s.name}</span>
-                                        {s.id == room_id && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.dustyBlue }} />}
-                                    </>
-                                )}
-                            </button>
-                        ))
-                }
+                {!collapsedCats['cat-2'] && room?.subRooms.filter(s => s.type === 3).map((s) => (
+                    <button key={s.id} onClick={() => handleSelect(s)} className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === s.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}>
+                        <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
+                        <span className="flex-1 truncate text-sm">{s.name}</span>
+                        {s.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
+                    </button>
+                ))}
             </nav>
 
+            {/* User profile - responsive */}
             {!collapsed && (
-                <div className="p-2 border-t flex items-center gap-2" style={{ backgroundColor: `${colors.mistyLavender}40`, borderColor: colors.periwinkle }}>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ backgroundColor: avatarColor('user'), color: colors.powderBlue }}>
+                <div className="p-2 border-t flex items-center gap-2 bg-[#C0D4E0]/20 border-[#C0D4E0]">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-[#9CB0C0] text-white">
                         {user?.profilePhoto ? (
-                            <img
-                                src={user.profilePhoto}
-                                className='rounded-full w-9 h-9'
-                            />
+                            <img src={user.profilePhoto} className='rounded-full w-9 h-9' />
                         ) : (
                             getInitials(user?.username || 'P')
                         )}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold truncate" style={{ color: colors.text.primary }}>{user?.username}</div>
-                        <div className="text-xs" style={{ color: colors.text.muted }}>Online</div>
+                        <div className="text-sm font-semibold truncate text-[#2C3E4E]">{user?.username}</div>
+                        <div className="text-xs text-[#5A6E7E]">Online</div>
                     </div>
-                    {/* <Settings size={15} className="cursor-pointer flex-shrink-0 hover:opacity-70" style={{ color: colors.text.muted }} /> */}
-                    {/* DISCUSSION ROOM SETTINGS ..?*/}
                 </div>
             )}
         </aside>
@@ -601,59 +571,47 @@ const SubRoomSidebar: React.FC<{
 };
 
 // Header component
-const ChatHeader: React.FC<{ room: BigRoom | null, activeSubRoom: any, onQuietMode: any, onToggleBookInfo: any, isMember: boolean }> = ({ room, activeSubRoom, onQuietMode, onToggleBookInfo, isMember }) => {
+const ChatHeader: React.FC<{ room: BigRoom | null, activeSubRoom: any, onQuietMode: any, onToggleBookInfo: any, isMember: boolean, onMenuClick: () => void }> = ({ room, activeSubRoom, onQuietMode, onToggleBookInfo, isMember, onMenuClick }) => {
     const navigate = useNavigate();
 
     return (
-        <div className="h-13 flex items-center justify-between px-4 border-b flex-shrink-0 bg-white/40" style={{ borderColor: colors.periwinkle }}>
-            <div className="flex items-center gap-2">
-                {/* Back Button */}
-                <button
-                    onClick={() => navigate(-1)}
-                    className="p-1.5 rounded-md transition-opacity hover:opacity-70 mr-1"
-                    style={{ color: colors.text.muted }}
-                    title="Go back"
-                >
+        <div className="h-13 flex items-center justify-between px-3 sm:px-4 border-b flex-shrink-0 bg-white/40" style={{ borderColor: colors.periwinkle }}>
+            <div className="flex items-center gap-2 min-w-0">
+                <button onClick={onMenuClick} className="lg:hidden p-1.5 rounded-md hover:bg-[#E0E9F0]/50">
+                    <Menu size={18} className="text-[#8A9AAA]" />
+                </button>
+                <button onClick={() => navigate(-1)} className="p-1.5 rounded-md hover:opacity-70 text-[#8A9AAA]">
                     <ChevronLeft size={18} />
                 </button>
-                <Hash size={18} style={{ color: colors.dustyBlue }} />
-                <span className="font-bold text-base" style={{ color: colors.text.primary }}>{activeSubRoom?.type == 1 ? 'general' : activeSubRoom?.name}</span>
-                <div className="w-px h-5 mx-1" style={{ backgroundColor: colors.periwinkle }} />
-                <span className="text-sm" style={{ color: colors.text.secondary }}>{room?.name}</span>
-                {activeSubRoom?.isActive && (
-                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: `${colors.dustyBlue}10` }}>
-                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.dustyBlue }} />
-                        <span className="text-xs" style={{ color: colors.dustyBlue }}>{activeSubRoom?.memberCount} online</span>
-                    </div>
-                )}
+                <Hash size={18} className="text-[#9CB0C0] flex-shrink-0" />
+                <span className="font-bold text-base text-[#2C3E4E] truncate">{activeSubRoom?.type === 1 ? 'general' : activeSubRoom?.name}</span>
+                <div className="w-px h-5 mx-1 bg-[#C0D4E0] hidden sm:block" />
+                <span className="text-sm text-[#5A6E7E] truncate hidden sm:block">{room?.name}</span>
             </div>
 
-            <div className="flex items-center gap-1">
-                <button className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
+            <div className="flex items-center gap-1 flex-shrink-0">
+                <button className="p-1.5 rounded-md hover:bg-[#E0E9F0]/50 transition-colors text-[#8A9AAA]">
                     <Bell size={18} />
                 </button>
-                <button className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
+                <button className="p-1.5 rounded-md hover:bg-[#E0E9F0]/50 transition-colors text-[#8A9AAA]">
                     <Search size={18} />
                 </button>
-                <button onClick={onToggleBookInfo} className="p-1.5 rounded-md transition-opacity hover:opacity-70" style={{ color: colors.text.muted }}>
+                <button onClick={onToggleBookInfo} className="p-1.5 rounded-md hover:bg-[#E0E9F0]/50 transition-colors text-[#8A9AAA]">
                     <BookOpen size={18} />
                 </button>
-
-                {isMember && <button
-                    onClick={onQuietMode}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all hover:opacity-80"
-                    style={{ backgroundColor: `${colors.dustyBlue}15`, color: colors.dustyBlue, border: `1px solid ${colors.dustyBlue}30` }}
-                >
-                    <Headphones size={14} />
-                    Quiet Room
-                </button>}
+                {isMember && (
+                    <button onClick={onQuietMode} className="flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-md text-xs font-semibold bg-[#9CB0C0]/15 text-[#9CB0C0] border border-[#9CB0C0]/30">
+                        <Headphones size={14} />
+                        <span className="hidden sm:inline">Quiet Room</span>
+                    </button>
+                )}
             </div>
         </div>
     );
 };
 
 // Comment thread component
-const CommentThread: React.FC<{ comment: Comment, onLike: any, onDislike: any, onReply: any, depth: any }> = ({ comment, onLike, onDislike, onReply, depth }) => {
+const CommentThread: React.FC<{ comment: Comment, onLike: any, onDislike: any, onReply: any, depth: any, roomType: Number | null }> = ({ comment, onLike, onDislike, onReply, depth, roomType }) => {
     const [showReplies, setShowReplies] = useState(true);
     const [hovered, setHovered] = useState(false);
 
@@ -688,6 +646,54 @@ const CommentThread: React.FC<{ comment: Comment, onLike: any, onDislike: any, o
                 onMouseLeave={() => setHovered(false)}
             >
                 {
+                    // type 2 -> text channels, system comments are not entertained here
+                    (roomType == 1 || 2) &&
+                    comment.user?.user_id != 'system' && (
+                        <div className="flex gap-3">
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5" style={{ backgroundColor: isSystemUser ? colors.dustyBlue : avatarColor(username), color: colors.powderBlue }}>
+                                {isSystemUser ? '📖' : avatarInitial}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline gap-2 flex-wrap">
+                                    <span className="font-bold text-sm" style={{ color: colors.text.primary }}>{username}</span>
+                                    <span className="text-xs" style={{ color: colors.text.muted }}>{timeAgo(new Date(comment.createdAt).toISOString() || new Date().toISOString())}</span>
+                                </div>
+                                <div className="mt-0.5 text-sm leading-relaxed" style={{ color: colors.text.primary }} dangerouslySetInnerHTML={{ __html: comment.content }} />
+
+                                {!isSystemUser && (
+                                    <div className={`text-[${colors.text.secondary}] flex items-center gap-3 mt-1.5 transition-opacity ${hovered ? 'opacity-100' : 'opacity-50'}`}>
+                                        <button
+                                            onClick={() => onLike(comment)}
+                                            className="flex items-center gap-1 text-xs hover:opacity-70">
+                                            <ThumbsUp size={14} color={colors.text.secondary} fill={comment.isLikedByUser ? colors.dustyBlue : 'transparent'} /> {comment.likes || 0}
+                                        </button>
+                                        <button
+                                            onClick={() => onDislike(comment)}
+                                            className="flex items-center gap-1 text-xs hover:opacity-70">
+                                            <ThumbsDown size={13} color={colors.text.secondary} fill={comment.isDislikedByUser ? colors.dustyBlue : 'transparent'} /> {comment.dislikes || 0}
+                                        </button>
+                                        <button
+                                            onClick={() => onReply(comment)}
+                                            className="flex items-center gap-1 text-xs hover:opacity-70" style={{ color: colors.text.muted }}>
+                                            <Reply size={13} /> Reply
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )
+                }
+
+                {
+                    // type 3 -> analysis channels, system comments only over here
+                    (roomType == 3) && (
+                        <div  dangerouslySetInnerHTML={{ __html: comment?.content}}  />
+                    )
+                }
+
+                {/*
+                    //taking care of the deleted lot
+                    // output is based on the room type
                     comment.deleted ? (
                         <div className="flex gap-3">
                             <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5" style={{ backgroundColor: isSystemUser ? colors.dustyBlue : avatarColor(username), color: colors.powderBlue }}>
@@ -695,8 +701,10 @@ const CommentThread: React.FC<{ comment: Comment, onLike: any, onDislike: any, o
                             </div>
                             <div>This comment has been removed due to community guidelines violations.</div>
                         </div>
-                    ) : (
+                    ) :
+                    (
                         <>
+                        {/* in genral we then dont entertain system comments outside of the main one and subsystem analysis 
                             {comment.user?.user_id != 'system' && (
                                 <div className="flex gap-3">
                                     <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5" style={{ backgroundColor: isSystemUser ? colors.dustyBlue : avatarColor(username), color: colors.powderBlue }}>
@@ -732,9 +740,10 @@ const CommentThread: React.FC<{ comment: Comment, onLike: any, onDislike: any, o
                                 </div>)}
                         </>
                     )
-                }
+                */}
 
             </div>
+
 
             {!comment.deleted && comment.replies && comment.replies.length > 0 && (
                 <div className="ml-12">
@@ -745,7 +754,7 @@ const CommentThread: React.FC<{ comment: Comment, onLike: any, onDislike: any, o
                     {showReplies && (
                         <div className="pl-3" style={{ borderLeft: `2px solid ${colors.periwinkle}` }}>
                             {comment.replies.map((r: any) => (
-                                <CommentThread key={r.id} comment={r} onLike={onLike} onDislike={onDislike} onReply={onReply} depth={depth + 1} />
+                                <CommentThread key={r.id} comment={r} roomType={roomType} onLike={onLike} onDislike={onDislike} onReply={onReply} depth={depth + 1} />
                             ))}
                         </div>
                     )}
@@ -1002,119 +1011,5 @@ const BookInfoSidebar: React.FC<{
     )
 
 };
-
-// Quiet Room component
-
-{/*
-const QuietRoom: React.FC<{ room: BigRoom | null, onExit: any, onSend: (content: string, quiet_room: boolean) => void, book_id: String }> = ({ room, onExit, onSend, book_id }) => {
-    const { quote } = useAuth();
-    const [liveComment, setLiveComment] = useState('');
-    const [trackIdx, setTrackIdx] = useState(0);
-    const chatEndRef = useRef<HTMLDivElement>(null);
-    const backgrounds: string[] = [
-        city,
-        fire, fire2, fire3,
-        porch,
-        rain1, rain2, rain3,
-        room1, room2,
-        stars,
-        street1, street2,
-        van,
-        water1, water2,
-        window
-    ].filter(Boolean);
-
-    const [backgroundImage, setBackgroundImage] = useState<string>(backgrounds[0] || water1);
-
-    useEffect(() => {
-        if (backgrounds.length > 0) {
-            const randomIndex = Math.floor(Math.random() * backgrounds.length);
-            setBackgroundImage(backgrounds[randomIndex]);
-        }
-    }, []);
-
-    useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [room?.quietRoom]);
-
-    const postWhisper = async () => {
-        if (!liveComment.trim()) return;
-
-        try {
-            await onSend(liveComment, true);
-            setLiveComment('');
-        } catch (error) {
-            console.error('Failed to post comment:', error);
-            toast.error('Failed to post comment');
-        }
-    };
-    return (
-        <div className="fixed inset-0 z-[999]">
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-
-            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
-                <button onClick={onExit} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-semibold backdrop-blur-md hover:bg-white/20 transition-all">
-                    <ChevronLeft size={16} /> Back
-                </button>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 backdrop-blur-md">
-                    <div className="w-2 h-2 rounded-full bg-blue-400 shadow-lg shadow-blue-400/50" />
-                    <span className="text-sm text-white/80">12 reading together</span>
-                </div>
-            </div>
-
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8 pointer-events-none">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 mb-6">
-                    <Sparkles size={12} className="text-blue-300" />
-                    <span className="text-xs text-blue-300 font-semibold tracking-wide">Quiet Reading Room</span>
-                </div>
-                <h1 className="font-serif text-5xl md:text-7xl font-light text-white mb-4">{room?.name}</h1>
-                <p className="italic text-lg text-white/55 max-w-md">"{quote?.quote}</p>
-                <p className="text-xs text-white/30 capitialize mt-2">— {quote?.author}</p>
-            </div>
-
-
-
-            <div className="absolute bottom-6 left-6 right-6 flex gap-4">
-                {/*
-                <AudioPlayer
-                    playlist={PLAYLIST} />
-                    
-                <div className="flex-1 bg-black/60 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden">
-                    <div className="px-3 py-2 border-b border-white/10 flex items-center gap-2">
-                        <Activity size={13} className="text-blue-300" />
-                        <span className="text-[11px] font-bold tracking-wide text-blue-300 uppercase">Whispers</span>
-                        <span className="text-xs text-white/50 ml-auto">{room?.quietRoom.length} messages</span>
-                    </div>
-                    <div className="h-40 overflow-y-auto p-3 space-y-1.5">
-                        {room?.quietRoom
-                            .sort((a: Comment, b: Comment) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-                            .map((c, idx) => (
-                                <div key={idx} className="text-sm flex gap-2">
-                                    <span className="text-blue-300 font-semibold flex-shrink-0">{c.user.name}</span>
-                                    <span className="text-white/70">{c.content}</span>
-                                </div>
-                            ))}
-                        <div ref={chatEndRef} />
-                    </div>
-                    <div className="p-2 border-t border-white/10 flex gap-2">
-                        <input
-                            value={liveComment}
-                            onChange={e => setLiveComment(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && postWhisper()}
-                            placeholder="Whisper something quietly…"
-                            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white placeholder-white/30 outline-none focus:border-blue-400/50"
-                        />
-                        <button onClick={postWhisper} className="px-3 rounded-lg bg-blue-400 text-black hover:bg-blue-300 transition-colors">
-                            <Send size={14} />
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    );
-};
-*/}
 
 export default DiscussionRoomPage;

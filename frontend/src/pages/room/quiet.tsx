@@ -5,7 +5,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@context/AuthContext';
 
 // ---------------- MODEL ------------------ //
-import { PLAYLIST } from '@models/Song';
 import { type Comment } from '@models/Book';
 import { type BigRoom } from '@models/Book';
 
@@ -16,7 +15,6 @@ import AudioPlayer from './AudioPlayer';
 
 // ---------------- IMAGES ------------------ //
 import van from "@assets/quite_space/van.gif";
-import light from "@assets/quite_space/light.gif";
 import night from "@assets/quite_space/night.jpeg";
 import fire from "@assets/quite_space/fire.gif";
 import fire2 from "@assets/quite_space/fire2.jpeg";
@@ -129,50 +127,44 @@ export const quiet: React.FC<Props> = ({ room, onSend, onExit }) => {
             </div>
 
             {/* ══════════════════════════════════════
-                top left only, minimal
+                TOP NAV - Responsive
             ══════════════════════════════════════ */}
-            <div className="absolute top-0 left-0 right-0 z-20 w-[73%] flex items-center justify-between p-5">
+            <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-3 sm:p-5">
                 <button
                     onClick={onExit}
-                    className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/60 hover:text-white hover:bg-white/20 transition-all flex items-center justify-center group"
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/60 hover:text-white hover:bg-white/20 transition-all flex items-center justify-center group"
                 >
-                    <ChevronLeft size={17} className="group-hover:-translate-x-0.5 transition-transform" />
+                    <ChevronLeft size={16} className="sm:size-[17px] group-hover:-translate-x-0.5 transition-transform" />
                 </button>
 
                 <button
                     onClick={toggleFullscreen}
-                    className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/60 hover:text-white hover:bg-white/20 transition-all flex items-center justify-center"
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/60 hover:text-white hover:bg-white/20 transition-all flex items-center justify-center"
                 >
-                    {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                    {isFullscreen ? <Minimize2 size={14} className="sm:size-[15px]" /> : <Maximize2 size={14} className="sm:size-[15px]" />}
                 </button>
             </div>
 
             {/* ══════════════════════════════════════
-                    LEFT COLUMN — book title + animated elements
-                ══════════════════════════════════════ */}
-            <div className="absolute left-0 bottom-0 flex flex-col justify-center pl-12 pr-8"
-                style={{ width: '45%' }}>
+                LEFT COLUMN — Responsive
+            ══════════════════════════════════════ */}
+            <div className="absolute left-0 bottom-0 flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12 pb-6 sm:pb-8"
+                style={{ width: '100%', maxWidth: '85%', top: '15%' }}>
 
-                {/* Decorative element */}
-                <div className="mb-8 opacity-40">
-                    <div className="w-8 h-px bg-gradient-to-r from-[purple-400/60] to-transparent mb-2" />
-                    <div className="w-12 h-px bg-gradient-to-r from-purple-400/40 to-transparent" />
-                </div>
-
-                {/* Room badge - subtle */}
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="h-px w-8 bg-purple-300/20" />
-                    <span className="text-[12px] tracking-[4px] uppercase text-purple-300/30 font-light">
+                {/* Room badge - responsive */}
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 md:mb-8">
+                    <div className="h-px w-6 bg-purple-300/20" />
+                    <span className="text-[8px] sm:text-[10px] md:text-[12px] tracking-[2px] sm:tracking-[4px] uppercase text-purple-300/30 font-light">
                         Quiet Reading Room
                     </span>
                 </div>
 
-                {/* Book title - more dramatic */}
+                {/* Book title - responsive */}
                 <h1
-                    className="text-white mb-6 font-light tracking-tight leading-[1.1]"
+                    className="text-white mb-4 sm:mb-6 font-light tracking-tight leading-[1.1]"
                     style={{
                         fontFamily: "'Playfair Display', serif",
-                        fontSize: 'clamp(48px, 7vw, 80px)',
+                        fontSize: 'clamp(32px, 8vw, 80px)',
                         fontStyle: 'italic',
                         textShadow: '0 0 60px rgba(139, 90, 200, 0.25)',
                     }}
@@ -180,86 +172,76 @@ export const quiet: React.FC<Props> = ({ room, onSend, onExit }) => {
                     {room?.name}
                 </h1>
 
-                {/* Quote - more breathing room */}
-                <div className="max-w-md pl-5 mb-10" style={{ borderLeft: '1px solid rgba(180,150,230,0.4)' }}>
+                {/* Quote - responsive */}
+                <div className="max-w-md pl-3 sm:pl-5 mb-6 sm:mb-8 md:mb-10" style={{ borderLeft: '1px solid rgba(180,150,230,0.4)' }}>
                     <p
-                        className="text-white/30 leading-relaxed mb-3"
+                        className="text-white/30 leading-relaxed mb-2 line-clamp-3"
                         style={{
                             fontFamily: "'Playfair Display', serif",
-                            fontSize: '13px',
+                            fontSize: 'clamp(10px, 3vw, 13px)',
                             fontStyle: 'italic',
                             letterSpacing: '0.2px',
                         }}
                     >
                         "{quote?.quote}"
                     </p>
-                    <p className="text-[10px] tracking-[3px] uppercase text-purple-300/40">
+                    <p className="text-[8px] sm:text-[9px] md:text-[10px] tracking-[2px] sm:tracking-[3px] uppercase text-purple-300/40">
                         — {quote?.author}
                     </p>
-                </div>
-
-                {/* Decorative element at bottom */}
-                <div className="mt-auto mb-8">
-                    <div className="flex items-center gap-2">
-                        <div className="w-1 h-1 rounded-full bg-purple-400/20" />
-                        <div className="w-6 h-px bg-gradient-to-r from-purple-400/40 to-transparent" />
-                        <span className="text-[6px] tracking-[3px] text-purple-300/40 uppercase">now reading</span>
-                    </div>
                 </div>
             </div>
 
             {/* ══════════════════════════════════════
-                RIGHT COLUMN — Audio Player, Whispers 
+                RIGHT COLUMN — Mobile: bottom sheet, Desktop: sidebar
             ══════════════════════════════════════ */}
             <div
-                className="absolute right-2 top-2 bottom-2 flex flex-col z-20"
+                className="fixed lg:absolute right-0 bottom-0 lg:top-2 lg:bottom-2 flex flex-col z-20 w-full lg:w-[320px] xl:w-[26%]"
                 style={{
-                    width: '26%',
-                    borderLeft: '0.5px solid rgba(255,255,255,0.04)',
-                    background: 'rgba(5,3,12,0.3)',
+                    maxHeight: '45vh',
+                    borderTop: '0.5px solid rgba(255,255,255,0.04)',
+                    background: 'rgba(5,3,12,0.85)',
                     backdropFilter: 'blur(28px)',
                     WebkitBackdropFilter: 'blur(28px)',
                 }}
             >
-                {/* Audio Player */}
-                <div className="px-16 pt-4 pb-3">
-                    <AudioPlayer  />
+                {/* Grab handle for mobile */}
+                <div className="lg:hidden w-full flex justify-center py-2">
+                    <div className="w-10 h-1 rounded-full bg-white/20" />
+                </div>
+
+                {/* Audio Player - responsive padding */}
+                <div className="px-3 sm:px-4 lg:px-6 pt-3 pb-2">
+                    <AudioPlayer />
                 </div>
 
                 {/* Header */}
                 <div
-                    className="px-5 pt-7 pb-4 mt-7 flex-shrink-0 border-t border-white/5"
+                    className="px-4 sm:px-5 pt-4 pb-3 flex-shrink-0 border-t border-white/5"
                     style={{
                         borderBottom: '0.5px solid rgba(255,255,255,0.04)',
                     }}
                 >
-                    <p className="text-[10px] tracking-[3px] uppercase text-[var(--dusty-rose)] mb-2">
+                    <p className="text-[8px] sm:text-[10px] tracking-[3px] uppercase text-[var(--dusty-rose)] mb-1 sm:mb-2">
                         ✦ &nbsp;whispers
                     </p>
                     <p
-                        className="text-white/45 leading-[1.25]"
-                        style={{ fontFamily: "'Playfair Display', serif", fontSize: '15px' }}
+                        className="text-white/45 leading-[1.25] text-sm sm:text-base"
+                        style={{ fontFamily: "'Playfair Display', serif" }}
                     >
                         Join the conversation
                     </p>
                 </div>
 
-                {/* Fade */}
+                {/* Feed - responsive scroll */}
                 <div
-                    className="flex-shrink-0 h-2 pointer-events-none"
-                    style={{ background: 'linear-gradient(to bottom, rgba(5,3,12,0.5), transparent)' }}
-                />
-
-                {/* Feed */}
-                <div
-                    className="flex-1 overflow-y-auto px-5 py-2 flex flex-col gap-4"
+                    className="flex-1 overflow-y-auto px-4 sm:px-5 py-2 flex flex-col gap-3 sm:gap-4"
                     style={{ scrollbarWidth: 'none' }}
                 >
                     {room?.quietRoom?.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-center gap-2">
-                            <span className="text-white/15 text-lg">✦</span>
+                            <span className="text-white/15 text-base sm:text-lg">✦</span>
                             <span
-                                className="text-white/15 text-sm"
+                                className="text-white/15 text-xs sm:text-sm"
                                 style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic' }}
                             >
                                 silence…
@@ -274,13 +256,13 @@ export const quiet: React.FC<Props> = ({ room, onSend, onExit }) => {
                                 <div key={idx} className="flex flex-col gap-1">
                                     <div className="flex items-baseline gap-2">
                                         <span
-                                            className="text-purple-300/55 uppercase text-[10px]"
+                                            className="text-purple-300/55 uppercase text-[9px] sm:text-[10px]"
                                         >
                                             {c.user?.name || 'reader'}
                                         </span>
-                                        <span className="text-white/12 text-[9px]">·</span>
+                                        <span className="text-white/12 text-[8px] sm:text-[9px]">·</span>
                                     </div>
-                                    <p className="text-white/30 text-[12px] leading-[1.65]">
+                                    <p className="text-white/30 text-[11px] sm:text-[12px] leading-[1.65] break-words">
                                         {c.content}
                                     </p>
                                 </div>
@@ -289,18 +271,18 @@ export const quiet: React.FC<Props> = ({ room, onSend, onExit }) => {
                     <div ref={chatEndRef} />
                 </div>
 
-                {/* Input */}
+                {/* Input - responsive */}
                 <div
-                    className="flex items-center gap-3 px-5 py-4 flex-shrink-0"
+                    className="flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 sm:py-4 flex-shrink-0"
                     style={{ borderTop: '0.5px solid rgba(255,255,255,0.04)' }}
                 >
-                    <span className="text-purple-300/22 text-[10px] flex-shrink-0">✦</span>
+                    <span className="text-purple-300/22 text-[8px] sm:text-[10px] flex-shrink-0">✦</span>
                     <input
                         value={liveComment}
                         onChange={e => setLiveComment(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && postWhisper()}
                         placeholder="whisper something quietly…"
-                        className="flex-1 bg-transparent border-none outline-none text-white/45 placeholder:text-white/15 text-[13px]"
+                        className="flex-1 bg-transparent border-none outline-none text-white/45 placeholder:text-white/15 text-xs sm:text-[13px]"
                         style={{
                             fontFamily: "'Playfair Display', serif",
                             fontStyle: 'italic',
@@ -308,7 +290,7 @@ export const quiet: React.FC<Props> = ({ room, onSend, onExit }) => {
                     />
                     <button
                         onClick={postWhisper}
-                        className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
                         style={{
                             border: '0.5px solid rgba(180,150,230,0.2)',
                             background: 'rgba(180,150,230,0.05)',
@@ -323,14 +305,14 @@ export const quiet: React.FC<Props> = ({ room, onSend, onExit }) => {
                             (e.currentTarget as HTMLElement).style.color = 'rgba(180,150,230,0.4)';
                         }}
                     >
-                        <Send size={10} />
+                        <Send size={12} />
                     </button>
                 </div>
             </div>
 
-            {/* Seam label */}
+            {/* Seam label - hidden on mobile */}
             <div
-                className="absolute pointer-events-none z-5 text-white/[0.04] whitespace-nowrap"
+                className="hidden lg:block absolute pointer-events-none z-5 text-white/[0.04] whitespace-nowrap"
                 style={{
                     top: '50%',
                     left: '54%',

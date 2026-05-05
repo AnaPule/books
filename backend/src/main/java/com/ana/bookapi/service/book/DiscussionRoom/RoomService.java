@@ -114,6 +114,10 @@ public class RoomService {
         return rr.findAllByBookId(bookId);
     }
 
+    //get user rooms
+    public List<Room> getUserRooms(String user_id){
+        return rr.findUserRooms(user_id);
+    }
     //general helpers
     private Room findById(String id) {
         return rr.findById(id).orElseThrow(() -> new RuntimeException("Room does not exist"));

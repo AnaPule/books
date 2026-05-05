@@ -1,17 +1,21 @@
 package com.ana.bookapi.DTO.DiscussionRoom;
 
 import com.ana.bookapi.DTO.BookDTO;
+import com.ana.bookapi.models.book.Book;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RoomDTO {
     private String id;
     private String name;
     private BookDTO book;
+    private String book_id;
     private List<SubRoomDTO> subRooms;
     private List<CommentDTO> comments;
     private List<CommentDTO> quietRoom;
     private Integer members;
+    private List<MemDTO> mems;
 
 
     private RoomDTO() {}
@@ -33,6 +37,22 @@ public class RoomDTO {
         this.quietRoom = quietRoomComments;
     }
 
+    // my rooms
+    public RoomDTO(
+            String id,
+            String name,
+            BookDTO book,
+            Integer member
+    ){
+        this.id = id;
+        this.name = name;
+        this.book = book;
+        this.members = member;
+        this.subRooms = new ArrayList<>();
+        this.comments = new ArrayList<>();
+        this.quietRoom = new ArrayList<>();
+    };
+
     public String getId() {return id;}
     public void setId(String id) {this.id = id;}
 
@@ -53,4 +73,19 @@ public class RoomDTO {
 
     public List<CommentDTO> getQuietRoom() {return quietRoom;}
     public void setQuietRoom(List<CommentDTO> quietRoomComments) {this.quietRoom = quietRoomComments;}
+
+    public String getBook_id() {return book_id;}
+    public void setBook_id(String book_id) {this.book_id = book_id;}
+
+    public List<MemDTO> getMems() {return mems;}
+    public void setMems(List<MemDTO> mems) {this.mems = mems;}
+
+    public class MemDTO{
+        private String username;
+
+        public MemDTO(String username){this.username = username;}
+
+        public String getUsername() {return username;}
+        public void setUsername(String username) {this.username = username;}
+    }
 }

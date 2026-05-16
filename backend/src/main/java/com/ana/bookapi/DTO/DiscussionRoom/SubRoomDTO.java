@@ -7,6 +7,7 @@ public class SubRoomDTO {
     private String name;
     private String parentId; // is not always filled - its used to indicate whether its a subroom or not
     private String bookId; // always filled in, because FK
+    private String creatorId;
     private Integer members;
     private List<CommentDTO> comments;
     private Integer type;
@@ -18,13 +19,15 @@ public class SubRoomDTO {
             Integer members,
             Integer type,
             List<CommentDTO> comments,
-            String parentId) {
+            String parentId,
+            String creatorId) {
         this.id = id;
         this.name = name;
         this.members = members;
         this.type = type;
         this.parentId = parentId;
         this.comments = comments;
+        this.creatorId = creatorId;
     }
 
     // for rooms
@@ -68,4 +71,7 @@ public class SubRoomDTO {
 
     public List<CommentDTO> getComments() {return comments;}
     public void setComments(List<CommentDTO> comments) {this.comments = comments;}
+
+    public String getCreatorId() {return creatorId;}
+    public void setCreatorId(String creatorId) {this.creatorId = creatorId;}
 }

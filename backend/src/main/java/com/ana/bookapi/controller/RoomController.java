@@ -85,7 +85,8 @@ public class RoomController {
                                 ms.getNoOfMembers(room.getId()),
                                 room.getType(),
                                 comments,
-                                room.getParentId());
+                                room.getParentId(),
+                                room.getCreatorId());
                     })
                     .collect(Collectors.toList());
 

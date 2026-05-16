@@ -46,7 +46,6 @@ public class RoomService {
             throw new RuntimeException("Room name unavailable!!");
         }
         return rr.save(room);
-
     }
 
     //for subrooms

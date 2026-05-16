@@ -11,6 +11,7 @@ public class RoomDTO {
     private String name;
     private BookDTO book;
     private String book_id;
+    private String creatorId;
     private List<SubRoomDTO> subRooms;
     private List<CommentDTO> comments;
     private List<CommentDTO> quietRoom;
@@ -79,6 +80,9 @@ public class RoomDTO {
 
     public List<MemDTO> getMems() {return mems;}
     public void setMems(List<MemDTO> mems) {this.mems = mems;}
+
+    public String getCreatorId() {return creatorId;}
+    public void setCreatorId(String creatorId) {this.creatorId = creatorId;}
 
     public class MemDTO{
         private String username;

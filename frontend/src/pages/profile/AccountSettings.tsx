@@ -69,7 +69,7 @@ export const AccountSettings: React.FC<AccountSettingsModalProps> = ({ isOpen, o
 
     return (
         <>
-            <Modal isOpen={isOpen} onClose={onClose} title="Account Settings">
+            <Modal isOpen={isOpen} onClose={onClose} title="Account Settings" showCloseButton={false}>
                 <form
                     onSubmit={(e: FormEvent) => handleSubmit(e)}
                     className="space-y-5">

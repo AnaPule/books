@@ -1,28 +1,36 @@
 
+{/* =============== REACT ============== */ }
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+{/* =============== MODEL ============== */ }
+import { NoticeType } from '@models/Notice';
+import type { BigRoom, Room, Comment } from '@models/Book';
+{/* =============== SERVICE ============== */ }
+import { request } from '@utils/ApiRequest';
 import { useAuth } from '@context/AuthContext';
-import { toast } from 'sonner';
+
+import { useParams, useNavigate } from 'react-router-dom';
+{/* =============== COMPONENT ============== */ }
 import {
     ThumbsUp, ThumbsDown, Menu,
     Send, Hash, ChevronLeft, ChevronRight,
     X, Smile, BookOpen, Pin, Reply,
     CornerDownRight, Headphones,
-    Search, Bell, Gift, ChevronDown
+    Search, Bell, Gift, ChevronDown,
+    CircleFadingPlus, Trash
 } from 'lucide-react';
-
-import { request } from '@utils/ApiRequest';
-import type { BigRoom, Room, Comment } from '@models/Book';
-import EmojiPicker from 'emoji-picker-react';
-import { GiphyFetch } from '@giphy/js-fetch-api';
-import { Grid } from '@giphy/react-components';
-import { NoticeType } from '@models/Notice';
+import { toast } from 'sonner';
+import { NewRoom } from './New-room';
 import { quiet as QuietRoom } from './quiet';
+import EmojiPicker from 'emoji-picker-react';
+import { Logo } from '@components/Logo/Logo';
+import { Grid } from '@giphy/react-components';
+import { GiphyFetch } from '@giphy/js-fetch-api';
+import { Modal } from '@components/skeleton/modal';
 
+{/* =============== FUNCTIONS ============== */ }
 const gf = new GiphyFetch('3badXghEvmM6yeAbWPgNYcyOBy6E82K1');
 
 const colors = {
-    // Your blues from index.css
     powderBlue: '#E0E9F0',
     skyMist: '#D0E0E8',
     periwinkle: '#C0D4E0',
@@ -42,7 +50,6 @@ const colors = {
     }
 };
 
-// Profile colors - from your palette
 const AVATAR_COLORS = [
     colors.slatePastel,
     colors.dustyBlue,
@@ -85,6 +92,28 @@ export const DiscussionRoomPage: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { book_id, room_id } = useParams();
 
+    const fetchRoom = async () => {
+        try {
+            const res = await request.get<any>(`/rooms/book/${book_id}/${user?.id}`);
+            //console.log('room', res);
+
+            const fetchedRoom = res.room;
+            setRoom(fetchedRoom);
+
+            if (fetchedRoom?.id === room_id) {
+                console.log('selected room: ', fetchedRoom);
+                setActiveSubRoom(fetchedRoom);
+            } else {
+                const foundSubRoom = fetchedRoom?.subRooms?.find((r: any) => r.id === room_id);
+                if (foundSubRoom) {
+                    setActiveSubRoom(foundSubRoom);
+                    console.log('selected room: ', foundSubRoom);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch room:', error);
+        }
+    };
 
     useEffect(() => {
 
@@ -96,29 +125,6 @@ export const DiscussionRoomPage: React.FC = () => {
                 //console.log('member?: ',res.member)
             } catch (error) {
                 console.error('Failed to check membership:', error);
-            }
-        };
-
-        const fetchRoom = async () => {
-            try {
-                const res = await request.get<any>(`/rooms/book/${book_id}/${user?.id}`);
-                //console.log('room', res);
-
-                const fetchedRoom = res.room;
-                setRoom(fetchedRoom);
-
-                if (fetchedRoom?.id === room_id) {
-                    console.log('selected room: ', fetchedRoom);
-                    setActiveSubRoom(fetchedRoom);
-                } else {
-                    const foundSubRoom = fetchedRoom?.subRooms?.find((r: any) => r.id === room_id);
-                    if (foundSubRoom) {
-                        setActiveSubRoom(foundSubRoom);
-                        console.log('selected room: ', foundSubRoom);
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to fetch room:', error);
             }
         };
 
@@ -337,7 +343,7 @@ export const DiscussionRoomPage: React.FC = () => {
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden fixed top-20 left-4 z-50 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center text-[#5a4d41] border border-[#C0D4E0]/30"
+                className="lg:hidden fixed top-20 left-4 z-40 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center text-[#5a4d41] border border-[#C0D4E0]/30"
             >
                 <Menu size={20} />
             </button>
@@ -351,7 +357,7 @@ export const DiscussionRoomPage: React.FC = () => {
                 <div className="flex h-screen overflow-hidden">
                     {/* Sidebar - responsive */}
                     <div className={`
-                        fixed lg:relative z-50 h-full transition-transform duration-300
+                        fixed lg:relative z-40 h-full transition-transform duration-300
                         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
                     `}>
                         <SubRoomSidebar
@@ -361,6 +367,7 @@ export const DiscussionRoomPage: React.FC = () => {
                             collapsed={sidebarCollapsed}
                             onToggle={() => setSidebarCollapsed(v => !v)}
                             onCloseMobile={() => setIsMobileMenuOpen(false)}
+                            fetchRoom={() => fetchRoom()}
                         />
                     </div>
 
@@ -471,102 +478,202 @@ const SubRoomSidebar: React.FC<{
     onSelect: any,
     collapsed: any,
     onToggle: any,
+    fetchRoom: () => void;
     onCloseMobile?: () => void
-}> = ({ room, activeSubRoom, onSelect, collapsed, onToggle, onCloseMobile }) => {
-    const { room_id } = useParams();
+}> = ({ room, activeSubRoom, onSelect, collapsed, onToggle, onCloseMobile, fetchRoom }) => {
+    const { room_id, book_id } = useParams();
     const { user } = useAuth();
+    const [ModalType, setModalType] = useState<String>('none')
     const [collapsedCats, setCollapsedCats] = useState<Record<string, boolean>>({});
     const toggleCat = (id: string) => setCollapsedCats(v => ({ ...v, [id]: !v[id] }));
+    const [openModal, setOpenModal] = useState<boolean>(false);
 
+    const onModalToggl = (type: string) => {
+        switch (type) {
+            case 'new': {
+                setModalType('new');
+                console.log('new');
+                setOpenModal(prev => !prev);
+                break;
+            }
+            case 'del': {
+                setModalType('del');
+                console.log('del');
+                setOpenModal(prev => !prev);
+                break;
+            }
+            default: {
+                setOpenModal(false);
+                console.log('none');
+                setModalType('none');
+                break;
+            }
+        }
+    }
     const handleSelect = (room: any) => {
         onSelect(room);
         if (window.innerWidth < 1024 && onCloseMobile) onCloseMobile();
     };
 
     return (
-        <aside className={`flex flex-col border-r transition-all duration-200 ${collapsed ? 'w-[72px]' : 'w-64'} bg-white/95 backdrop-blur-md h-full`} style={{ borderColor: colors.periwinkle }}>
-            <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.periwinkle }}>
-                {!collapsed ? (
-                    <span className="font-bold text-sm truncate text-[#2C3E4E]">{room?.name}</span>
-                ) : (
-                    <span className="font-bold text-sm mx-auto text-[#2C3E4E]">{room?.name?.[0]}</span>
-                )}
-                <button onClick={onToggle} className="hover:opacity-70 text-[#8A9AAA]">
-                    {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-                </button>
-            </div>
+        <>
+            <Modal
+                isOpen={ModalType == 'new' && openModal}
+                onClose={() => onModalToggl('new')}
+                showCloseButton={false}
+            >
+                <NewRoom
+                    bookId={book_id ?? ''}
+                    parentId={activeSubRoom?.id ?? null}
+                    creatorId={user?.id ?? null}
+                    book_cover={room?.book.coverArt ?? ''}
+                    book_name={room?.book.name ?? ''}
+                    book_author={room?.book.author.name ?? ''}
+                    onClose={onModalToggl}
+                    onRoomCreated={() => {
+                        fetchRoom();
+                    }}
+                />
+            </Modal>
 
-            {/* Search - hide when collapsed */}
-            {!collapsed && (
-                <div className="p-2">
-                    <div className="flex items-center gap-1.5 rounded-md px-2 py-1 bg-[#E0E9F0]">
-                        <Search size={13} className="text-[#8A9AAA]" />
-                        <span className="text-xs text-[#8A9AAA]">Search channels</span>
+            <Modal
+                isOpen={ModalType == 'del' && openModal}
+                onClose={() => onModalToggl('del')}
+                showCloseButton={false}
+            >
+                <form>
+                    <div className="flex flex-col items-center text-center pb-4 border-b border-black/10">
+                        <span className="text-4xl mb-2.5"><Logo size='xs' /></span>
+                        <h2 className="text-[17px] font-semibold text-[#1c1c1e] mb-1.5">
+                            Books Discussion Room
+                        </h2>
+                        <p className="text-[13px] text-[#3c3c43]/75 leading-snug">
+                            Join a quiet space for readers to share thoughts, recommendations, and reflections.
+                        </p>
                     </div>
-                </div>
-            )}
-
-            <nav className="flex-1 overflow-y-auto p-2 space-y-2">
-                {/* Text Channels */}
-                {!collapsed && (
-                    <button onClick={() => toggleCat('cat-1')} className="w-full flex items-center gap-1 px-1 py-1.5 text-xs font-bold uppercase tracking-wide text-[#8A9AAA]">
-                        <ChevronDown size={12} className={`transition-transform ${collapsedCats['cat-1'] ? '-rotate-90' : ''}`} />
-                        text channels
-                    </button>
-                )}
-                {!collapsedCats['cat-1'] && room && (
-                    <>
+                    {/* Actions */}
+                    <div className="flex -mx-4 -mb-4 mt-0 border-t border-black/10">
                         <button
-                            onClick={() => handleSelect(room)}
-                            className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === room?.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}
+                            type="button"
+                            onClick={() => onModalToggl('none')}
+                            className="flex-1 py-3.5 text-[17px] font-normal text-[#007aff] border-r border-black/10 hover:bg-black/5 active:bg-black/10 transition-colors"
                         >
-                            <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
-                            <span className="flex-1 truncate text-sm">general</span>
-                            {room?.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
+                            Cancel
                         </button>
-                        {room?.subRooms.filter(s => s.type === 2).map((s) => (
-                            <button key={s.id} onClick={() => handleSelect(s)} className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === s.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}>
-                                <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
-                                <span className="flex-1 truncate text-sm">{s.name}</span>
-                                {s.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
-                            </button>
-                        ))}
-                    </>
-                )}
-
-                {/* Analysis Channels */}
-                {!collapsed && (
-                    <button onClick={() => toggleCat('cat-2')} className="w-full flex items-center gap-1 px-1 py-1.5 text-xs font-bold uppercase tracking-wide text-[#8A9AAA]">
-                        <ChevronDown size={12} className={`transition-transform ${collapsedCats['cat-2'] ? '-rotate-90' : ''}`} />
-                        analysis channels
-                    </button>
-                )}
-                {!collapsedCats['cat-2'] && room?.subRooms.filter(s => s.type === 3).map((s) => (
-                    <button key={s.id} onClick={() => handleSelect(s)} className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === s.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}>
-                        <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
-                        <span className="flex-1 truncate text-sm">{s.name}</span>
-                        {s.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
-                    </button>
-                ))}
-            </nav>
-
-            {/* User profile - responsive */}
-            {!collapsed && (
-                <div className="p-2 border-t flex items-center gap-2 bg-[#C0D4E0]/20 border-[#C0D4E0]">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-[#9CB0C0] text-white">
-                        {user?.profilePhoto ? (
-                            <img src={user.profilePhoto} className='rounded-full w-9 h-9' />
-                        ) : (
-                            getInitials(user?.username || 'P')
-                        )}
+                        <button
+                            type="submit"
+                            className="flex-1 py-3.5 text-[17px] font-semibold text-[#007aff] hover:bg-black/5 active:bg-black/10 transition-colors"
+                        >
+                            Confirm
+                        </button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold truncate text-[#2C3E4E]">{user?.username}</div>
-                        <div className="text-xs text-[#5A6E7E]">Online</div>
-                    </div>
+                </form>
+            </Modal>
+
+            <aside className={`flex flex-col border-r transition-all duration-200 ${collapsed ? 'w-[72px]' : 'w-64'} bg-white/95 backdrop-blur-md h-full`} style={{ borderColor: colors.periwinkle }}>
+                <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.periwinkle }}>
+                    {!collapsed ? (
+                        <span className="font-bold text-sm truncate text-[#2C3E4E]">{room?.name}</span>
+                    ) : (
+                        <span className="font-bold text-sm mx-auto text-[#2C3E4E]">{room?.name?.[0]}</span>
+                    )}
+                    <button onClick={onToggle} className="hover:opacity-70 text-[#8A9AAA]">
+                        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                    </button>
                 </div>
-            )}
-        </aside>
+
+                {/* Search - hide when collapsed */}
+                {!collapsed && (
+                    <div className="p-2">
+                        <div className="flex items-center gap-1.5 rounded-md px-2 py-1 bg-[#E0E9F0]">
+                            <Search size={13} className="text-[#8A9AAA]" />
+                            <span className="text-xs text-[#8A9AAA]">Search channels</span>
+                        </div>
+                    </div>
+                )}
+
+                <nav className="flex-1 overflow-y-auto p-2 space-y-2">
+                    {/* Text Channels */}
+                    {!collapsed && (
+                        <button onClick={() => toggleCat('cat-1')} className="w-full flex items-center gap-1 px-1 py-1.5 text-xs font-bold uppercase tracking-wide text-[#8A9AAA]">
+                            <ChevronDown size={12} className={`transition-transform ${collapsedCats['cat-1'] ? '-rotate-90' : ''}`} />
+                            text channels
+                        </button>
+                    )}
+                    {!collapsedCats['cat-1'] && room && (
+                        <>
+                            <div
+                                onClick={() => handleSelect(room)}
+                                className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === room?.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}
+                            >
+                                <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
+                                <span className="flex-1 truncate text-sm">general</span>
+                                {room?.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
+                            </div>
+                            {
+                                room?.subRooms.filter(s => s.type == 2).map((s, idx) => {
+                                    return (
+                                        <>
+
+                                            {s.creatorId === user?.id &&
+                                                <div>
+                                                    <button className='w-8 h-8'>
+                                                        <Trash size={14} className='bold' />
+                                                    </button>
+
+                                                </div>
+                                            }
+                                            <button key={s.id} onClick={() => handleSelect(s)} className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === s.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}>
+                                                <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
+                                                <span className="flex-1 truncate text-sm">{s.name}</span>
+                                                {s.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
+                                            </button>
+                                        </>
+                                    );
+                                })
+                            }
+                            <button onClick={() => onModalToggl('new')} className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}>
+                                <CircleFadingPlus size={16} className="flex-shrink-0 text-[#8A9AAA] text-xs font-bold" />
+                                <span className="flex-1 truncate text-xs font-bold">Add New Channel</span>
+                            </button>
+                        </>
+                    )}
+
+                    {/* Analysis Channels */}
+                    {!collapsed && (
+                        <button onClick={() => toggleCat('cat-2')} className="w-full flex items-center gap-1 px-1 py-1.5 text-xs font-bold uppercase tracking-wide text-[#8A9AAA]">
+                            <ChevronDown size={12} className={`transition-transform ${collapsedCats['cat-2'] ? '-rotate-90' : ''}`} />
+                            analysis channels
+                        </button>
+                    )}
+                    {!collapsedCats['cat-2'] && room?.subRooms.filter(s => s.type === 3).map((s) => (
+                        <button key={s.id} onClick={() => handleSelect(s)} className={`w-full flex items-center gap-2 px-2 py-1 rounded-md text-left transition-all pl-5 ${activeSubRoom?.id === s.id ? 'bg-[#C0D4E0]/20 text-[#2C3E4E]' : 'text-[#5A6E7E] hover:bg-[#C0D4E0]/10'}`}>
+                            <Hash size={12} className="flex-shrink-0 text-[#8A9AAA]" />
+                            <span className="flex-1 truncate text-sm">{s.name}</span>
+                            {s.id === room_id && <div className="w-1.5 h-1.5 rounded-full bg-[#9CB0C0]" />}
+                        </button>
+                    ))}
+                </nav>
+
+                {/* User profile - responsive */}
+                {!collapsed && (
+                    <div className="p-2 border-t flex items-center gap-2 bg-[#C0D4E0]/20 border-[#C0D4E0]">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-[#9CB0C0] text-white">
+                            {user?.profilePhoto ? (
+                                <img src={user.profilePhoto} className='rounded-full w-9 h-9' />
+                            ) : (
+                                getInitials(user?.username || 'P')
+                            )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm font-semibold truncate text-[#2C3E4E]">{user?.username}</div>
+                            <div className="text-xs text-[#5A6E7E]">Online</div>
+                        </div>
+                    </div>
+                )}
+            </aside >
+        </>
+
     );
 };
 
@@ -687,7 +794,7 @@ const CommentThread: React.FC<{ comment: Comment, onLike: any, onDislike: any, o
                 {
                     // type 3 -> analysis channels, system comments only over here
                     (roomType == 3) && (
-                        <div  dangerouslySetInnerHTML={{ __html: comment?.content}}  />
+                        <div dangerouslySetInnerHTML={{ __html: comment?.content }} />
                     )
                 }
 

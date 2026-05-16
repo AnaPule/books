@@ -38,6 +38,7 @@ export interface Room{
     bookId: string;
     deleted: Boolean;
     parentId: String;
+    creatorId: String;
     members?: number;
     comments?: Comment[];
     quietRoom?: Comment[];

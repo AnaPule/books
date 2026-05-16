@@ -47,8 +47,6 @@ const Sidebar = () => {
         { icon: Home, label: 'Home', element: '/books' },
         { icon: Search, label: 'Browse', element: '/discovery' },
         { icon: MessageSquareDot, label: 'Discussion Hub', element: '/hub' },
-        { icon: Clock, label: 'History', element: '/history' },
-        { icon: Bookmark, label: 'Library', element: '/library' },
         { icon: Heart, label: 'Favorites', element: '/wishlist' },
         { icon: Bell, label: 'Notifications', element: '/notifications' },
     ];

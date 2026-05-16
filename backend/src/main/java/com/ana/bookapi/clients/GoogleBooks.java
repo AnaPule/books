@@ -16,7 +16,7 @@ import java.util.List;
 
 @Component
 public class GoogleBooks {
-    @Value("${google.api.key}")
+    @Value("${google_api_key}")
     private String googleApiKey;
     private OpenLibrary openLibrary;
     private final MongoTemplate mongoTemplate;

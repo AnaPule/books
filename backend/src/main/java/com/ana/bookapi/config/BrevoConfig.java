@@ -9,10 +9,10 @@ import java.util.Properties;
 
 @Configuration
 public class BrevoConfig {
-    @Value("${brevo-host}") private String host;
-    @Value("${brevo-port}") private int port;
-    @Value("${brevo-username}") private String username;
-    @Value("${brevo-password}") private String password;
+    @Value("${brevo_host}") private String host;
+    @Value("${brevo_port}") private int port;
+    @Value("${brevo_username}") private String username;
+    @Value("${brevo_password}") private String password;
 
     @Bean
     public JavaMailSenderImpl BrevoConfig() {
